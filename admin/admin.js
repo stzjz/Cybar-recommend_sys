@@ -232,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure elements exist before adding listeners or loading data
     const recipeListContainer = document.getElementById('admin-recipe-list');
     const statsContainer = document.getElementById('admin-stats');
+    const refreshButton = document.getElementById('refresh-admin-data-btn'); // Get refresh button
 
     if (statsContainer) {
         loadStats();
@@ -254,6 +255,27 @@ document.addEventListener('DOMContentLoaded', () => {
          console.error("Recipe list container 'admin-recipe-list' not found.");
          const msgElement = document.getElementById('admin-message');
          if(msgElement) msgElement.textContent = "无法加载配方列表容器。";
+    }
+
+    // --- Add Event Listener for Refresh Button ---
+    if (refreshButton) {
+        refreshButton.addEventListener('click', () => {
+            console.log("Refresh button clicked.");
+            // Show loading indicators while refreshing
+            const statsMsg = document.getElementById('admin-stats');
+            const recipeMsg = document.getElementById('admin-message');
+            const recipeTbody = document.getElementById('admin-recipe-list');
+
+            if(statsMsg) statsMsg.textContent = '正在刷新统计...';
+            if(recipeMsg) recipeMsg.textContent = '正在刷新配方...';
+            if(recipeTbody) recipeTbody.innerHTML = '<tr><td colspan="3">正在刷新...</td></tr>'; // Clear table body
+
+            // Call functions to reload data
+            loadStats();
+            loadRecipesForAdmin();
+        });
+    } else {
+        console.error("Refresh button 'refresh-admin-data-btn' not found.");
     }
 });
 
