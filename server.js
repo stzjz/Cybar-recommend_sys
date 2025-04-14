@@ -4,7 +4,7 @@ const fs = require('fs').promises; // Use promises version of fs
 const session = require('express-session'); // Import express-session
 
 const app = express();
-const port = 3000;
+const port = 8080; // Change port number to 8080
 
 // --- Visit Counter (In-Memory - Resets on server restart) ---
 // Use an object to store counts per path
@@ -19,6 +19,7 @@ const pageVisitCounts = {
 
 const USERS_FILE = path.join(__dirname, 'users.json');
 const RECIPES_FILE = path.join(__dirname, 'recipes.json');
+const COMMENTS_FILE = path.join(__dirname, 'comments.json'); // Define comments file path
 
 // Middleware
 // Middleware to count page loads (HTML requests)
@@ -77,6 +78,33 @@ const writeUsers = async (users) => {
     }
 };
 
+// --- Helper function to read comments ---
+const readComments = async () => {
+    try {
+        let data = await fs.readFile(COMMENTS_FILE, 'utf8');
+        if (data.charCodeAt(0) === 0xFEFF) { data = data.slice(1); }
+        // Comments stored as an object: { "recipeId": [ { comment }, ... ], ... }
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            console.log("comments.json not found, returning empty object.");
+            return {}; // Return empty object if file doesn't exist
+        }
+        console.error("Error reading or parsing comments file:", error);
+        throw error;
+    }
+};
+
+// --- Helper function to write comments ---
+const writeComments = async (comments) => {
+    try {
+        await fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 2), 'utf8');
+    } catch (error) {
+        console.error("Error writing comments file:", error);
+        throw error;
+    }
+};
+
 // Authentication Middleware
 const isAuthenticated = (req, res, next) => {
     if (req.session.userId) {
@@ -98,12 +126,65 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
+// --- Admin Check Middleware ---
+const isAdmin = (req, res, next) => {
+    // Must be authenticated first
+    if (!req.session.userId) {
+        // For API requests, send 401 Unauthorized status and JSON error
+        if (req.accepts('json') || req.path.startsWith('/api/')) {
+             console.log(`Authentication required for admin resource: ${req.method} ${req.originalUrl}`);
+             return res.status(401).json({ message: 'Authentication required.' });
+        } else {
+            // For non-API requests (page access), redirect to login
+             console.log(`Redirecting unauthenticated admin page request to login: ${req.method} ${req.originalUrl}`);
+             return res.redirect('/auth/login/'); // Redirect to login if not authenticated at all
+        }
+    }
+
+    // Check if the role stored in session is 'admin'
+    if (req.session.role !== 'admin') {
+        console.log(`Forbidden: User ${req.session.username} (role: ${req.session.role}) tried to access admin resource: ${req.method} ${req.originalUrl}`);
+        // For API requests, send 403 Forbidden JSON
+        if (req.accepts('json') || req.path.startsWith('/api/')) {
+            return res.status(403).json({ message: 'Forbidden: Administrator access required.' });
+        } else {
+            // For page requests, send HTML with an alert and redirect
+            res.status(403).send(`
+                <!DOCTYPE html>
+                <html lang="zh-cn">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>访问受限</title>
+                    <link rel="stylesheet" href="/style.css"> <!-- Optional: Link to your stylesheet -->
+                    <style>
+                        body { display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; }
+                        .message-box { padding: 20px; background-color: #2a2a2a; border: 1px solid #444; border-radius: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="message-box">
+                        <p>正在处理...</p>
+                    </div>
+                    <script>
+                        alert('仅管理员可用！');
+                        window.location.href = '/'; // Redirect to homepage
+                    </script>
+                </body>
+                </html>
+            `);
+            return; // Stop further processing
+        }
+    }
+    // User is admin, proceed
+    next();
+};
+
 // --- Routes ---
 
 // API Route to get current authentication status
 app.get('/api/auth/status', (req, res) => {
     if (req.session.userId) {
-        res.json({ loggedIn: true, username: req.session.username });
+        res.json({ loggedIn: true, username: req.session.username, role: req.session.role });
     } else {
         res.json({ loggedIn: false });
     }
@@ -172,12 +253,14 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ message: '用户名或密码错误' });
         }
 
-        // Store user ID in session
+        // Store user ID, username, AND role in session
         req.session.userId = user.id;
-        req.session.username = user.username; // Optional: store username for display
+        req.session.username = user.username;
+        req.session.role = user.role || 'user'; // Assign role, default to 'user' if missing
 
         res.status(200).json({ message: '登录成功' });
     } catch (error) {
+        console.error("Login error:", error); // Log login errors
         res.status(500).json({ message: '服务器错误' });
     }
 });
@@ -200,14 +283,14 @@ app.get('/add/', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'add', 'index.html')); // Assuming add page is index.html
 });
 
-app.get('/admin/', isAuthenticated, (req, res) => {
+app.get('/admin/', isAuthenticated, isAdmin, (req, res) => { // Add isAdmin middleware
     res.sendFile(path.join(__dirname, 'admin', 'index.html')); // Assuming admin page is index.html
 });
 
 // --- New Admin API Routes (Protected) ---
 
 // API to DELETE a recipe
-app.delete('/api/recipes/:id', isAuthenticated, async (req, res) => {
+app.delete('/api/recipes/:id', isAuthenticated, isAdmin, async (req, res) => { // Add isAdmin middleware
     const recipeIdToDelete = req.params.id;
     try {
         let recipes = [];
@@ -243,7 +326,7 @@ app.delete('/api/recipes/:id', isAuthenticated, async (req, res) => {
 });
 
 // API to get admin statistics
-app.get('/api/admin/stats', isAuthenticated, (req, res) => {
+app.get('/api/admin/stats', isAuthenticated, isAdmin, (req, res) => { // Add isAdmin middleware
     // Return the visit counts object along with other stats
     const stats = {
         totalRecipes: 0,
@@ -263,6 +346,47 @@ app.get('/api/admin/stats', isAuthenticated, (req, res) => {
         // Still send stats, including potentially incomplete visit counts
         res.json(stats);
     });
+});
+
+// --- New API Route to DELETE a comment (Admin only) ---
+app.delete('/api/comments/:commentId', isAuthenticated, isAdmin, async (req, res) => {
+    const commentIdToDelete = req.params.commentId;
+    try {
+        const allComments = await readComments();
+        let commentFound = false;
+        let recipeIdOfComment = null;
+
+        // Iterate through all recipes' comments to find the comment by ID
+        for (const recipeId in allComments) {
+            const commentsForRecipe = allComments[recipeId];
+            const initialLength = commentsForRecipe.length;
+            // Filter out the comment to delete
+            allComments[recipeId] = commentsForRecipe.filter(comment => comment.id !== commentIdToDelete);
+            // Check if a comment was removed
+            if (allComments[recipeId].length < initialLength) {
+                commentFound = true;
+                recipeIdOfComment = recipeId;
+                // If the recipe now has no comments, remove the recipe key (optional cleanup)
+                if (allComments[recipeId].length === 0) {
+                    delete allComments[recipeId];
+                }
+                break; // Stop searching once found and removed
+            }
+        }
+
+        if (!commentFound) {
+            return res.status(404).json({ message: '未找到要删除的评论' });
+        }
+
+        // Write the updated comments object back to the file
+        await writeComments(allComments);
+        console.log(`Admin ${req.session.username} deleted comment ${commentIdToDelete} from recipe ${recipeIdOfComment}`);
+        res.status(200).json({ message: '评论删除成功' }); // Or 204 No Content
+
+    } catch (error) {
+        console.error(`Error deleting comment ${commentIdToDelete}:`, error);
+        res.status(500).json({ message: '删除评论时出错' });
+    }
 });
 
 // --- Existing Routes (Example - adapt as needed) ---
@@ -325,6 +449,54 @@ app.get('/api/recipes/:id', async (req, res) => {
     }
 });
 
+// --- API Route to get comments for a recipe ---
+app.get('/api/recipes/:id/comments', async (req, res) => {
+    const recipeId = req.params.id;
+    try {
+        const allComments = await readComments();
+        const recipeComments = allComments[recipeId] || []; // Get comments for this recipe or empty array
+        res.json(recipeComments);
+    } catch (error) {
+        res.status(500).json({ message: '无法加载评论' });
+    }
+});
+
+// --- API Route to add a comment to a recipe (Protected) ---
+app.post('/api/recipes/:id/comments', isAuthenticated, async (req, res) => {
+    const recipeId = req.params.id;
+    const { commentText } = req.body;
+    const username = req.session.username; // Get username from session
+    const userId = req.session.userId;     // Get userId from session
+
+    if (!commentText || commentText.trim() === '') {
+        return res.status(400).json({ message: '评论内容不能为空' });
+    }
+
+    try {
+        const allComments = await readComments();
+        if (!allComments[recipeId]) {
+            allComments[recipeId] = []; // Initialize array if no comments yet for this recipe
+        }
+
+        const newComment = {
+            id: Date.now().toString(), // Simple unique ID
+            userId: userId,
+            username: username,
+            text: commentText.trim(),
+            timestamp: new Date().toISOString() // Store timestamp in ISO format
+        };
+
+        allComments[recipeId].push(newComment); // Add the new comment
+        await writeComments(allComments); // Save updated comments
+
+        res.status(201).json(newComment); // Return the newly created comment
+
+    } catch (error) {
+        console.error(`Error adding comment for recipe ${recipeId}:`, error);
+        res.status(500).json({ message: '无法添加评论' });
+    }
+});
+
 // API to add recipes (now protected)
 app.post('/api/recipes', isAuthenticated, async (req, res) => {
     // ... (Keep your existing logic for adding recipes)
@@ -363,5 +535,5 @@ app.get('/', (req, res) => {
 
 // Start server
 app.listen(port, () => {
-    console.log(`Cybar server listening at http://localhost:${port}`);
+    console.log(`Server listening at http://localhost:${port}`); // Update console log message
 });

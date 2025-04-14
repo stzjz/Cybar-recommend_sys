@@ -19,18 +19,20 @@
 
     <nav id="main-menu">
         <h2>主菜单</h2>
-        <!-- Add spans for icons -->
-        <a href="recipes/" class="menu-link main-function">
-            <span class="icon">🍹</span> 查看配方
-        </a>
-        <a href="calculator/" class="menu-link main-function">
-            <span class="icon">🧪</span> 计算酒精度
-        </a>
-        <!-- Corrected link to point to the add directory -->
-        <a href="add/" class="menu-link admin-link">
-            <span class="icon">➕</span> 添加新配方
-        </a>
-        <a href="admin/" class="menu-link admin-link">后台管理</a>
+        <div class="main-menu-items"> <!-- Add a wrapper for main items -->
+            <a href="recipes/" class="menu-link main-function">
+                <span class="icon">🍹</span> 查看配方
+            </a>
+            <!-- Add specific class 'calculator-link' -->
+            <a href="calculator/" class="menu-link main-function calculator-link">
+                <span class="icon">🧪</span> 计算酒精度
+            </a>
+            <a href="add/" class="menu-link admin-link"> <!-- Keep add recipe link here for now, or move if desired -->
+                <span class="icon">➕</span> 添加新配方
+            </a>
+        </div>
+        <!-- Move Admin link outside the main group -->
+        <a href="admin/" class="menu-link admin-link admin-corner-link">后台管理</a>
     </nav>
 
     <main id="content-area">

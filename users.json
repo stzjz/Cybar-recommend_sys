@@ -2,7 +2,8 @@
   {
     "id": "initial_user_1",
     "username": "252",
-    "password": "252"
+    "password": "252",
+    "role": "admin"
   },
   {
     "id": "1744619758182",
@@ -28,5 +29,20 @@
     "id": "1744626547896",
     "username": "123",
     "password": "123123"
+  },
+  {
+    "id": "1744626943058",
+    "username": "afds",
+    "password": "sefd"
+  },
+  {
+    "id": "1744630801678",
+    "username": "dddd",
+    "password": "dddd"
+  },
+  {
+    "id": "1744632679786",
+    "username": "suosuo",
+    "password": "cybar666888"
   }
 ]

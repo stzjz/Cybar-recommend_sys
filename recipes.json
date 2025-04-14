@@ -41,60 +41,6 @@
     "estimatedAbv": 10
   },
   {
-    "name": "我就玩玩2",
-    "instructions": "111",
-    "ingredients": [
-      {
-        "name": "医用酒精",
-        "volume": 20,
-        "abv": 98
-      },
-      {
-        "name": "伏特加",
-        "volume": 40,
-        "abv": 40
-      }
-    ],
-    "estimatedAbv": 59.3,
-    "id": "1744624669294"
-  },
-  {
-    "name": "1",
-    "instructions": "1",
-    "ingredients": [
-      {
-        "name": "1",
-        "volume": 1,
-        "abv": 1
-      },
-      {
-        "name": "11",
-        "volume": 1,
-        "abv": 1
-      },
-      {
-        "name": "1",
-        "volume": 1,
-        "abv": 1
-      }
-    ],
-    "estimatedAbv": 1,
-    "id": "1744625003689"
-  },
-  {
-    "name": "你说的对",
-    "instructions": "但是",
-    "ingredients": [
-      {
-        "name": "鸡尾酒是一款",
-        "volume": 252,
-        "abv": 1
-      }
-    ],
-    "estimatedAbv": 1,
-    "id": "1744625101548"
-  },
-  {
     "name": "新的生命",
     "instructions": "直接把整瓶生命之水对瓶吹",
     "ingredients": [
@@ -106,5 +52,28 @@
     ],
     "estimatedAbv": 96,
     "id": "1744625138526"
+  },
+  {
+    "name": "柠檬树下柠檬果",
+    "instructions": "先放柠檬汁，再放古巴哈瓦那，再放柠檬片",
+    "ingredients": [
+      {
+        "name": "柠檬汁",
+        "volume": 20,
+        "abv": 0
+      },
+      {
+        "name": "哈瓦那",
+        "volume": 40,
+        "abv": 40
+      },
+      {
+        "name": "汤力水",
+        "volume": 100,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 10,
+    "id": "1744628113626"
   }
 ]

@@ -1,15 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
-    const errorMessage = document.getElementById('error-message');
-    const message = document.getElementById('message');
+    const loginMessageDiv = document.getElementById('login-message'); // Assumed ID for login messages
+    const registerMessageDiv = document.getElementById('register-message'); // Assumed ID for register messages
 
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (loginMessageDiv) {
+                loginMessageDiv.textContent = ''; // Clear previous messages
+                loginMessageDiv.style.display = 'none';
+            }
             const username = loginForm.username.value;
             const password = loginForm.password.value;
-            errorMessage.textContent = ''; // Clear previous errors
 
             try {
                 const response = await fetch('/api/login', {
@@ -23,14 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Redirect to home or dashboard after successful login
                     window.location.href = '/';
                 } else {
-                    errorMessage.textContent = result.message || '登录失败';
+                    if (loginMessageDiv) {
+                        loginMessageDiv.textContent = result.message || '登录失败';
+                        loginMessageDiv.style.display = 'block';
+                    }
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                errorMessage.textContent = '发生错误，请稍后重试';
+                if (loginMessageDiv) {
+                    loginMessageDiv.textContent = '发生错误，请稍后重试';
+                    loginMessageDiv.style.display = 'block';
+                }
             }
         });
     }
@@ -38,10 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (registerMessageDiv) {
+                registerMessageDiv.textContent = ''; // Clear previous messages
+                registerMessageDiv.style.display = 'none';
+            }
             const username = registerForm.username.value;
             const password = registerForm.password.value;
-            message.textContent = ''; // Clear previous messages
-            message.style.color = 'inherit';
 
             try {
                 const response = await fetch('/api/register', {
@@ -55,19 +65,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok) {
-                    message.textContent = '注册成功！正在跳转到登录页面...';
-                    message.style.color = 'green';
+                    if (registerMessageDiv) {
+                        registerMessageDiv.textContent = '注册成功！正在跳转到登录页面...';
+                        registerMessageDiv.style.color = 'green';
+                        registerMessageDiv.style.display = 'block';
+                    }
                     setTimeout(() => {
                         window.location.href = '/auth/login/';
                     }, 2000);
                 } else {
-                    message.textContent = result.message || '注册失败';
-                    message.style.color = 'red';
+                    if (registerMessageDiv) {
+                        registerMessageDiv.textContent = result.message || '注册失败';
+                        registerMessageDiv.style.color = 'red';
+                        registerMessageDiv.style.display = 'block';
+                    }
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                message.textContent = '发生错误，请稍后重试';
-                message.style.color = 'red';
+                if (registerMessageDiv) {
+                    registerMessageDiv.textContent = '发生错误，请稍后重试';
+                    registerMessageDiv.style.color = 'red';
+                    registerMessageDiv.style.display = 'block';
+                }
             }
         });
     }

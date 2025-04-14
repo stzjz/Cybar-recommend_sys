@@ -223,6 +223,11 @@ button:hover,
     text-align: center;
     max-width: 450px; /* Slightly wider */
     border: 1px solid rgba(0, 229, 255, 0.3); /* Subtle cyan border */
+    position: relative; /* Needed for absolute positioning of the admin link */
+    padding-bottom: 60px; /* Add padding at the bottom to make space for the corner link */
+    display: flex; /* Use flexbox for overall structure */
+    flex-direction: column; /* Stack title, items, and corner link vertically */
+    align-items: center; /* Center items horizontally */
 }
 #main-menu h2 {
     font-family: 'Orbitron', sans-serif;
@@ -234,7 +239,16 @@ button:hover,
     border-bottom: 1px solid rgba(0, 229, 255, 0.5);
     padding-bottom: 12px;
     letter-spacing: 1.5px;
+    width: 100%; /* Ensure title takes full width */
+    text-align: center;
 }
+.main-menu-items {
+    width: 100%; /* Allow wrapper to take full width */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center menu items */
+}
+
 .menu-link {
     font-family: 'Electrolize', sans-serif; /* Apply body font to menu links */
     display: block; /* Ensure vertical stacking */
@@ -264,6 +278,15 @@ button:hover,
     align-items: center; /* Center items vertically */
     justify-content: center; /* Center items horizontally */
 }
+
+/* Reduce font size for the calculator link */
+.calculator-link {
+    font-size: 1.12em; /* 1.4em * 0.8 = 1.12em */
+    white-space: nowrap; /* Prevent text wrapping */
+    /* Adjust padding if needed to maintain visual balance */
+    /* padding: 22px 30px; */
+}
+
 .menu-link .icon {
     display: inline-block;
     margin-right: 15px; /* Space between icon and text */
@@ -278,6 +301,46 @@ button:hover,
     border-color: #ff4081; /* Accent Pink on hover */
     box-shadow: 0 0 12px rgba(0, 229, 255, 0.6), 0 0 6px rgba(255, 64, 129, 0.4); /* Glow effect */
     transform: translateY(-3px); /* More lift */
+}
+
+/* Admin Link Styles */
+.admin-link {
+    /* Inherit base .menu-link styles */
+    display: none; /* Hide admin links by default */
+}
+
+/* Show "Add Recipe" link if body has 'logged-in' class */
+/* This targets the link inside .main-menu-items */
+body.logged-in .main-menu-items .admin-link {
+    display: flex; /* Or block, depending on its desired layout */
+}
+
+/* Keep the corner admin link hidden by default */
+.admin-corner-link {
+    position: absolute; /* Position relative to #main-menu */
+    bottom: 15px; /* Distance from bottom */
+    left: 15px; /* Distance from left */
+    padding: 8px 15px; /* Smaller padding */
+    font-size: 0.9em; /* Smaller font size */
+    width: auto; /* Auto width */
+    max-width: none; /* Remove max-width */
+    margin: 0; /* Reset margin */
+    background: linear-gradient(45deg, #6a1b9a, #ab47bc); /* Purple gradient */
+    border-color: #ab47bc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.5px;
+    /* Ensure it's hidden by default and shown only for admins */
+    display: none;
+}
+body.is-admin .admin-corner-link {
+    display: inline-block; /* Show for admins */
+}
+
+.admin-corner-link:hover {
+    background: linear-gradient(45deg, #7b1fa2, #ba68c8);
+    border-color: #ce93d8;
+    box-shadow: 0 4px 8px rgba(171, 71, 188, 0.5);
+    transform: translateY(-1px); /* Subtle lift */
 }
 
 /* Back Link Styles (Already Dark Theme) */
@@ -298,24 +361,6 @@ button:hover,
     background-color: #12121f; /* Dark background on hover */
     color: #00e5ff; /* Cyan text on hover */
     box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-}
-
-/* Admin Link Styles (Adjust for consistency) */
-.admin-link {
-    /* background-color: #d9534f; */ /* Remove specific background */
-    border-color: #ff4081; /* Keep pink border */
-    /* Inherit base .menu-link styles */
-    font-size: 1.1em;
-    padding: 15px 25px;
-}
-.admin-link:hover {
-    /* background-color: #c9302c; */ /* Remove specific background hover */
-    border-color: #00e5ff; /* Cyan border on hover */
-    box-shadow: 0 0 12px rgba(255, 64, 129, 0.6), 0 0 6px rgba(0, 229, 255, 0.4);
-    /* Inherit base .menu-link hover styles */
-    background-color: #164a8a;
-    color: #ffffff;
-    transform: translateY(-3px);
 }
 
 /* Message Area Styles (Already Dark Theme) */
@@ -678,6 +723,131 @@ footer p {
     line-height: 1.4; /* Adjust line height for the two lines */
 }
 
+/* --- Comments Section Styles --- */
+#comments-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 229, 255, 0.3); /* Separator */
+}
+
+#comments-section h3 {
+    /* Inherits general h3 styles */
+    margin-bottom: 20px;
+}
+
+#comments-list .comment {
+    background-color: rgba(10, 30, 70, 0.5); /* Dark background for comments */
+    border: 1px solid rgba(15, 52, 96, 0.8);
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+#comments-list .comment-meta {
+    font-size: 0.9em;
+    color: #a8c0ff; /* Lighter blue for meta */
+    margin-bottom: 5px;
+}
+
+#comments-list .comment-meta strong {
+    color: #e0e0e0; /* Brighter username */
+}
+
+#comments-list .comment-meta span {
+    font-style: italic;
+    color: #8899bb; /* Dimmer timestamp */
+}
+
+#comments-list .comment-text {
+    margin: 0;
+    color: #d0d0d0; /* Main comment text color */
+    white-space: pre-wrap; /* Preserve line breaks */
+    word-wrap: break-word;
+}
+
+/* Comment Form Styles */
+.comment-form {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: rgba(15, 22, 46, 0.9); /* Match section background */
+    border-radius: 8px;
+    border: 1px solid rgba(0, 229, 255, 0.25);
+}
+
+.comment-form h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #a8c0ff;
+}
+
+.comment-form textarea {
+    /* Inherits general textarea styles */
+    min-height: 80px;
+}
+
+.comment-form button {
+    /* Inherits general button styles */
+    display: inline-block; /* Allow inline display */
+    width: auto;
+    max-width: none;
+    margin: 10px 0 0 0; /* Adjust margin */
+}
+
+/* Hide comment form and show login prompt for logged-out users */
+body.logged-out #comment-form {
+    display: none;
+}
+body.logged-out #login-prompt {
+    display: block; /* Show prompt */
+    margin-top: 20px;
+    color: #a8c0ff;
+}
+body.logged-out #login-prompt a {
+    color: #64b5f6;
+    font-weight: bold;
+}
+
+/* Ensure form is visible for logged-in users (default state or override) */
+body.logged-in #comment-form {
+    display: block;
+}
+body.logged-in #login-prompt {
+    display: none;
+}
+
+#comments-list .comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+#comments-list .comment-meta {
+    margin-bottom: 0; /* Remove bottom margin as it's handled by header */
+}
+
+.delete-comment-btn {
+    background: none;
+    border: none;
+    color: #ff4081; /* Pink/Red color */
+    font-size: 1.5em; /* Make it larger */
+    line-height: 1;
+    padding: 0 5px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.delete-comment-btn:hover {
+    opacity: 1;
+    color: #ff1744; /* Brighter red on hover */
+}
+
+.delete-comment-btn:disabled {
+    color: #666;
+    cursor: not-allowed;
+}
+
 /* --- Media Queries --- */
 /* Medium screens */
 @media (min-width: 768px) { /* Adjusted breakpoint */
@@ -830,6 +1000,10 @@ footer p {
         justify-content: flex-end; /* Align buttons to the right on larger screens */
     }
 
+    /* Ensure corner link stays in corner */
+    .admin-corner-link {
+        /* Styles should remain absolute positioned */
+    }
 }
 
 /* Large screens */
