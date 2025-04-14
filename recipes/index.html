@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鸡尾酒配方 - Cybar</title> <!-- Updated Title -->
+    <link rel="stylesheet" href="../style.css">
+    <!-- Updated Google Fonts link -->
+    <link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>鸡尾酒配方</h1>
+        <div id="user-status">
+            <!-- Status will be loaded here by global.js -->
+            <a href="/auth/login/">登录</a> | <a href="/auth/register/">注册</a>
+        </div>
+    </header>
+
+    <nav>
+        <a href="../" class="back-link">返回主菜单</a>
+    </nav>
+
+    <main>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="load-recipes-btn">加载所有配方</button>
+        </div>
+        <section id="recipes-list">
+            <h2>经典配方</h2>
+            <!-- 配方将由 JavaScript 动态加载到这里 -->
+            <div id="recipes-container" style="display: none;"> <!-- Container for recipes, initially hidden -->
+                <!-- Recipe articles will be added here -->
+            </div>
+            <div id="loading-message">点击按钮加载配方。</div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Cybar<br>made by 252</p>
+    </footer>
+
+    <!-- 引用新的 JS 文件 -->
+    <script src="recipes.js"></script>
+    <script src="/js/global.js"></script> <!-- Add global script -->
+</body>
+</html>

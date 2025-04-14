@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配方详情</title>
+    <link rel="stylesheet" href="/style.css"> <!-- Link to global styles -->
+    <!-- Add specific styles if needed -->
+    <style>
+        .recipe-stats { margin: 15px 0; color: #aaa; font-size: 0.9em; }
+        .recipe-stats span { margin-right: 15px; }
+        /* Removed like-button and login-to-like styles */
+    </style>
+</head>
+<body>
+    <header>
+        <h1><a href="/">Cybar</a></h1>
+        <div id="user-status">
+            <!-- Status loaded by global.js -->
+        </div>
+    </header>
+    <main>
+        <section id="recipe-detail">
+            <h2 id="recipe-name">正在加载...</h2>
+            <!-- Recipe Stats Display - REMOVED like count and button -->
+            <div class="recipe-stats">
+                <span id="visit-count">访问: N/A</span>
+                <!-- Removed like count span -->
+                <!-- Removed like button -->
+                <!-- Removed login-to-like span -->
+            </div>
+
+            <h3>成分:</h3>
+            <ul id="ingredients-list">
+                <li>正在加载...</li>
+            </ul>
+            <h3>说明:</h3>
+            <p id="instructions">正在加载...</p>
+            <h3>预估酒精度:</h3>
+            <p id="estimated-abv">正在加载...</p>
+        </section>
+
+        <!-- Comments Section -->
+        <section id="comments-section">
+            <!-- ... existing comments section ... -->
+        </section>
+
+        <a href="/recipes/" class="back-link">返回列表</a>
+    </main>
+    <footer>
+        <p>&copy; 2025 Cybar<br>made by 252</p>
+    </footer>
+    <script src="/js/global.js"></script>
+    <script src="recipe.js"></script>
+</body>
+</html>

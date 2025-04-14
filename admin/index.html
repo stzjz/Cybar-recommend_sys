@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - Cybar</title>
+    <link rel="stylesheet" href="/style.css"> <!-- Link to global styles -->
+    <!-- Add specific admin styles if needed -->
+    <link rel="stylesheet" href="admin.css">
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>后台管理</h1>
+        <div id="user-status">
+            <!-- Status loaded by global.js -->
+            <a href="/auth/login/">登录</a> | <a href="/auth/register/">注册</a>
+        </div>
+    </header>
+
+    <nav>
+        <a href="/" class="back-link">返回主菜单</a>
+    </nav>
+
+    <main>
+        <section id="admin-dashboard">
+            <h2>
+                仪表盘
+                <button id="refresh-admin-data-btn" class="refresh-btn" title="刷新数据">🔄</button> <!-- Add Refresh Button -->
+            </h2>
+
+            <!-- Statistics Section -->
+            <div class="admin-section" id="stats-section">
+                <h3>统计数据</h3>
+                <div id="admin-stats">加载中...</div> <!-- General stats loading/error message -->
+                <ul>
+                    <li>总配方数: <span id="stat-total-recipes">N/A</span></li>
+                    <li>总用户数: <span id="stat-total-users">N/A</span></li>
+                </ul>
+
+                <!-- Specific Page Visits Chart -->
+                <h4>主要页面访问统计</h4>
+                <div class="chart-container" style="position: relative; height:40vh; width:80vw; max-width: 600px; margin: 20px auto;">
+                    <canvas id="specificPageVisitsChart"></canvas>
+                </div>
+
+                <!-- REMOVED Page Visits Table -->
+                <!--
+                <h4>页面访问统计</h4>
+                <div class="table-container">
+                    <table id="page-visits-table">
+                        <thead>
+                            <tr>
+                                <th>页面路径</th>
+                                <th>访问次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated by JS -->
+                            <tr><td colspan="2">正在加载...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                -->
+
+                <!-- REMOVED Top Visited Recipes Table -->
+                <!--
+                <h4 style="margin-top: 30px;">访问最多的配方 Top 3</h4>
+                <div class="table-container">
+                    <table id="top-visited-table">
+                        <thead>
+                            <tr>
+                                <th>配方名称</th>
+                                <th>访问次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated by JS -->
+                             <tr><td colspan="2">正在加载...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                -->
+
+                <!-- REMOVED Chart Containers -->
+                <!--
+                <div class="chart-container" style="position: relative; height:40vh; width:80vw; max-width: 600px; margin: 20px auto;">
+                     <canvas id="pageVisitsChart"></canvas>
+                </div>
+                <div class="chart-container" style="position: relative; height:30vh; width:80vw; max-width: 500px; margin: 30px auto;">
+                     <canvas id="topVisitedChart"></canvas>
+                </div>
+                -->
+            </div>
+
+            <!-- Recipe Management Section -->
+            <div class="admin-section" id="recipes-management-section">
+                <h3>配方管理</h3>
+                <p id="admin-message" class="message"></p> <!-- Status/Error messages -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名称</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-recipe-list">
+                            <!-- Recipe rows will be loaded here by admin.js -->
+                            <tr><td colspan="3">正在加载配方...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- User Management Section -->
+            <div class="admin-section" id="users-management-section">
+                <h3>用户管理</h3>
+                <p id="admin-user-message" class="message"></p> <!-- Status/Error messages for users -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>用户 ID</th>
+                                <th>用户名</th>
+                                <th>角色</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-user-list">
+                            <!-- User rows will be loaded here by admin.js -->
+                            <tr><td colspan="4">正在加载用户...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- User Action Modal (Hidden by default) -->
+        <div id="user-action-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal-btn">&times;</span>
+                <h4 id="modal-username">管理用户</h4>
+                <input type="hidden" id="modal-user-id"> <!-- Store user ID -->
+
+                <div class="form-group">
+                    <label for="modal-role-select">修改角色:</label>
+                    <select id="modal-role-select">
+                        <option value="user">user</option>
+                        <option value="admin">admin</option>
+                    </select>
+                    <button id="modal-save-role-btn" class="modal-button save">保存角色</button>
+                </div>
+
+                <hr>
+
+                <div class="form-group">
+                    <label>删除用户:</label>
+                    <button id="modal-delete-user-btn" class="modal-button delete">删除此用户</button>
+                    <p style="font-size: 0.8em; color: #ffcdd2;">此操作不可撤销！</p>
+                </div>
+                 <p id="modal-message" class="message" style="display: none;"></p>
+            </div>
+        </div>
+        <div id="modal-overlay" class="overlay"></div> <!-- Modal Overlay -->
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Cybar<br>made by 252</p>
+    </footer>
+
+    <script src="/js/global.js"></script> <!-- Global script for user status -->
+    <script src="admin.js"></script>    <!-- Specific script for admin page -->
+</body>
+</html>

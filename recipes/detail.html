@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配方详情 - Cybar</title>
+    <link rel="stylesheet" href="../style.css">
+    <!-- Updated Google Fonts link -->
+    <link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1 id="recipe-header-title">配方详情</h1> <!-- Title will be updated by JS -->
+    </header>
+
+    <nav>
+        <a href="./" class="back-link">返回配方列表</a>
+        <a href="../" class="back-link">返回主菜单</a>
+    </nav>
+
+    <main>
+        <section id="recipe-detail">
+            <!-- Recipe details will be loaded here by JavaScript -->
+            <div id="loading-detail-message">正在加载配方详情...</div>
+        </section>
+        <p id="error-message" style="color: red;"></p>
+
+        <!-- Comments Section -->
+        <section id="comments-section">
+            <h3>评论</h3>
+            <div id="comments-list">
+                <!-- Comments will be loaded here -->
+                <p>正在加载评论...</p>
+            </div>
+
+            <!-- Comment Form (Initially hidden for non-logged-in users via CSS) -->
+            <form id="comment-form" class="comment-form">
+                <h4>添加评论</h4>
+                <div class="form-group">
+                    <textarea id="comment-text" name="commentText" rows="4" required placeholder="输入您的评论..."></textarea>
+                </div>
+                 <p id="comment-error" class="message" style="display: none; color: red;"></p>
+                <button type="submit">提交评论</button>
+            </form>
+             <p id="login-prompt" style="display: none;">请 <a href="/auth/login/">登录</a> 后发表评论。</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Cybar<br>made by 252</p>
+    </footer>
+
+    <script src="/js/global.js"></script> <!-- Add global script -->
+    <script src="detail.js"></script>    <!-- Specific script for detail page -->
+</body>
+</html>
