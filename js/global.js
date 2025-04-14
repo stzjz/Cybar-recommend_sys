@@ -1,22 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
     const userStatusDiv = document.getElementById('user-status');
 
-    // Add class to body based on login status and role
     fetch('/api/auth/status')
         .then(response => response.json())
         .then(data => {
+            console.log('Auth Status Received:', data);
             if (data.loggedIn) {
                 document.body.classList.add('logged-in');
                 document.body.classList.remove('logged-out');
-                // Add is-admin class if user has admin role
-                if (data.role === 'admin') {
+
+                const userRole = data.role;
+                console.log('User Role:', userRole);
+
+                // Only check for 'is-admin' now
+                if (userRole === 'admin') {
                     document.body.classList.add('is-admin');
+                    console.log('Added class: is-admin');
                 } else {
                     document.body.classList.remove('is-admin');
                 }
-                if (userStatusDiv) {
+                // Remove 'is-god' check
+                document.body.classList.remove('is-god');
+
+                // Update welcome message
+                 if (userStatusDiv) {
+                    let roleDisplay = '';
+                    if (userRole === 'admin') roleDisplay = '(管理员)'; // Only show admin
+                    // Remove god display
                     userStatusDiv.innerHTML = `
-                        <span>欢迎, ${data.username} ${data.role === 'admin' ? '(管理员)' : ''}</span> |
+                        <span>欢迎, ${data.username} ${roleDisplay}</span> |
                         <a href="#" id="logout-link">注销</a>
                     `;
                     const logoutLink = document.getElementById('logout-link');
@@ -38,10 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                 }
+
             } else {
                 document.body.classList.add('logged-out');
                 document.body.classList.remove('logged-in');
-                document.body.classList.remove('is-admin'); // Ensure is-admin is removed when logged out
+                document.body.classList.remove('is-admin');
+                document.body.classList.remove('is-god'); // Ensure removed
                 if (userStatusDiv) {
                     userStatusDiv.innerHTML = `
                         <a href="/auth/login/">登录</a> |
@@ -49,23 +63,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 }
             }
-            // Dispatch a custom event after status is known (optional, but can help)
             document.dispatchEvent(new CustomEvent('authStatusKnown', { detail: data }));
         })
         .catch(error => {
             console.error('Error fetching auth status:', error);
-            document.body.classList.add('logged-out'); // Assume logged out on error
+            document.body.classList.add('logged-out');
             document.body.classList.remove('logged-in');
             document.body.classList.remove('is-admin');
+            document.body.classList.remove('is-god'); // Ensure removed
             if (userStatusDiv) {
                 userStatusDiv.innerHTML = '<a href="/auth/login/">登录</a> | <a href="/auth/register/">注册</a>'; // Fallback
             }
              document.dispatchEvent(new CustomEvent('authStatusKnown', { detail: { loggedIn: false } }));
         });
-
-    // Ensure userStatusDiv exists check is done only if needed
-    // if (!userStatusDiv) {
-    //     console.error('Element with ID "user-status" not found.');
-    //     // return; // Don't return here, still need to set body class
-    // }
 });

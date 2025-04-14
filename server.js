@@ -126,7 +126,7 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
-// --- Admin Check Middleware ---
+// --- Admin Check Middleware (No longer needs 'god') ---
 const isAdmin = (req, res, next) => {
     // Must be authenticated first
     if (!req.session.userId) {
@@ -142,8 +142,9 @@ const isAdmin = (req, res, next) => {
     }
 
     // Check if the role stored in session is 'admin'
-    if (req.session.role !== 'admin') {
-        console.log(`Forbidden: User ${req.session.username} (role: ${req.session.role}) tried to access admin resource: ${req.method} ${req.originalUrl}`);
+    const userRole = req.session.role;
+    if (userRole !== 'admin') { // Only check for 'admin' now
+        console.log(`Forbidden: User ${req.session.username} (role: ${userRole}) tried to access admin resource: ${req.method} ${req.originalUrl}`);
         // For API requests, send 403 Forbidden JSON
         if (req.accepts('json') || req.path.startsWith('/api/')) {
             return res.status(403).json({ message: 'Forbidden: Administrator access required.' });
@@ -184,7 +185,13 @@ const isAdmin = (req, res, next) => {
 // API Route to get current authentication status
 app.get('/api/auth/status', (req, res) => {
     if (req.session.userId) {
-        res.json({ loggedIn: true, username: req.session.username, role: req.session.role });
+        // --- 关键点：确保 session 中的 role 被包含在响应中 ---
+        console.log(`Auth Status Check: User ${req.session.username}, Role: ${req.session.role}`); // 添加日志确认
+        res.json({
+            loggedIn: true,
+            username: req.session.username,
+            role: req.session.role // 确保这里传递了 role
+        });
     } else {
         res.json({ loggedIn: false });
     }
@@ -200,40 +207,49 @@ app.get('/auth/register/', (req, res) => {
 });
 
 // API Routes for Authentication
+
+// Register a new user
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
 
+    // Basic validation
     if (!username || !password) {
         return res.status(400).json({ message: '用户名和密码不能为空' });
     }
-
-    let users; // Define users variable outside try block
-    try {
-        users = await readUsers(); // Read users first
-    } catch (error) {
-        // Handle error during reading users file specifically
-        console.error("Failed to read users file during registration:", error);
-        return res.status(500).json({ message: '服务器内部错误，无法读取用户信息' });
+    if (password.length < 3) { // Example: Minimum password length
+        return res.status(400).json({ message: '密码长度至少需要3位' });
     }
 
     try {
-        // Proceed with registration logic using the read users data
-        const existingUser = users.find(user => user.username === username);
+        const users = await readUsers();
 
+        // --- Check for duplicate username (case-insensitive) ---
+        const existingUser = users.find(user => user.username.toLowerCase() === username.toLowerCase());
         if (existingUser) {
-            return res.status(409).json({ message: '用户名已存在' });
+            return res.status(409).json({ message: '用户名已被注册' }); // 409 Conflict
         }
+        // --- End duplicate check ---
 
-        // !! In a real application, HASH the password before saving !!
-        const newUser = { id: Date.now().toString(), username, password };
+        // Create new user object
+        const newUser = {
+            id: Date.now().toString(), // Simple unique ID
+            username: username,
+            password: password, // Store plain text password (INSECURE - consider hashing)
+            role: 'user' // Default role
+        };
+
+        // Add new user to the array
         users.push(newUser);
-        await writeUsers(users); // Write the updated users array
 
+        // Write updated users array back to file
+        await writeUsers(users);
+
+        console.log(`New user registered: ${username}`);
         res.status(201).json({ message: '注册成功' });
+
     } catch (error) {
-        // Catch errors specifically related to writing or other logic after reading
-        console.error("Error during registration processing for user:", username, error);
-        res.status(500).json({ message: '服务器错误，注册失败' });
+        console.error("Registration error:", error);
+        res.status(500).json({ message: '注册过程中发生服务器错误' });
     }
 });
 
@@ -246,17 +262,18 @@ app.post('/api/login', async (req, res) => {
 
     try {
         const users = await readUsers();
-        // !! In a real application, compare HASHED passwords !!
+        // 确保这里比较密码的方式是正确的 (如果是明文比较，如下；如果是哈希比较，则需要调整)
         const user = users.find(user => user.username === username && user.password === password);
 
         if (!user) {
             return res.status(401).json({ message: '用户名或密码错误' });
         }
 
-        // Store user ID, username, AND role in session
+        // --- 关键点：确保 user.role 被正确读取并存储 ---
         req.session.userId = user.id;
         req.session.username = user.username;
-        req.session.role = user.role || 'user'; // Assign role, default to 'user' if missing
+        req.session.role = user.role || 'user'; // 从 user 对象获取 role，如果不存在则默认为 'user'
+        console.log(`Login successful: User ${user.username}, Role stored in session: ${req.session.role}`); // 添加日志确认
 
         res.status(200).json({ message: '登录成功' });
     } catch (error) {
@@ -287,7 +304,7 @@ app.get('/admin/', isAuthenticated, isAdmin, (req, res) => { // Add isAdmin midd
     res.sendFile(path.join(__dirname, 'admin', 'index.html')); // Assuming admin page is index.html
 });
 
-// --- New Admin API Routes (Protected) ---
+// --- Admin API Routes (Require isAdmin) ---
 
 // API to DELETE a recipe
 app.delete('/api/recipes/:id', isAuthenticated, isAdmin, async (req, res) => { // Add isAdmin middleware
@@ -348,6 +365,23 @@ app.get('/api/admin/stats', isAuthenticated, isAdmin, (req, res) => { // Add isA
     });
 });
 
+// --- New API Route to get all users (Admin only) ---
+app.get('/api/admin/users', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const users = await readUsers();
+        // Map users to exclude password field
+        const usersWithoutPasswords = users.map(user => ({
+            id: user.id,
+            username: user.username,
+            role: user.role || 'user' // Ensure role is included, default to 'user'
+        }));
+        res.json(usersWithoutPasswords);
+    } catch (error) {
+        console.error("Error reading users for admin:", error);
+        res.status(500).json({ message: '无法加载用户信息' });
+    }
+});
+
 // --- New API Route to DELETE a comment (Admin only) ---
 app.delete('/api/comments/:commentId', isAuthenticated, isAdmin, async (req, res) => {
     const commentIdToDelete = req.params.commentId;
@@ -386,6 +420,86 @@ app.delete('/api/comments/:commentId', isAuthenticated, isAdmin, async (req, res
     } catch (error) {
         console.error(`Error deleting comment ${commentIdToDelete}:`, error);
         res.status(500).json({ message: '删除评论时出错' });
+    }
+});
+
+// --- User Management API Routes (Now require isAdmin) ---
+
+// API Route to DELETE a user (Requires Admin)
+app.delete('/api/admin/users/:userId', isAuthenticated, isAdmin, async (req, res) => { // Use isAdmin
+    const userIdToDelete = req.params.userId;
+    const adminUserId = req.session.userId; // Get the ID of the admin performing the action
+
+    if (userIdToDelete === adminUserId) {
+        return res.status(400).json({ message: '无法删除自己的账户' });
+    }
+    // Optional: Prevent admins from deleting other admins? Decide based on requirements.
+    // If needed, add check here:
+    // const users = await readUsers();
+    // const userToDelete = users.find(u => u.id === userIdToDelete);
+    // if (userToDelete && userToDelete.role === 'admin') {
+    //     return res.status(403).json({ message: '无法删除其他管理员账户' });
+    // }
+
+    try {
+        let users = await readUsers();
+        const initialLength = users.length;
+        users = users.filter(user => user.id !== userIdToDelete);
+
+        if (users.length === initialLength) {
+            return res.status(404).json({ message: '未找到要删除的用户' });
+        }
+
+        await writeUsers(users);
+        console.log(`Admin User ${req.session.username} deleted user ${userIdToDelete}`);
+        res.status(200).json({ message: '用户删除成功' });
+
+    } catch (error) {
+        console.error(`Error deleting user ${userIdToDelete}:`, error);
+        res.status(500).json({ message: '删除用户时出错' });
+    }
+});
+
+// API Route to update a user's role (Requires Admin)
+app.put('/api/admin/users/:userId/role', isAuthenticated, isAdmin, async (req, res) => { // Use isAdmin
+    const userIdToUpdate = req.params.userId;
+    const { newRole } = req.body;
+    const adminUserId = req.session.userId;
+
+    // Validate newRole - Admins likely shouldn't be able to create 'god' roles anymore
+    const validRoles = ['user', 'admin']; // Define valid roles admins can assign
+    if (!newRole || !validRoles.includes(newRole)) {
+        return res.status(400).json({ message: `无效的角色。有效角色: ${validRoles.join(', ')}` });
+    }
+
+    if (userIdToUpdate === adminUserId && newRole !== 'admin') {
+        return res.status(400).json({ message: '无法降低自己的管理员权限' });
+    }
+    // Optional: Prevent admins from changing other admins' roles?
+    // const users = await readUsers();
+    // const userToUpdate = users.find(u => u.id === userIdToUpdate);
+    // if (userToUpdate && userToUpdate.role === 'admin' && userIdToUpdate !== adminUserId) {
+    //     return res.status(403).json({ message: '无法修改其他管理员的角色' });
+    // }
+
+    try {
+        let users = await readUsers();
+        const userIndex = users.findIndex(user => user.id === userIdToUpdate);
+
+        if (userIndex === -1) {
+            return res.status(404).json({ message: '未找到要修改的用户' });
+        }
+
+        // Update the user's role
+        users[userIndex].role = newRole;
+
+        await writeUsers(users);
+        console.log(`Admin User ${req.session.username} changed role of user ${userIdToUpdate} to ${newRole}`);
+        res.status(200).json({ message: '用户角色修改成功', updatedUser: { id: users[userIndex].id, username: users[userIndex].username, role: users[userIndex].role } });
+
+    } catch (error) {
+        console.error(`Error updating role for user ${userIdToUpdate}:`, error);
+        res.status(500).json({ message: '修改用户角色时出错' });
     }
 });
 
