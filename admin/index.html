@@ -38,20 +38,59 @@
                     <li>总配方数: <span id="stat-total-recipes">N/A</span></li>
                     <li>总用户数: <span id="stat-total-users">N/A</span></li>
                 </ul>
-                <!-- Chart Container -->
+
+                <!-- Specific Page Visits Chart -->
+                <h4>主要页面访问统计</h4>
                 <div class="chart-container" style="position: relative; height:40vh; width:80vw; max-width: 600px; margin: 20px auto;">
-                    <canvas id="pageVisitsChart"></canvas>
+                    <canvas id="specificPageVisitsChart"></canvas>
                 </div>
-                <!-- Keep existing page visits list if desired, or remove -->
+
+                <!-- REMOVED Page Visits Table -->
                 <!--
-                <h4>页面访问次数:</h4>
-                <ul id="stat-page-visits">
-                    <li>主页 (/): <span data-path="/">N/A</span></li>
-                    <li>配方列表 (/recipes/): <span data-path="/recipes/">N/A</span></li>
-                    <li>计算器 (/calculator/): <span data-path="/calculator/">N/A</span></li>
-                    <li>添加配方 (/add/): <span data-path="/add/">N/A</span></li>
-                    <li>管理页面 (/admin/): <span data-path="/admin/">N/A</span></li>
-                </ul>
+                <h4>页面访问统计</h4>
+                <div class="table-container">
+                    <table id="page-visits-table">
+                        <thead>
+                            <tr>
+                                <th>页面路径</th>
+                                <th>访问次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated by JS -->
+                            <tr><td colspan="2">正在加载...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                -->
+
+                <!-- REMOVED Top Visited Recipes Table -->
+                <!--
+                <h4 style="margin-top: 30px;">访问最多的配方 Top 3</h4>
+                <div class="table-container">
+                    <table id="top-visited-table">
+                        <thead>
+                            <tr>
+                                <th>配方名称</th>
+                                <th>访问次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated by JS -->
+                             <tr><td colspan="2">正在加载...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                -->
+
+                <!-- REMOVED Chart Containers -->
+                <!--
+                <div class="chart-container" style="position: relative; height:40vh; width:80vw; max-width: 600px; margin: 20px auto;">
+                     <canvas id="pageVisitsChart"></canvas>
+                </div>
+                <div class="chart-container" style="position: relative; height:30vh; width:80vw; max-width: 500px; margin: 30px auto;">
+                     <canvas id="topVisitedChart"></canvas>
+                </div>
                 -->
             </div>
 

@@ -20,7 +20,8 @@
       }
     ],
     "instructions": "在高球杯中加入冰块，倒入金酒，加满汤力水，轻轻搅拌，用青柠角装饰。",
-    "estimatedAbv": 10
+    "estimatedAbv": 10,
+    "visitCount": 0
   },
   {
     "id": "recipe_1700000000002",
@@ -38,7 +39,8 @@
       }
     ],
     "instructions": "在高球杯中加入冰块，倒入伏特加，加满橙汁，轻轻搅拌。",
-    "estimatedAbv": 10
+    "estimatedAbv": 10,
+    "visitCount": 0
   },
   {
     "name": "新的生命",
@@ -51,7 +53,8 @@
       }
     ],
     "estimatedAbv": 96,
-    "id": "1744625138526"
+    "id": "1744625138526",
+    "visitCount": 0
   },
   {
     "name": "柠檬树下柠檬果",
@@ -74,6 +77,7 @@
       }
     ],
     "estimatedAbv": 10,
-    "id": "1744628113626"
+    "id": "1744628113626",
+    "visitCount": 0
   }
 ]
