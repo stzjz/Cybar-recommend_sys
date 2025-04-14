@@ -7,14 +7,16 @@ Cybar是一个鸡尾酒配方管理和酒精度计算工具，帮助用户管理
 
 - **配方管理**：浏览、查看和管理鸡尾酒配方
 - **酒精度计算**：精确计算混合饮料的最终酒精含量
-- **添加新配方**：添加自定义鸡尾酒配方到数据库
-- **后台管理**：管理现有配方，查看访问统计
+- **用户认证**：提供用户注册和登录功能
+- **添加新配方**：登录用户可以添加自定义鸡尾酒配方到数据库
+- **后台管理**：登录用户可以管理现有配方，查看访问统计
 
 ## 技术栈
 
 - 前端：HTML5、CSS3、JavaScript (原生)
 - 后端：Node.js、Express
 - 数据存储：JSON文件
+- 会话管理：express-session
 
 ## 安装指南
 
@@ -50,8 +52,10 @@ node server.js
 
 1. **浏览配方**：访问 http://localhost:3000/recipes/ 查看鸡尾酒配方列表
 2. **计算酒精度**：访问 http://localhost:3000/calculator/ 计算混合饮料的酒精含量
-3. **添加配方**：访问 http://localhost:3000/add/ 添加新的鸡尾酒配方
-4. **后台管理**：访问 http://localhost:3000/admin/ 管理现有配方和查看统计数据
+3. **用户注册**：访问 http://localhost:3000/auth/register/ 进行注册
+4. **用户登录**：访问 http://localhost:3000/auth/login/ 进行登录
+5. **添加配方**：登录后访问 http://localhost:3000/add/ 添加新的鸡尾酒配方
+6. **后台管理**：登录后访问 http://localhost:3000/admin/ 管理现有配方和查看统计数据
 
 ## 项目结构
 
@@ -59,11 +63,16 @@ node server.js
 Cybar/
 ├── admin/              # 后台管理界面
 ├── add/                # 添加配方界面
+├── auth/               # 用户认证相关文件
+│   ├── login.html
+│   ├── register.html
+│   └── auth.js
 ├── calculator/         # 酒精度计算器
 ├── recipes/            # 配方列表和详情
 ├── server.js           # Node.js服务器入口
 ├── package.json        # 项目依赖
 ├── recipes.json        # 配方数据存储
+├── users.json          # 用户数据存储
 ├── style.css           # 全局样式
 └── README.md           # 项目文档
 ```
@@ -98,7 +107,8 @@ Cybar/
 
 ## 未来计划
 
-- [ ] 用户账户系统
+- [ ] 密码加密存储
+- [ ] 用户账户系统 (增强)
 - [ ] 更多视觉效果和动画
 - [ ] 移动应用支持
 - [ ] 社区分享功能

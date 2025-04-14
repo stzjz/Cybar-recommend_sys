@@ -3,61 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>后台管理 - Cybar</title> <!-- Updated Title -->
-    <link rel="stylesheet" href="../style.css"> <!-- 使用共享 CSS -->
-    <!-- Updated Google Fonts link -->
-    <link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Add Font Awesome CDN Link -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>后台管理 - Cybar</title>
+    <link rel="stylesheet" href="/style.css"> <!-- Link to global styles -->
+    <!-- Add specific admin styles if needed -->
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
     <header>
         <h1>后台管理</h1>
-        <!-- <button id="logout-btn">登出</button> --> <!-- Removed Logout Button -->
+        <div id="user-status">
+            <!-- Status loaded by global.js -->
+            <a href="/auth/login/">登录</a> | <a href="/auth/register/">注册</a>
+        </div>
     </header>
 
     <nav>
-        <a href="../" class="back-link">返回主菜单</a>
+        <a href="/" class="back-link">返回主菜单</a>
     </nav>
 
-    <!-- Initially hide main content, show after password check -->
-    <main style="display: none;">
-        <!-- NEW Statistics Section -->
-        <section id="admin-stats">
-            <h2>访问统计</h2>
-            <ul id="stats-list">
-                <li>主页访问: <span id="stat-home">加载中...</span></li>
-                <!-- Removed other list items -->
-            </ul>
-            <button id="refresh-stats-btn">刷新统计</button>
-        </section>
-        <!-- End Statistics Section -->
+    <main>
+        <section id="admin-dashboard">
+            <h2>仪表盘</h2>
 
-        <section id="admin-delete">
-            <h2>删除配方</h2>
-             <form id="delete-recipe-form">
-                <div class="form-group">
-                    <label for="delete-recipe-select">选择要删除的配方:</label>
-                    <!-- Replace text input with select dropdown -->
-                    <select id="delete-recipe-select" name="delete-recipe-select" required>
-                        <option value="" disabled selected>-- 请选择 --</option>
-                        <!-- Options will be populated by JS -->
-                    </select>
+            <!-- Statistics Section -->
+            <div class="admin-section" id="stats-section">
+                <h3>统计数据</h3>
+                <div id="admin-stats">加载中...</div> <!-- General stats loading/error message -->
+                <ul>
+                    <li>总配方数: <span id="stat-total-recipes">N/A</span></li>
+                    <li>总用户数: <span id="stat-total-users">N/A</span></li>
+                    <li>页面访问次数:
+                        <ul id="stat-page-visits">
+                            <!-- Visit counts will be loaded here -->
+                            <li>主界面: <span data-path="/">N/A</span></li>
+                            <li>配方列表: <span data-path="/recipes/">N/A</span></li>
+                            <li>计算器: <span data-path="/calculator/">N/A</span></li>
+                            <li>添加配方页访问: <span data-path="/add/">N/A</span></li>
+                            <li>管理后台访问: <span data-path="/admin/">N/A</span></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Recipe Management Section -->
+            <div class="admin-section" id="recipes-management-section">
+                <h3>配方管理</h3>
+                <p id="admin-message" class="message"></p> <!-- Status/Error messages -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名称</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-recipe-list">
+                            <!-- Recipe rows will be loaded here by admin.js -->
+                            <tr><td colspan="3">正在加载配方...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                <button type="submit">删除选中的配方</button>
-            </form>
-            <div id="delete-message" class="message"></div>
-        </section>
+            </div>
 
-        <section id="current-recipes">
-             <h2>当前配方列表</h2>
-             <ul id="recipe-list-admin">
-                 <li>正在加载...</li>
-             </ul>
-             <button id="refresh-list-btn">刷新列表</button>
         </section>
     </main>
 
-    <script src="admin.js"></script>
+    <footer>
+        <p>&copy; 2023 Cybar</p>
+    </footer>
+
+    <script src="/js/global.js"></script> <!-- Global script for user status -->
+    <script src="admin.js"></script>    <!-- Specific script for admin page -->
 </body>
 </html>

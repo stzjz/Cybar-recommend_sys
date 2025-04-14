@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cybar - 主页</title>
+    <title>Cybar - 主菜单</title>
     <link rel="stylesheet" href="style.css">
     <!-- Updated Google Fonts link -->
     <link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -11,6 +11,10 @@
 <body>
     <header>
         <h1>Cybar</h1>
+        <div id="user-status">
+            <!-- Status will be loaded here by global.js -->
+            <a href="/auth/login/">登录</a> | <a href="/auth/register/">注册</a>
+        </div>
     </header>
 
     <nav id="main-menu">
@@ -30,8 +34,14 @@
     </nav>
 
     <main id="content-area">
-       <p style="text-align: center; margin-top: 20px;">请从上方菜单选择功能。</p>
+        <h2>欢迎来到 Cybar</h2>
+        <p>请使用上方导航链接访问不同功能。</p>
     </main>
 
+    <footer>
+        <p>&copy; 2023 Cybar</p>
+    </footer>
+
+    <script src="/js/global.js"></script> <!-- Add global script -->
 </body>
 </html>

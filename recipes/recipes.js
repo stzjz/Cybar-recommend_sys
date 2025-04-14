@@ -19,16 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const nameHeading = document.createElement('h3');
             const nameLink = document.createElement('a');
-            nameLink.href = `detail.html?name=${encodeURIComponent(recipe.name)}`;
+            nameLink.href = `detail.html?id=${recipe.id}`;
             // Display name and ABV
             nameLink.textContent = `${recipe.name} (~${recipe.estimatedAbv ? recipe.estimatedAbv.toFixed(1) : 'N/A'}% ABV)`;
             nameHeading.appendChild(nameLink);
             article.appendChild(nameHeading);
 
             // Optionally display brief ingredients or instructions here if needed
-            // const instructions = document.createElement('p');
-            // instructions.textContent = `做法：${recipe.instructions.substring(0, 100)}...`; // Example snippet
-            // article.appendChild(instructions);
+            const instructions = document.createElement('p');
+            instructions.textContent = `做法：${recipe.instructions.substring(0, 100)}...`; // Example snippet
+            article.appendChild(instructions);
 
             recipesContainer.appendChild(article);
         });

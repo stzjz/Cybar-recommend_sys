@@ -1,5 +1,6 @@
 [
   {
+    "id": "recipe_1700000000001",
     "name": "金汤力 (Gin Tonic)",
     "ingredients": [
       {
@@ -22,6 +23,7 @@
     "estimatedAbv": 10
   },
   {
+    "id": "recipe_1700000000002",
     "name": "螺丝刀 (Screwdriver)",
     "ingredients": [
       {
@@ -39,37 +41,21 @@
     "estimatedAbv": 10
   },
   {
-    "name": "小酒",
+    "name": "我就玩玩2",
+    "instructions": "111",
     "ingredients": [
       {
-        "name": "伏特加",
-        "volume": 30,
-        "abv": 65
-      },
-      {
-        "name": "水",
-        "volume": 30,
-        "abv": 0
-      }
-    ],
-    "instructions": "加入伏特加和水",
-    "estimatedAbv": 32.5
-  },
-  {
-    "name": "测试",
-    "ingredients": [
-      {
-        "name": "金酒",
-        "volume": 30,
-        "abv": 30
-      },
-      {
-        "name": "伏特加",
+        "name": "医用酒精",
         "volume": 20,
+        "abv": 98
+      },
+      {
+        "name": "伏特加",
+        "volume": 40,
         "abv": 40
       }
     ],
-    "instructions": "我就测测",
-    "estimatedAbv": 34
+    "estimatedAbv": 59.3,
+    "id": "1744624669294"
   }
 ]

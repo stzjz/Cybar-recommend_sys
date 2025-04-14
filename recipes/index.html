@@ -11,6 +11,10 @@
 <body>
     <header>
         <h1>鸡尾酒配方</h1>
+        <div id="user-status">
+            <!-- Status will be loaded here by global.js -->
+            <a href="/auth/login/">登录</a> | <a href="/auth/register/">注册</a>
+        </div>
     </header>
 
     <nav>
@@ -33,5 +37,6 @@
 
     <!-- 引用新的 JS 文件 -->
     <script src="recipes.js"></script>
+    <script src="/js/global.js"></script> <!-- Add global script -->
 </body>
 </html>

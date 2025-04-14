@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ingredientsList = document.getElementById('ingredients-list');
     const addIngredientBtn = document.getElementById('add-ingredient-btn');
     const addMessage = document.getElementById('add-message');
+    const messageElement = document.getElementById('add-recipe-message'); // Ensure this element exists in add/index.html
     // Initialize counter based on existing entries (should be 1 initially)
     let ingredientCounter = ingredientsList.querySelectorAll('.ingredient-entry').length;
 
@@ -156,7 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const recipeData = {
             name: cocktailName,
             instructions: instructions,
-            ingredients: ingredients
+            ingredients: ingredients,
+            estimatedAbv: calculateEstimatedAbv(ingredients) // Ensure calculated ABV is included
         };
 
         console.log('Submitting Recipe Data:', recipeData); // Log data for debugging
@@ -177,38 +179,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(recipeData)
             });
 
-            const result = await response.json(); // Try to parse JSON regardless of status
+            // --- CRITICAL: Check response before parsing JSON ---
+            if (response.ok) {
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    // Success case: Received JSON
+                    const result = await response.json();
+                    console.log('Recipe added:', result);
 
-            if (response.ok) { // Status 200-299
-                showMessage(`配方 "${cocktailName}" 添加成功！`, 'green');
-                addRecipeForm.reset(); // Clear the form
-                // Reset ingredients list to a single entry
-                ingredientsList.innerHTML = `
-                    <div class="ingredient-entry">
-                         <div class="inputs-wrapper">
-                            <div class="input-column name-column">
-                                <label class="ingredient-label" for="ingredient-name-1">配料 1 名称:</label>
-                                <input type="text" id="ingredient-name-1" name="ingredient-name[]" class="ingredient-name" placeholder="例如：金酒" required>
-                            </div>
-                            <div class="input-column volume-column">
-                                <label class="ingredient-label" for="ingredient-volume-1">体积 (ml):</label>
-                                <input type="number" id="ingredient-volume-1" name="ingredient-volume[]" class="ingredient-volume" step="any" min="0" placeholder="例如：50" required>
-                            </div>
-                            <div class="input-column abv-column">
-                                <label class="ingredient-label" for="ingredient-abv-1">ABV (%):</label>
-                                <input type="number" id="ingredient-abv-1" name="ingredient-abv[]" class="ingredient-abv" step="any" min="0" max="100" placeholder="例如：40" required>
-                            </div>
-                        </div>
-                        <!-- No remove button for the first entry -->
-                    </div>`;
-                ingredientCounter = 1; // Reset counter
-                // Reset border colors on inputs just in case
-                cocktailNameInput.style.borderColor = '';
-                instructionsInput.style.borderColor = '';
+                    // --- Show success alert ---
+                    alert(result.message || '配方添加成功！'); // Use alert for popup
 
+                    // Optionally update the message element as well
+                    if (messageElement) {
+                        messageElement.textContent = result.message || '配方添加成功！';
+                        messageElement.style.color = 'green';
+                    }
+                    addRecipeForm.reset();
+                } else {
+                    // Success status but not JSON (unexpected HTML?)
+                    console.error('Received non-JSON success response:', await response.text());
+                     if (messageElement) {
+                         messageElement.textContent = '收到意外的服务器响应。';
+                         messageElement.style.color = 'orange';
+                     }
+                     // Check if redirected to login
+                     if (response.url && response.url.includes('/auth/login')) {
+                          if (messageElement) messageElement.textContent = '会话已过期，请重新登录。正在跳转...';
+                          window.location.href = '/auth/login/';
+                     }
+                }
             } else {
-                // Handle errors (e.g., display specific error message from backend)
-                showMessage(`添加配方失败。错误 ${response.status}: ${result.message || response.statusText}`, 'red');
+                // Error case (4xx, 5xx)
+                // Check if it's an authentication error (redirected or specific status)
+                if (response.status === 401 || response.status === 403 || (response.redirected && response.url.includes('/auth/login'))) {
+                    if (messageElement) messageElement.textContent = '您需要登录才能添加配方。正在跳转到登录页面...';
+                    setTimeout(() => {
+                        window.location.href = '/auth/login/';
+                    }, 1500);
+                } else {
+                    // Handle other server errors
+                    let errorResult = { message: `服务器错误 (${response.status})` };
+                    try {
+                        errorResult = await response.json(); // Try to parse potential JSON error
+                    } catch (parseError) {
+                         console.log("Could not parse error response as JSON.");
+                    }
+                    console.error('Error submitting recipe:', response.status, errorResult);
+                    if (messageElement) {
+                        messageElement.textContent = `错误: ${errorResult.message || '无法添加配方'}`;
+                        messageElement.style.color = 'red';
+                    }
+                }
             }
         } catch (error) {
             console.error('Error submitting recipe:', error);
@@ -249,3 +271,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// --- ABV Calculation Function ---
+function calculateEstimatedAbv(ingredients) {
+    let totalLiquidVolume = 0;
+    let totalAlcoholVolume = 0;
+
+    if (!ingredients || ingredients.length === 0) {
+        return 0; // Return 0 if no ingredients
+    }
+
+    ingredients.forEach(ingredient => {
+        const volume = ingredient.volume || 0;
+        const abv = ingredient.abv || 0;
+
+        if (volume > 0) {
+            totalLiquidVolume += volume;
+            totalAlcoholVolume += volume * (abv / 100);
+        }
+    });
+
+    if (totalLiquidVolume === 0) {
+        return 0; // Avoid division by zero
+    }
+
+    const finalAbv = (totalAlcoholVolume / totalLiquidVolume) * 100;
+    // Return rounded to one decimal place, or adjust as needed
+    return Math.round(finalAbv * 10) / 10;
+}
+
+// --- Helper function to clear dynamic fields (Example) ---
+function clearIngredientFields() {
+    // Add logic here to remove dynamically added ingredient input fields
+    // For example, if they are inside a specific container:
+    const ingredientsContainer = document.getElementById('ingredients-container'); // Assuming you have this
+    if (ingredientsContainer) {
+        // Remove all but the first template row, or reset all fields
+        // This depends heavily on how you implemented dynamic fields
+    }
+}

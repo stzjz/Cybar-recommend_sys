@@ -20,6 +20,10 @@ header {
     box-sizing: border-box;
     border-bottom: 3px solid #00e5ff;
     box-shadow: 0 4px 20px rgba(0, 229, 255, 0.3);
+    position: relative;
+    display: flex; /* Use flexbox for easier alignment */
+    justify-content: space-between; /* Space between title and status */
+    align-items: center;
 }
 
 header h1 {
@@ -28,6 +32,11 @@ header h1 {
     margin: 0;
     text-shadow: 0 0 8px rgba(0, 229, 255, 0.7), 0 0 15px rgba(0, 229, 255, 0.5);
     letter-spacing: 3px;
+}
+
+header h1 a {
+    color: white;
+    text-decoration: none;
 }
 
 /* Ensure other headings also use Orbitron */
@@ -811,4 +820,25 @@ button:hover,
    header h1 { font-size: 3.5rem; letter-spacing: 4px; }
    #main-menu { max-width: 550px; }
    .menu-link.main-function { max-width: 500px; }
+}
+
+#user-status {
+    /* Position top-right */
+    /* Adjust top/right values as needed */
+    font-size: 0.9em;
+}
+
+#user-status a {
+    color: #eee; /* Light color for links */
+    text-decoration: none;
+    margin-left: 5px;
+}
+
+#user-status a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+#user-status span {
+    margin-right: 5px;
 }
