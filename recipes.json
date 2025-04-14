@@ -1,0 +1,75 @@
+[
+  {
+    "name": "金汤力 (Gin Tonic)",
+    "ingredients": [
+      {
+        "name": "金酒 (Gin)",
+        "volume": 50,
+        "abv": 40
+      },
+      {
+        "name": "汤力水 (Tonic Water)",
+        "volume": 150,
+        "abv": 0
+      },
+      {
+        "name": "青柠角 (Lime Wedge)",
+        "volume": 0,
+        "abv": 0
+      }
+    ],
+    "instructions": "在高球杯中加入冰块，倒入金酒，加满汤力水，轻轻搅拌，用青柠角装饰。",
+    "estimatedAbv": 10
+  },
+  {
+    "name": "螺丝刀 (Screwdriver)",
+    "ingredients": [
+      {
+        "name": "伏特加 (Vodka)",
+        "volume": 50,
+        "abv": 40
+      },
+      {
+        "name": "橙汁 (Orange Juice)",
+        "volume": 150,
+        "abv": 0
+      }
+    ],
+    "instructions": "在高球杯中加入冰块，倒入伏特加，加满橙汁，轻轻搅拌。",
+    "estimatedAbv": 10
+  },
+  {
+    "name": "小酒",
+    "ingredients": [
+      {
+        "name": "伏特加",
+        "volume": 30,
+        "abv": 65
+      },
+      {
+        "name": "水",
+        "volume": 30,
+        "abv": 0
+      }
+    ],
+    "instructions": "加入伏特加和水",
+    "estimatedAbv": 32.5
+  },
+  {
+    "name": "测试",
+    "ingredients": [
+      {
+        "name": "金酒",
+        "volume": 30,
+        "abv": 30
+      },
+      {
+        "name": "伏特加",
+        "volume": 20,
+        "abv": 40
+      }
+    ],
+    "instructions": "我就测测",
+    "estimatedAbv": 34
+  }
+]
