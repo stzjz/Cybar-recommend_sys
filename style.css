@@ -661,6 +661,23 @@ button:hover,
      transform: translateY(-1px);
 }
 
+/* Ensure footer is centered and has some padding */
+footer {
+    text-align: center; /* Center the text */
+    padding: 20px 0; /* Add some vertical padding */
+    margin-top: auto; /* Push footer to the bottom if content is short */
+    width: 100%;
+    background-color: rgba(15, 22, 46, 0.7); /* Match dark theme */
+    color: #a0a0a0; /* Dimmer text color for footer */
+    font-size: 0.9em;
+    border-top: 1px solid rgba(0, 229, 255, 0.2); /* Subtle top border */
+}
+
+footer p {
+    margin: 0; /* Remove default paragraph margin */
+    line-height: 1.4; /* Adjust line height for the two lines */
+}
+
 /* --- Media Queries --- */
 /* Medium screens */
 @media (min-width: 768px) { /* Adjusted breakpoint */
