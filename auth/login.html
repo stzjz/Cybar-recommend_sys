@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - Cybar</title>
     <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/auth/auth.css">
+    <style>
+        /* Add specific style for the hint */
+        .login-hint {
+            font-size: 0.8em;
+            color: #aaa;
+            margin-top: 15px; /* Add some space above */
+            margin-bottom: 5px; /* Reduce space below if needed */
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -27,6 +37,7 @@
             <button type="submit">登录</button>
         </form>
         <p id="login-message" class="message" style="display: none;"></p>
+        <p class="login-hint">请妥善保存您的密码，丢了就找不回来咯(&#186;´༎ຶД༎ຶ`)</p>
         <p>还没有账户? <a href="/auth/register/">立即注册</a></p>
 
         <!-- Add Back Link -->
