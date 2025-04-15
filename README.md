@@ -5,7 +5,7 @@ Cybar是一个鸡尾酒配方管理和酒精度计算工具，帮助用户管理
 
 ## 功能特点
 
-- **配方管理**：浏览、查看配方列表和详情。
+- **配方管理**：浏览、查看配方列表（分页显示）和详情。
 - **酒精度计算**：精确计算混合饮料的最终酒精含量。
 - **用户认证**：提供用户注册和登录功能，使用会话管理。
 - **登录状态显示**：在页面右上角显示当前登录状态，提供登录/注册或注销链接。
@@ -57,13 +57,33 @@ node server.js
 
 ### 使用说明
 
-1. **浏览配方**：访问 http://localhost:8080/recipes/ 查看鸡尾酒配方列表
+1. **浏览配方**：访问 http://localhost:8080/recipes/ 查看鸡尾酒配方列表（分页显示）。
 2. **查看配方详情/评论**：点击配方列表中的链接进入详情页查看配方、评论，并发表评论（需登录）。
 3. **计算酒精度**：访问 http://localhost:8080/calculator/ 计算混合饮料的酒精含量
 4. **用户注册**：访问 http://localhost:8080/auth/register/ 进行注册
 5. **用户登录**：访问 http://localhost:8080/auth/login/ 进行登录
 6. **添加配方**：登录后访问 http://localhost:8080/add/ 添加新的鸡尾酒配方
 7. **后台管理**：以管理员身份登录后访问 http://localhost:8080/admin/ 管理配方、用户和评论，查看统计数据。
+
+## API 端点 (部分)
+
+- `GET /api/recipes?page=<page_number>&limit=<items_per_page>`: 获取配方列表（分页）。
+    - 返回: `{ recipes: [...], totalItems: number, totalPages: number, currentPage: number }`
+- `GET /api/recipes/:id`: 获取单个配方详情。
+- `POST /api/recipes`: 添加新配方 (需要登录)。
+- `DELETE /api/recipes/:id`: 删除配方 (需要管理员权限)。
+- `GET /api/recipes/:id/comments`: 获取配方的评论。
+- `POST /api/recipes/:id/comments`: 添加评论 (需要登录)。
+- `DELETE /api/comments/:commentId`: 删除评论 (需要管理员权限)。
+- `POST /api/register`: 用户注册。
+- `POST /api/login`: 用户登录。
+- `POST /api/logout`: 用户注销。
+- `GET /api/auth/status`: 获取当前登录状态。
+- `GET /api/admin/stats`: 获取后台统计数据 (需要管理员权限)。
+- `GET /api/admin/users`: 获取用户列表 (需要管理员权限)。
+- `DELETE /api/admin/users/:userId`: 删除用户 (需要管理员权限)。
+- `PUT /api/admin/users/:userId/role`: 修改用户角色 (需要管理员权限)。
+- `GET /api/admin/comments`: 获取所有评论 (需要管理员权限)。
 
 ## 项目结构
 
@@ -86,9 +106,9 @@ Cybar/
 ├── js/                 # 全局 JavaScript
 │   └── global.js       # Handles auth status display, logout
 ├── recipes/            # 配方列表和详情 (HTML, JS)
-│   ├── index.html
+│   ├── index.html      # Recipe list page (paginated)
 │   ├── detail.html     # Recipe detail page
-│   ├── recipes.js      # Handles recipe list logic
+│   ├── recipes.js      # Handles recipe list logic (pagination)
 │   └── detail.js       # Handles recipe detail logic
 ├── server.js           # Node.js服务器入口
 ├── package.json        # 项目依赖
@@ -123,26 +143,3 @@ Cybar/
 4. 推送到分支 (`git push origin feature/amazing-feature`)
 5. 开启一个 Pull Request
 
-<<<<<<< HEAD
-## 许可证
-
-本项目使用 MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件 (如果存在)
-
-## 未来计划
-
-- [ ] 密码加密存储 (使用 bcrypt 等库) - **高优先级**
-- [ ] 用户账户系统 (增强，如密码重置、个人资料)
-- [ ] 更持久化的访问统计 (例如按天存储到文件或数据库)
-- [ ] 配方编辑功能 (管理员或创建者)
-- [ ] 配方搜索/过滤/排序功能
-- [ ] 评论编辑/分页功能
-- [ ] 完善错误处理和用户反馈
-- [ ] 单元测试和集成测试
-- [ ] 部署到云平台
-
-## 联系方式
-
-- 项目维护者: [Your Name](mailto:your.email@example.com)
-- 项目主页: [GitHub Repository](https://github.com/yourusername/Cybar)
-=======
->>>>>>> 828fcdff8494a3366d53369c5305adf45326381d

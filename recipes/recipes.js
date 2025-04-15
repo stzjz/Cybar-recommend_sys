@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationContainer = document.getElementById('pagination-controls'); // Get pagination container
 
     let currentPage = 1;
-    const limit = 10;
+    const limit = 10; // Or any other desired limit
 
     const displayRecipes = (data) => {
         recipesContainer.innerHTML = ''; // Clear previous results
@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const nameHeading = document.createElement('h3');
             const nameLink = document.createElement('a');
-            // Use recipe.id for the detail link
-            nameLink.href = `recipe.html?id=${recipe.id}`; // Corrected link
+            // Use recipe.id for the detail link and correct filename
+            nameLink.href = `detail.html?id=${recipe.id}`; // Corrected link to detail.html
             // Display name and ABV
             nameLink.textContent = `${recipe.name} (~${recipe.estimatedAbv ? recipe.estimatedAbv.toFixed(1) : 'N/A'}% ABV)`;
             nameHeading.appendChild(nameLink);
@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Optionally display brief ingredients or instructions here if needed
             const instructions = document.createElement('p');
-            instructions.textContent = `做法：${recipe.instructions.substring(0, 100)}...`; // Example snippet
+            // Ensure instructions exist before trying to access substring
+            instructions.textContent = `做法：${recipe.instructions ? recipe.instructions.substring(0, 100) + '...' : '无说明'}`; // Example snippet with check
             article.appendChild(instructions);
 
             recipesContainer.appendChild(article);
@@ -54,7 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(`/api/recipes?page=${page}&limit=${limit}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    // Try to parse error response if possible
+                    return response.json().then(err => { throw new Error(err.message || `HTTP error! status: ${response.status}`) });
                 }
                 return response.json();
             })
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayRecipes(data);
             })
             .catch(error => {
-                loadingMessage.textContent = '加载配方失败。请稍后重试或检查服务器是否运行。';
+                loadingMessage.textContent = `加载配方失败: ${error.message}. 请稍后重试或检查服务器是否运行。`;
                 recipesContainer.style.display = 'none';
                 console.error('获取配方时出错:', error);
             });

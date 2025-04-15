@@ -355,16 +355,30 @@ async function loadRecipesForAdmin() {
     }
 
     try {
-        const response = await fetch('/api/recipes');
+        // Fetch potentially paginated recipes. For admin, we might want all,
+        // but let's handle the current API response structure first.
+        // Consider adding ?limit=1000 or similar if you need all recipes.
+        const response = await fetch('/api/recipes'); // Or /api/recipes?limit=1000
         if (!response.ok) {
              // Pass the specific message element
              if (handleAuthError(response, messageElement)) return;
-             throw new Error(`HTTP error! status: ${response.status}`);
+             // Try to parse error JSON
+             let errorMsg = `HTTP error! status: ${response.status}`;
+             try {
+                 const errData = await response.json();
+                 errorMsg = errData.message || errorMsg;
+             } catch (e) { /* Ignore parsing error */ }
+             throw new Error(errorMsg);
         }
-        const recipes = await response.json();
+        // --- MODIFICATION START ---
+        // The API now returns an object { recipes: [], ... }
+        const responseData = await response.json();
+        const recipes = responseData.recipes; // Extract the array
+        // --- MODIFICATION END ---
 
         container.innerHTML = '';
-        if (recipes.length === 0) {
+        // Check if the extracted recipes array is valid and has items
+        if (!recipes || recipes.length === 0) {
             container.innerHTML = '<tr><td colspan="3">没有配方可管理。</td></tr>';
             if (messageElement) messageElement.textContent = '';
             return;
