@@ -421,59 +421,34 @@ async function deleteRecipe(recipeId) {
     }
 }
 
-// Add back Chart instance variable
-let specificPageVisitsChartInstance = null;
-
-// Add back Chart helper functions if removed previously
-// Helper function to create or update a chart
-function createOrUpdateChart(canvasId, chartInstance, chartType, chartData, chartOptions) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) {
-        console.error(`Canvas element '${canvasId}' not found.`);
-        return null;
-    }
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        console.error(`Failed to get 2D context for canvas '${canvasId}'.`);
-        return null;
-    }
-    if (chartInstance) {
-        chartInstance.destroy();
-    }
-    return new Chart(ctx, {
-        type: chartType,
-        data: chartData,
-        options: chartOptions
-    });
-}
-
-// Default chart options (can be customized per chart)
-const defaultChartOptions = (titleText, indexAxis = 'x') => ({ // Default to vertical bar ('x' axis)
-    indexAxis: indexAxis,
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-        y: { ticks: { color: '#e0e0e0' }, grid: { color: 'rgba(255, 255, 255, 0.1)' }, beginAtZero: true },
-        x: { ticks: { color: '#e0e0e0' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
-    },
-    plugins: {
-        legend: { display: false },
-        title: { display: true, text: titleText, color: '#ffffff', font: { size: 14 } }
-    }
-});
-
+let pageVisitsChartInstance = null; // Variable to hold the chart instance
 
 async function loadStats() {
     const statsContainer = document.getElementById('admin-stats');
     const messageElement = document.getElementById('admin-message');
     const totalRecipesEl = document.getElementById('stat-total-recipes');
     const totalUsersEl = document.getElementById('stat-total-users');
+    // Remove reference to old page visits list UL if it was removed from HTML
+    // const pageVisitsList = document.getElementById('stat-page-visits');
+    const chartCanvas = document.getElementById('pageVisitsChart'); // Get canvas element
 
-    console.log('[Admin JS] loadStats called.');
+    // Basic check for chart context
+    if (!chartCanvas) {
+        console.error("Chart canvas element 'pageVisitsChart' not found.");
+        // Optionally display an error message in statsContainer
+        if(statsContainer) statsContainer.textContent = '无法加载图表容器。';
+        return; // Stop if canvas doesn't exist
+    }
+    const ctx = chartCanvas.getContext('2d');
+    if (!ctx) {
+         console.error("Failed to get 2D context for chart canvas.");
+         if(statsContainer) statsContainer.textContent = '无法初始化图表。';
+         return; // Stop if context fails
+    }
+
 
     if (!statsContainer || !totalRecipesEl || !totalUsersEl) {
         console.error("One or more stats text elements not found.");
-        if (statsContainer) statsContainer.textContent = '错误：无法找到必要的页面元素。';
         return;
     }
     statsContainer.textContent = '正在加载统计数据...';
@@ -481,86 +456,117 @@ async function loadStats() {
 
     try {
         const response = await fetch('/api/admin/stats');
-        console.log('[Admin JS] Fetched /api/admin/stats, status:', response.status);
+
         if (!response.ok) {
             if (handleAuthError(response, messageElement || statsContainer)) return;
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const stats = await response.json();
-        console.log('[Admin JS] Received stats data:', stats);
 
         // Update text stats
         totalRecipesEl.textContent = stats.totalRecipes ?? 'N/A';
         totalUsersEl.textContent = stats.totalUsers ?? 'N/A';
 
-        // --- Populate Specific Page Visits Chart ---
-        // The API now returns the filtered visits data directly in stats.visits
+        // --- Prepare data for Chart.js ---
         const visitsData = stats.visits || {};
-        console.log('[Admin JS] Processing visits data for chart:', visitsData);
+        const pageLabels = Object.keys(visitsData);
+        const visitCounts = Object.values(visitsData);
 
-        // Define the order and user-friendly labels for the chart
-        const pathOrder = ['/', '/recipes/', '/calculator/', '/add/'];
-        const chartLabels = {
-            '/': '主菜单',
-            '/recipes/': '配方列表',
-            '/calculator/': '计算器',
-            '/add/': '添加配方'
+        // --- Create/Update Chart.js Chart ---
+        const chartData = {
+            labels: pageLabels,
+            datasets: [{
+                label: '页面访问次数',
+                data: visitCounts,
+                backgroundColor: [ // Example colors - add more if needed
+                    'rgba(0, 229, 255, 0.6)', // Cyan
+                    'rgba(255, 64, 129, 0.6)', // Pink
+                    'rgba(255, 152, 0, 0.6)',  // Orange
+                    'rgba(76, 175, 80, 0.6)',   // Green
+                    'rgba(156, 39, 176, 0.6)', // Purple
+                    'rgba(255, 235, 59, 0.6)', // Yellow
+                ],
+                borderColor: [ // Example border colors
+                    'rgba(0, 229, 255, 1)',
+                    'rgba(255, 64, 129, 1)',
+                    'rgba(255, 152, 0, 1)',
+                    'rgba(76, 175, 80, 1)',
+                    'rgba(156, 39, 176, 1)',
+                    'rgba(255, 235, 59, 1)',
+                ],
+                borderWidth: 1
+            }]
         };
 
-        // Prepare data in the defined order
-        const labelsForChart = pathOrder.map(path => chartLabels[path] || path); // Use friendly label or path
-        const dataValuesForChart = pathOrder.map(path => visitsData[path] || 0); // Get count or default to 0
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false, // Allow chart to fill container height/width
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                         color: '#e0e0e0' // Light color for Y-axis labels
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)' // Light grid lines
+                    }
+                },
+                x: {
+                     ticks: {
+                         color: '#e0e0e0' // Light color for X-axis labels
+                     },
+                     grid: {
+                        color: 'rgba(255, 255, 255, 0.1)' // Light grid lines
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false // Hide legend for a cleaner look with few datasets
+                },
+                title: {
+                    display: true,
+                    text: '页面访问统计',
+                    color: '#ffffff', // White title
+                    font: { size: 16 }
+                }
+            }
+        };
 
-        specificPageVisitsChartInstance = createOrUpdateChart(
-            'specificPageVisitsChart',
-            specificPageVisitsChartInstance,
-            'bar', // chartType
-            { // chartData
-                labels: labelsForChart, // Use the prepared labels
-                datasets: [{
-                    label: '页面访问次数',
-                    data: dataValuesForChart, // Use the prepared data values
-                    backgroundColor: [ // Optional: Different colors per bar
-                        'rgba(0, 229, 255, 0.6)',
-                        'rgba(255, 152, 0, 0.6)',
-                        'rgba(76, 175, 80, 0.6)',
-                        'rgba(255, 64, 129, 0.6)'
-                    ],
-                    borderColor: [
-                         'rgba(0, 229, 255, 1)',
-                         'rgba(255, 152, 0, 1)',
-                         'rgba(76, 175, 80, 1)',
-                         'rgba(255, 64, 129, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            }, // end chartData
-            defaultChartOptions('主要页面访问统计') // Use default options helper
-        );
-        // --- REMOVED Table Population Logic ---
-        /*
-        pageVisitsTableBody.innerHTML = '';
-        if (Object.keys(visitsData).length > 0) { ... } else { ... }
-        topVisitedTableBody.innerHTML = '';
-        if (topVisitedData.length > 0) { ... } else { ... }
-        */
+        // Destroy previous chart instance if it exists before creating a new one
+        if (pageVisitsChartInstance) {
+            pageVisitsChartInstance.destroy();
+        }
+
+        // Create the new chart
+        pageVisitsChartInstance = new Chart(ctx, {
+            type: 'bar', // Or 'pie', 'line', etc.
+            data: chartData,
+            options: chartOptions
+        });
+        // --- End Chart.js ---
+
 
         statsContainer.textContent = ''; // Clear loading message
 
     } catch (error) {
-        console.error('[Admin JS] Error in loadStats:', error);
-        statsContainer.textContent = `加载统计失败: ${error.message}`;
-        // REMOVED table error messages
-        // pageVisitsTableBody.innerHTML = '<tr><td colspan="2">加载失败</td></tr>';
-        // topVisitedTableBody.innerHTML = '<tr><td colspan="2">加载失败</td></tr>';
+        console.error('Error loading stats:', error);
+        const errorMsg = `加载统计数据失败: ${error.message || '未知错误'}`;
+        statsContainer.textContent = errorMsg;
+        statsContainer.style.color = 'red';
+        // Clear text stats on error
+        totalRecipesEl.textContent = '错误';
+        totalUsersEl.textContent = '错误';
+        // Optionally clear or hide the chart canvas on error
+        if (pageVisitsChartInstance) {
+            pageVisitsChartInstance.destroy();
+            pageVisitsChartInstance = null;
+        }
+        ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height); // Clear canvas
 
-        // Destroy chart on error
-        if (specificPageVisitsChartInstance) { specificPageVisitsChartInstance.destroy(); specificPageVisitsChartInstance = null; }
-        // Clear canvas on error
-        const canvas = document.getElementById('specificPageVisitsChart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            if(ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (messageElement) {
+            messageElement.textContent = errorMsg;
+            messageElement.style.color = 'red';
         }
     }
 }

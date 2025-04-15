@@ -4,11 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/api/auth/status')
         .then(response => response.json())
         .then(data => {
-            console.log('[global.js] Auth Status Received:', data); // Log received data
+            console.log('Auth Status Received:', data);
             if (data.loggedIn) {
                 document.body.classList.add('logged-in');
                 document.body.classList.remove('logged-out');
-                console.log('[global.js] Added class: logged-in'); // Log class add
 
                 const userRole = data.role;
                 console.log('User Role:', userRole);
@@ -57,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.remove('logged-in');
                 document.body.classList.remove('is-admin');
                 document.body.classList.remove('is-god'); // Ensure removed
-                console.log('[global.js] Added class: logged-out'); // Log class add
                 if (userStatusDiv) {
                     userStatusDiv.innerHTML = `
                         <a href="/auth/login/">登录</a> |
@@ -65,21 +63,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 }
             }
-            // Dispatch custom event AFTER updating body class
-            console.log('[global.js] Dispatching authStatusKnown event.');
             document.dispatchEvent(new CustomEvent('authStatusKnown', { detail: data }));
         })
         .catch(error => {
-            console.error('[global.js] Error fetching auth status:', error);
-            document.body.classList.add('logged-out'); // Assume logged out on error
+            console.error('Error fetching auth status:', error);
+            document.body.classList.add('logged-out');
             document.body.classList.remove('logged-in');
             document.body.classList.remove('is-admin');
             document.body.classList.remove('is-god'); // Ensure removed
             if (userStatusDiv) {
                 userStatusDiv.innerHTML = '<a href="/auth/login/">登录</a> | <a href="/auth/register/">注册</a>'; // Fallback
             }
-            // Dispatch event even on error so dependent scripts can proceed
-            console.log('[global.js] Dispatching authStatusKnown event after error.');
-            document.dispatchEvent(new CustomEvent('authStatusKnown', { detail: { loggedIn: false } }));
+             document.dispatchEvent(new CustomEvent('authStatusKnown', { detail: { loggedIn: false } }));
         });
 });
