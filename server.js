@@ -1,26 +1,25 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs').promises; // Keep for other file operations
-const session = require('express-session');
+const fs = require('fs').promises; // Use promises version of fs
+const session = require('express-session'); // Import express-session
 
 const app = express();
-const port = 8080;
+const port = 8080; // Change port number to 8080
 
-// --- Restore In-Memory Visit Counter ---
+// --- Visit Counter (In-Memory - Resets on server restart) ---
+// Use an object to store counts per path
 const pageVisitCounts = {
-    '/': 0,          // 主菜单
-    '/recipes/': 0,  // 配方列表
-    '/calculator/': 0,// 计算器
-    '/add/': 0,      // 添加配方
-    // '/admin/': 0, // Admin page is not included in the trackedPaths for the chart
+    '/': 0, // Main page
+    '/recipes/': 0,
+    '/calculator/': 0,
+    '/add/': 0, // Count attempts to access, even if redirected
+    '/admin/': 0, // Count attempts to access, even if redirected
+    // Add other paths if needed, ensure they match the GET route paths
 };
-// Define tracked paths for consistency (used by middleware and API)
-const trackedPaths = ['/', '/recipes/', '/calculator/', '/add/'];
 
 const USERS_FILE = path.join(__dirname, 'users.json');
 const RECIPES_FILE = path.join(__dirname, 'recipes.json');
-const COMMENTS_FILE = path.join(__dirname, 'comments.json');
-// const STATS_FILE = path.join(__dirname, 'stats.json'); // REMOVED
+const COMMENTS_FILE = path.join(__dirname, 'comments.json'); // Define comments file path
 
 // Middleware
 // Middleware to count page loads (HTML requests)
@@ -46,6 +45,65 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: false } // Set to true if using HTTPS
 }));
+
+// Helper function to read users
+const readUsers = async () => {
+    try {
+        // Explicitly specify utf8 encoding and handle potential BOM
+        let data = await fs.readFile(USERS_FILE, 'utf8');
+        // Remove BOM if present (common issue with UTF-8 files edited in Windows Notepad)
+        if (data.charCodeAt(0) === 0xFEFF) {
+            data = data.slice(1);
+        }
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            // If file doesn't exist, return empty array
+            console.log("users.json not found, returning empty array."); // Add log
+            return [];
+        }
+        // Log the specific JSON parsing error as well
+        console.error("Error reading or parsing users file:", error);
+        throw error; // Re-throw other errors
+    }
+};
+
+// Helper function to write users
+const writeUsers = async (users) => {
+    try {
+        await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+    } catch (error) {
+        console.error("Error writing users file:", error);
+        throw error;
+    }
+};
+
+// --- Helper function to read comments ---
+const readComments = async () => {
+    try {
+        let data = await fs.readFile(COMMENTS_FILE, 'utf8');
+        if (data.charCodeAt(0) === 0xFEFF) { data = data.slice(1); }
+        // Comments stored as an object: { "recipeId": [ { comment }, ... ], ... }
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            console.log("comments.json not found, returning empty object.");
+            return {}; // Return empty object if file doesn't exist
+        }
+        console.error("Error reading or parsing comments file:", error);
+        throw error;
+    }
+};
+
+// --- Helper function to write comments ---
+const writeComments = async (comments) => {
+    try {
+        await fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 2), 'utf8');
+    } catch (error) {
+        console.error("Error writing comments file:", error);
+        throw error;
+    }
+};
 
 // Authentication Middleware
 const isAuthenticated = (req, res, next) => {
@@ -284,38 +342,27 @@ app.delete('/api/recipes/:id', isAuthenticated, isAdmin, async (req, res) => { /
     }
 });
 
-// API to get admin statistics (Updated with robust sorting)
-app.get('/api/admin/stats', isAuthenticated, isAdmin, async (req, res) => {
-    try {
-        const users = await readUsers();
-        const recipes = await readRecipes();
+// API to get admin statistics
+app.get('/api/admin/stats', isAuthenticated, isAdmin, (req, res) => { // Add isAdmin middleware
+    // Return the visit counts object along with other stats
+    const stats = {
+        totalRecipes: 0,
+        visits: pageVisitCounts, // Return the whole counts object
+        totalUsers: 0
+    };
 
-        // Get visits data directly from memory object
-        // Filter to only include the paths intended for the chart
-        const visitsDataFiltered = {};
-        trackedPaths.forEach(path => {
-             // Ensure the path exists in pageVisitCounts before accessing
-             if (pageVisitCounts.hasOwnProperty(path)) {
-                 visitsDataFiltered[path] = pageVisitCounts[path];
-             } else {
-                 visitsDataFiltered[path] = 0; // Default to 0 if somehow missing
-             }
-        });
-        console.log('[Admin Stats API] Visits data from memory (filtered):', visitsDataFiltered);
-
-        const responsePayload = {
-            totalRecipes: recipes.length,
-            totalUsers: users.length,
-            visits: visitsDataFiltered, // Send filtered visits data from memory
-        };
-        console.log('[Admin Stats API] Sending response payload:', responsePayload);
-        res.json(responsePayload);
-
-    } catch (error) {
-        // Errors are now more likely from readUsers/readRecipes
-        console.error("[Admin Stats API] Error fetching admin stats:", error);
-        res.status(500).json({ message: '无法加载管理统计信息' });
-    }
+    Promise.all([
+        fs.readFile(RECIPES_FILE, 'utf8').then(data => JSON.parse(data.charCodeAt(0) === 0xFEFF ? data.slice(1) : data)).catch(() => []),
+        fs.readFile(USERS_FILE, 'utf8').then(data => JSON.parse(data.charCodeAt(0) === 0xFEFF ? data.slice(1) : data)).catch(() => [])
+    ]).then(([recipes, users]) => {
+        stats.totalRecipes = recipes.length;
+        stats.totalUsers = users.length;
+        res.json(stats);
+    }).catch(error => {
+        console.error("Error reading files for stats:", error);
+        // Still send stats, including potentially incomplete visit counts
+        res.json(stats);
+    });
 });
 
 // --- New API Route to get all users (Admin only) ---
@@ -633,127 +680,7 @@ app.get('/', (req, res) => {
     res.redirect('/recipes/');
 });
 
-// Serve recipe detail page (HTML only, JS fetches data)
-// THIS IS THE CORRECT ONE TO KEEP
-app.get('/recipes/:id', (req, res) => {
-    // Basic validation for ID format if needed
-    // Just serve the static HTML, the client-side JS will fetch data
-    // Visit count is handled by middleware
-    res.sendFile(path.join(__dirname, 'recipes', 'recipe.html'));
-});
-
-// API to get recipe details (REMOVED like status)
-app.get('/api/recipes/:id/details', async (req, res) => {
-    const recipeId = req.params.id;
-    try {
-        const recipes = await readRecipes();
-        const recipe = recipes.find(r => r.id === recipeId);
-
-        if (!recipe) {
-            return res.status(404).json({ message: '配方未找到' });
-        }
-
-        // Initialize fields if missing (for safety) - likeCount/likedBy no longer needed here
-        recipe.visitCount = recipe.visitCount || 0;
-        // recipe.likeCount = recipe.likeCount || 0; // Removed
-        // recipe.likedBy = recipe.likedBy || []; // Removed
-
-        // Check if current user has liked this recipe - REMOVED
-        // const userId = req.session.userId;
-        // const liked = userId ? recipe.likedBy.includes(userId) : false; // Removed
-
-        // Return recipe data WITHOUT like status
-        // Destructure to exclude likedBy if it still exists in the file
-        const { likedBy, likeCount, ...recipeData } = recipe;
-        res.json(recipeData); // Send recipe data only
-
-    } catch (error) {
-        console.error("Error fetching recipe details:", error);
-        res.status(500).json({ message: '获取配方详情时出错' });
-    }
-});
-
-// --- REMOVED Like/Unlike API Routes ---
-/*
-app.post('/api/recipes/:id/toggle_like', isAuthenticated, async (req, res) => {
-    // ... removed implementation ...
-});
-*/
-
 // Start server
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`); // Update console log message
 });
-
-// --- Helper Functions ---
-
-// Function to read JSON file, return empty array/object on error/not found
-const readJsonFile = async (filePath, defaultReturn = []) => {
-    try {
-        const data = await fs.readFile(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            console.warn(`File not found: ${filePath}. Returning default.`);
-            return defaultReturn; // Return default if file doesn't exist
-        }
-        console.error(`Error reading or parsing JSON file ${filePath}:`, error);
-        // Depending on severity, you might want to throw error or return default
-        // For read operations, returning default might be safer to prevent crashes
-        return defaultReturn;
-    }
-};
-
-// Function to write JSON file
-const writeJsonFile = async (filePath, data) => {
-    try {
-        await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
-    } catch (error) {
-        console.error(`Error writing JSON file ${filePath}:`, error);
-        throw error; // Re-throw write errors as they are critical
-    }
-};
-
-// Specific read/write functions using the helpers
-const readRecipes = () => readJsonFile(RECIPES_FILE, []);
-const writeRecipes = (data) => writeJsonFile(RECIPES_FILE, data);
-const readUsers = () => readJsonFile(USERS_FILE, []);
-const writeUsers = (data) => writeJsonFile(USERS_FILE, data);
-const readComments = () => readJsonFile(COMMENTS_FILE, {}); // Default is object for comments
-const writeComments = (data) => writeJsonFile(COMMENTS_FILE, data);
-
-// --- Middleware Setup ---
-app.use(express.static(__dirname));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(session({
-    secret: 'your strong secret key here', // *** CHANGE THIS ***
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }
-}));
-
-// Middleware to count specific page visits and persist to stats.json
-// trackedPaths is already defined earlier in the file
-
-app.use((req, res, next) => {
-    const isPageRequest = req.method === 'GET' && (!path.extname(req.path) || req.path.endsWith('/'));
-
-    if (isPageRequest) {
-        let pathKey = req.path;
-        if (!pathKey.endsWith('/')) pathKey += '/';
-        if (!pathKey.startsWith('/')) pathKey = '/' + pathKey;
-
-        // Check if the path is one we are tracking in memory
-        if (pageVisitCounts.hasOwnProperty(pathKey)) {
-            pageVisitCounts[pathKey]++;
-            console.log(`[Visit Counter - Memory] Updated counts: ${JSON.stringify(pageVisitCounts)}`);
-        }
-    }
-    next(); // Continue to the next middleware/route
-});
-
-// ...existing code...
-
-// --- Start Server ---
-// ...existing code...
