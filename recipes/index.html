@@ -22,16 +22,24 @@
     </nav>
 
     <main>
+        <!-- Remove the load button div -->
+        <!--
         <div style="text-align: center; margin-bottom: 20px;">
             <button id="load-recipes-btn">加载所有配方</button>
         </div>
+         -->
         <section id="recipes-list">
             <h2>经典配方</h2>
             <!-- 配方将由 JavaScript 动态加载到这里 -->
             <div id="recipes-container" style="display: none;"> <!-- Container for recipes, initially hidden -->
                 <!-- Recipe articles will be added here -->
             </div>
-            <div id="loading-message">点击按钮加载配方。</div>
+            <div id="loading-message">正在加载配方...</div> <!-- Update initial message -->
+
+            <!-- Add Pagination Controls Container -->
+            <div id="pagination-controls" style="text-align: center; margin-top: 20px;">
+                <!-- Pagination buttons/info will be loaded here -->
+            </div>
         </section>
     </main>
 

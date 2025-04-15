@@ -11,11 +11,6 @@
     "password": "nikki"
   },
   {
-    "id": "1744624941284",
-    "username": "coffee0",
-    "password": "coffee123"
-  },
-  {
     "id": "1744624960556",
     "username": "Coffee",
     "password": "123456"
@@ -46,11 +41,6 @@
     "password": "123"
   },
   {
-    "id": "1744637679029",
-    "username": "admin",
-    "password": "admin"
-  },
-  {
     "id": "1744638125774",
     "username": "252’or 1=1--",
     "password": "252"
@@ -65,5 +55,23 @@
     "username": "Andrew",
     "password": "99%+1%=Success",
     "role": "admin"
+  },
+  {
+    "id": "1744648882954",
+    "username": "zengj233",
+    "password": "252yyds",
+    "role": "user"
+  },
+  {
+    "id": "1744649052008",
+    "username": "中山大学不会梦到Coffee学长",
+    "password": "nikki",
+    "role": "user"
+  },
+  {
+    "id": "1744649646169",
+    "username": "我喜欢252哈哈",
+    "password": "123456",
+    "role": "user"
   }
 ]

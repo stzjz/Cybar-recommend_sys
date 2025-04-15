@@ -123,6 +123,7 @@ Cybar/
 4. 推送到分支 (`git push origin feature/amazing-feature`)
 5. 开启一个 Pull Request
 
+<<<<<<< HEAD
 ## 许可证
 
 本项目使用 MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件 (如果存在)
@@ -143,3 +144,5 @@ Cybar/
 
 - 项目维护者: [Your Name](mailto:your.email@example.com)
 - 项目主页: [GitHub Repository](https://github.com/yourusername/Cybar)
+=======
+>>>>>>> 828fcdff8494a3366d53369c5305adf45326381d
