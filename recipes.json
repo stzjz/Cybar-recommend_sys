@@ -79,5 +79,580 @@
     "estimatedAbv": 10,
     "id": "1744628113626",
     "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000005",
+    "name": "莫吉托 (Mojito)",
+    "ingredients": [
+      { "name": "白朗姆酒 (White Rum)", "volume": 50, "abv": 40 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 25, "abv": 0 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 20, "abv": 0 },
+      { "name": "苏打水 (Soda Water)", "volume": 50, "abv": 0 },
+      { "name": "薄荷叶 (Mint Leaves)", "volume": 0, "abv": 0 }
+    ],
+    "instructions": "在高球杯中轻轻捣碎薄荷叶和糖浆，加入青柠汁和朗姆酒，加满碎冰，搅拌，最后加苏打水，用薄荷枝和青柠角装饰。",
+    "estimatedAbv": 12,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000006",
+    "name": "玛格丽特 (Margarita)",
+    "ingredients": [
+      { "name": "龙舌兰酒 (Tequila)", "volume": 50, "abv": 40 },
+      { "name": "橙皮利口酒 (Triple Sec)", "volume": 25, "abv": 40 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 25, "abv": 0 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰摇匀，滤入盐边的玛格丽特杯中，用青柠角装饰。",
+    "estimatedAbv": 26,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000007",
+    "name": "大都会 (Cosmopolitan)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 40, "abv": 40 },
+      { "name": "橙皮利口酒 (Triple Sec)", "volume": 20, "abv": 40 },
+      { "name": "蔓越莓汁 (Cranberry Juice)", "volume": 30, "abv": 0 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 10, "abv": 0 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰摇匀，滤入冰镇的马提尼杯中，用橙皮装饰。",
+    "estimatedAbv": 21,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000008",
+    "name": "曼哈顿 (Manhattan)",
+    "ingredients": [
+      { "name": "黑麦威士忌 (Rye Whiskey)", "volume": 60, "abv": 45 },
+      { "name": "甜味美思 (Sweet Vermouth)", "volume": 30, "abv": 15 },
+      { "name": "安哥斯图拉苦精 (Angostura Bitters)", "volume": 2, "abv": 44.7 }
+    ],
+    "instructions": "将所有原料倒入调酒杯中，加冰搅拌均匀，滤入冰镇的鸡尾酒杯中，用樱桃装饰。",
+    "estimatedAbv": 31,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000009",
+    "name": "马提尼 (Martini)",
+    "ingredients": [
+      { "name": "金酒 (Gin)", "volume": 60, "abv": 47 },
+      { "name": "干味美思 (Dry Vermouth)", "volume": 15, "abv": 18 }
+    ],
+    "instructions": "将所有原料倒入调酒杯中，加冰搅拌均匀（或摇匀），滤入冰镇的马提尼杯中，用橄榄或柠檬皮装饰。",
+    "estimatedAbv": 37,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000010",
+    "name": "威士忌酸 (Whiskey Sour)",
+    "ingredients": [
+      { "name": "波本威士忌 (Bourbon Whiskey)", "volume": 60, "abv": 40 },
+      { "name": "柠檬汁 (Lemon Juice)", "volume": 30, "abv": 0 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 15, "abv": 0 },
+      { "name": "蛋清 (Egg White)", "volume": 15, "abv": 0 }
+    ],
+    "instructions": "将所有原料（除蛋清外）倒入摇酒器中，加冰摇匀。如果使用蛋清，先干摇（不加冰），再加冰摇匀。滤入冰镇的酸酒杯中，用橙片和樱桃装饰。",
+    "estimatedAbv": 19,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000011",
+    "name": "内格罗尼 (Negroni)",
+    "ingredients": [
+      { "name": "金酒 (Gin)", "volume": 30, "abv": 47 },
+      { "name": "金巴利 (Campari)", "volume": 30, "abv": 25 },
+      { "name": "甜味美思 (Sweet Vermouth)", "volume": 30, "abv": 15 }
+    ],
+    "instructions": "将所有原料倒入装有大冰块的老式杯中，轻轻搅拌，用橙皮装饰。",
+    "estimatedAbv": 26,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000012",
+    "name": "血腥玛丽 (Bloody Mary)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 50, "abv": 40 },
+      { "name": "番茄汁 (Tomato Juice)", "volume": 100, "abv": 0 },
+      { "name": "柠檬汁 (Lemon Juice)", "volume": 15, "abv": 0 },
+      { "name": "伍斯特酱 (Worcestershire Sauce)", "volume": 2, "abv": 0 },
+      { "name": "塔巴斯科辣酱 (Tabasco Sauce)", "volume": 1, "abv": 0 },
+      { "name": "盐和胡椒 (Salt and Pepper)", "volume": 0, "abv": 0 }
+    ],
+    "instructions": "在高球杯中加入冰块，倒入所有原料，轻轻搅拌，用芹菜梗和柠檬角装饰。",
+    "estimatedAbv": 11,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000013",
+    "name": "长岛冰茶 (Long Island Iced Tea)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 15, "abv": 40 },
+      { "name": "龙舌兰酒 (Tequila)", "volume": 15, "abv": 40 },
+      { "name": "白朗姆酒 (White Rum)", "volume": 15, "abv": 40 },
+      { "name": "金酒 (Gin)", "volume": 15, "abv": 40 },
+      { "name": "橙皮利口酒 (Triple Sec)", "volume": 15, "abv": 40 },
+      { "name": "柠檬汁 (Lemon Juice)", "volume": 25, "abv": 0 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 30, "abv": 0 },
+      { "name": "可乐 (Cola)", "volume": 30, "abv": 0 }
+    ],
+    "instructions": "将所有烈酒、柠檬汁和糖浆倒入装满冰块的高球杯中，轻轻搅拌，最后加满可乐，用柠檬角装饰。",
+    "estimatedAbv": 22,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000014",
+    "name": "自由古巴 (Cuba Libre)",
+    "ingredients": [
+      { "name": "白朗姆酒 (White Rum)", "volume": 50, "abv": 40 },
+      { "name": "可乐 (Cola)", "volume": 120, "abv": 0 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 10, "abv": 0 }
+    ],
+    "instructions": "在高球杯中加入冰块，倒入朗姆酒和青柠汁，加满可乐，轻轻搅拌，用青柠角装饰。",
+    "estimatedAbv": 11,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000015",
+    "name": "黛克瑞 (Daiquiri)",
+    "ingredients": [
+      { "name": "白朗姆酒 (White Rum)", "volume": 60, "abv": 40 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 30, "abv": 0 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 15, "abv": 0 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰摇匀，滤入冰镇的鸡尾酒杯中。",
+    "estimatedAbv": 23,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000016",
+    "name": "法国75 (French 75)",
+    "ingredients": [
+      { "name": "金酒 (Gin)", "volume": 30, "abv": 47 },
+      { "name": "柠檬汁 (Lemon Juice)", "volume": 15, "abv": 0 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 15, "abv": 0 },
+      { "name": "香槟 (Champagne)", "volume": 60, "abv": 12 }
+    ],
+    "instructions": "将金酒、柠檬汁和糖浆倒入摇酒器中，加冰摇匀，滤入香槟杯中，最后加满香槟，用柠檬皮装饰。",
+    "estimatedAbv": 18,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000017",
+    "name": "边车 (Sidecar)",
+    "ingredients": [
+      { "name": "干邑白兰地 (Cognac)", "volume": 50, "abv": 40 },
+      { "name": "橙皮利口酒 (Triple Sec)", "volume": 20, "abv": 40 },
+      { "name": "柠檬汁 (Lemon Juice)", "volume": 20, "abv": 0 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰摇匀，滤入糖边的鸡尾酒杯中，用橙皮装饰。",
+    "estimatedAbv": 28,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000018",
+    "name": "老式鸡尾酒 (Old Fashioned)",
+    "ingredients": [
+      { "name": "波本或黑麦威士忌 (Bourbon or Rye Whiskey)", "volume": 60, "abv": 45 },
+      { "name": "方糖 (Sugar Cube)", "volume": 1, "abv": 0 },
+      { "name": "安哥斯图拉苦精 (Angostura Bitters)", "volume": 2, "abv": 44.7 },
+      { "name": "水 (Water)", "volume": 5, "abv": 0 }
+    ],
+    "instructions": "在老式杯中放入方糖，滴上苦精，加少量水，捣碎方糖。加入威士忌和大冰块，轻轻搅拌，用橙皮和樱桃装饰。",
+    "estimatedAbv": 38,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000019",
+    "name": "椰林飘香 (Piña Colada)",
+    "ingredients": [
+      { "name": "白朗姆酒 (White Rum)", "volume": 50, "abv": 40 },
+      { "name": "椰浆 (Coconut Cream)", "volume": 30, "abv": 0 },
+      { "name": "菠萝汁 (Pineapple Juice)", "volume": 90, "abv": 0 }
+    ],
+    "instructions": "将所有原料和碎冰倒入搅拌机中，搅拌至顺滑，倒入飓风杯中，用菠萝片和樱桃装饰。",
+    "estimatedAbv": 11,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000020",
+    "name": "莫斯科骡子 (Moscow Mule)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 50, "abv": 40 },
+      { "name": "姜汁啤酒 (Ginger Beer)", "volume": 120, "abv": 0 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 10, "abv": 0 }
+    ],
+    "instructions": "在铜杯或高球杯中加入冰块，倒入伏特加和青柠汁，加满姜汁啤酒，轻轻搅拌，用青柠角装饰。",
+    "estimatedAbv": 11,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000021",
+    "name": "阿佩罗喷雾 (Aperol Spritz)",
+    "ingredients": [
+      { "name": "阿佩罗利口酒 (Aperol)", "volume": 60, "abv": 11 },
+      { "name": "普罗塞克起泡酒 (Prosecco)", "volume": 90, "abv": 11 },
+      { "name": "苏打水 (Soda Water)", "volume": 30, "abv": 0 }
+    ],
+    "instructions": "在葡萄酒杯中加入冰块，倒入阿佩罗和普罗塞克，最后加入苏打水，轻轻搅拌，用橙片装饰。",
+    "estimatedAbv": 9,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000022",
+    "name": "贝里尼 (Bellini)",
+    "ingredients": [
+      { "name": "桃子果泥 (Peach Purée)", "volume": 50, "abv": 0 },
+      { "name": "普罗塞克起泡酒 (Prosecco)", "volume": 100, "abv": 11 }
+    ],
+    "instructions": "在冰镇的香槟杯中倒入桃子果泥，缓缓加入普罗塞克，轻轻搅拌。",
+    "estimatedAbv": 7,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000023",
+    "name": "含羞草 (Mimosa)",
+    "ingredients": [
+      { "name": "香槟或起泡酒 (Champagne or Sparkling Wine)", "volume": 75, "abv": 12 },
+      { "name": "橙汁 (Orange Juice)", "volume": 75, "abv": 0 }
+    ],
+    "instructions": "在香槟杯中先倒入冰镇的橙汁，再缓缓加入冰镇的香槟。",
+    "estimatedAbv": 6,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000024",
+    "name": "爱尔兰咖啡 (Irish Coffee)",
+    "ingredients": [
+      { "name": "爱尔兰威士忌 (Irish Whiskey)", "volume": 40, "abv": 40 },
+      { "name": "热咖啡 (Hot Coffee)", "volume": 120, "abv": 0 },
+      { "name": "红糖 (Brown Sugar)", "volume": 10, "abv": 0 },
+      { "name": "鲜奶油 (Fresh Cream)", "volume": 30, "abv": 0 }
+    ],
+    "instructions": "预热爱尔兰咖啡杯，加入红糖和威士忌，搅拌溶解。倒入热咖啡，留出空间。在顶部轻轻漂浮一层鲜奶油。",
+    "estimatedAbv": 8,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000025",
+    "name": "白色俄罗斯 (White Russian)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 50, "abv": 40 },
+      { "name": "咖啡利口酒 (Coffee Liqueur)", "volume": 20, "abv": 20 },
+      { "name": "鲜奶油 (Fresh Cream)", "volume": 30, "abv": 0 }
+    ],
+    "instructions": "在老式杯中加入冰块，倒入伏特加和咖啡利口酒，轻轻搅拌，最后在顶部漂浮一层鲜奶油。",
+    "estimatedAbv": 24,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000026",
+    "name": "黑色俄罗斯 (Black Russian)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 50, "abv": 40 },
+      { "name": "咖啡利口酒 (Coffee Liqueur)", "volume": 20, "abv": 20 }
+    ],
+    "instructions": "在老式杯中加入冰块，倒入伏特加和咖啡利口酒，轻轻搅拌。",
+    "estimatedAbv": 34,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000027",
+    "name": "教父 (Godfather)",
+    "ingredients": [
+      { "name": "苏格兰威士忌 (Scotch Whisky)", "volume": 50, "abv": 40 },
+      { "name": "杏仁利口酒 (Amaretto)", "volume": 25, "abv": 28 }
+    ],
+    "instructions": "在老式杯中加入冰块，倒入苏格兰威士忌和杏仁利口酒，轻轻搅拌。",
+    "estimatedAbv": 36,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000028",
+    "name": "教母 (Godmother)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 50, "abv": 40 },
+      { "name": "杏仁利口酒 (Amaretto)", "volume": 25, "abv": 28 }
+    ],
+    "instructions": "在老式杯中加入冰块，倒入伏特加和杏仁利口酒，轻轻搅拌。",
+    "estimatedAbv": 36,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000029",
+    "name": "锈钉 (Rusty Nail)",
+    "ingredients": [
+      { "name": "苏格兰威士忌 (Scotch Whisky)", "volume": 50, "abv": 40 },
+      { "name": "杜林标利口酒 (Drambuie)", "volume": 25, "abv": 40 }
+    ],
+    "instructions": "在老式杯中加入冰块，倒入苏格兰威士忌和杜林标利口酒，轻轻搅拌，用柠檬皮装饰。",
+    "estimatedAbv": 40,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000030",
+    "name": "金菲士 (Gin Fizz)",
+    "ingredients": [
+      { "name": "金酒 (Gin)", "volume": 50, "abv": 40 },
+      { "name": "柠檬汁 (Lemon Juice)", "volume": 25, "abv": 0 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 20, "abv": 0 },
+      { "name": "蛋清 (Egg White)", "volume": 15, "abv": 0 },
+      { "name": "苏打水 (Soda Water)", "volume": 30, "abv": 0 }
+    ],
+    "instructions": "将金酒、柠檬汁、糖浆和蛋清（可选）倒入摇酒器中，先干摇（不加冰），再加冰摇匀。滤入无冰的高球杯中，最后加满苏打水。",
+    "estimatedAbv": 17,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000031",
+    "name": "汤姆柯林斯 (Tom Collins)",
+    "ingredients": [
+      { "name": "老汤姆金酒 (Old Tom Gin)", "volume": 50, "abv": 40 },
+      { "name": "柠檬汁 (Lemon Juice)", "volume": 25, "abv": 0 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 15, "abv": 0 },
+      { "name": "苏打水 (Soda Water)", "volume": 100, "abv": 0 }
+    ],
+    "instructions": "将金酒、柠檬汁和糖浆倒入装满冰块的柯林斯杯中，搅拌均匀，加满苏打水，用柠檬片和樱桃装饰。",
+    "estimatedAbv": 10,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000032",
+    "name": "伏特加马提尼 (Vodka Martini)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 60, "abv": 40 },
+      { "name": "干味美思 (Dry Vermouth)", "volume": 15, "abv": 18 }
+    ],
+    "instructions": "将所有原料倒入调酒杯中，加冰搅拌均匀（或摇匀），滤入冰镇的马提尼杯中，用橄榄或柠檬皮装饰。",
+    "estimatedAbv": 35,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000033",
+    "name": "浓缩咖啡马提尼 (Espresso Martini)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 50, "abv": 40 },
+      { "name": "咖啡利口酒 (Coffee Liqueur)", "volume": 25, "abv": 20 },
+      { "name": "浓缩咖啡 (Espresso)", "volume": 25, "abv": 0 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 5, "abv": 0 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰用力摇匀，产生泡沫。双重滤入冰镇的马提尼杯中，用三颗咖啡豆装饰。",
+    "estimatedAbv": 24,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000034",
+    "name": "凯匹林纳 (Caipirinha)",
+    "ingredients": [
+      { "name": "卡莎萨 (Cachaça)", "volume": 60, "abv": 40 },
+      { "name": "青柠 (Lime)", "volume": 0.5, "abv": 0 },
+      { "name": "糖 (Sugar)", "volume": 10, "abv": 0 }
+    ],
+    "instructions": "在老式杯中放入切块的青柠和糖，用捣棒轻轻捣碎。加满碎冰，倒入卡莎萨，搅拌均匀。",
+    "estimatedAbv": 28,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000035",
+    "name": "薄荷朱利普 (Mint Julep)",
+    "ingredients": [
+      { "name": "波本威士忌 (Bourbon Whiskey)", "volume": 60, "abv": 45 },
+      { "name": "糖浆 (Simple Syrup)", "volume": 10, "abv": 0 },
+      { "name": "薄荷叶 (Mint Leaves)", "volume": 8, "abv": 0 }
+    ],
+    "instructions": "在朱利普杯或老式杯中轻轻捣碎薄荷叶和糖浆，加满碎冰，倒入波本威士忌，搅拌至杯壁结霜，用薄荷枝装饰。",
+    "estimatedAbv": 35,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000036",
+    "name": "萨泽拉克 (Sazerac)",
+    "ingredients": [
+      { "name": "黑麦威士忌 (Rye Whiskey)", "volume": 50, "abv": 45 },
+      { "name": "方糖 (Sugar Cube)", "volume": 1, "abv": 0 },
+      { "name": "佩肖苦精 (Peychaud's Bitters)", "volume": 3, "abv": 35 },
+      { "name": "苦艾酒 (Absinthe)", "volume": 5, "abv": 60 }
+    ],
+    "instructions": "用苦艾酒涮洗冰镇的老式杯，倒掉多余的酒液。在调酒杯中捣碎方糖和苦精，加入威士忌和冰块，搅拌均匀。滤入准备好的老式杯中，用柠檬皮装饰（挤压柠檬皮释放香气后丢弃）。",
+    "estimatedAbv": 39,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000037",
+    "name": "飞行 (Aviation)",
+    "ingredients": [
+      { "name": "金酒 (Gin)", "volume": 45, "abv": 47 },
+      { "name": "黑樱桃利口酒 (Maraschino Liqueur)", "volume": 15, "abv": 32 },
+      { "name": "紫罗兰利口酒 (Crème de Violette)", "volume": 5, "abv": 20 },
+      { "name": "柠檬汁 (Lemon Juice)", "volume": 15, "abv": 0 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰摇匀，滤入冰镇的鸡尾酒杯中，用樱桃装饰。",
+    "estimatedAbv": 32,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000038",
+    "name": "临别一语 (Last Word)",
+    "ingredients": [
+      { "name": "金酒 (Gin)", "volume": 22.5, "abv": 47 },
+      { "name": "绿查特酒 (Green Chartreuse)", "volume": 22.5, "abv": 55 },
+      { "name": "黑樱桃利口酒 (Maraschino Liqueur)", "volume": 22.5, "abv": 32 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 22.5, "abv": 0 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰摇匀，滤入冰镇的鸡尾酒杯中。",
+    "estimatedAbv": 34,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000039",
+    "name": "花花公子 (Boulevardier)",
+    "ingredients": [
+      { "name": "波本威士忌 (Bourbon Whiskey)", "volume": 30, "abv": 45 },
+      { "name": "金巴利 (Campari)", "volume": 30, "abv": 25 },
+      { "name": "甜味美思 (Sweet Vermouth)", "volume": 30, "abv": 15 }
+    ],
+    "instructions": "将所有原料倒入调酒杯中，加冰搅拌均匀，滤入冰镇的鸡尾酒杯或加冰的老式杯中，用橙皮或樱桃装饰。",
+    "estimatedAbv": 26,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000040",
+    "name": "迈泰 (Mai Tai)",
+    "ingredients": [
+      { "name": "陈年朗姆酒 (Aged Rum)", "volume": 30, "abv": 40 },
+      { "name": "白朗姆酒 (White Rum)", "volume": 30, "abv": 40 },
+      { "name": "橙皮利口酒 (Orange Curaçao)", "volume": 15, "abv": 30 },
+      { "name": "杏仁糖浆 (Orgeat Syrup)", "volume": 15, "abv": 0 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 30, "abv": 0 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰摇匀，滤入装满碎冰的老式杯或提基杯中，用薄荷枝、青柠角和樱桃装饰。",
+    "estimatedAbv": 24,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000041",
+    "name": "僵尸 (Zombie)",
+    "ingredients": [
+      { "name": "白朗姆酒 (White Rum)", "volume": 30, "abv": 40 },
+      { "name": "金朗姆酒 (Gold Rum)", "volume": 30, "abv": 40 },
+      { "name": "黑朗姆酒 (Dark Rum)", "volume": 30, "abv": 40 },
+      { "name": "杏子白兰地 (Apricot Brandy)", "volume": 15, "abv": 25 },
+      { "name": "菠萝汁 (Pineapple Juice)", "volume": 30, "abv": 0 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 15, "abv": 0 },
+      { "name": "红石榴糖浆 (Grenadine)", "volume": 5, "abv": 0 },
+      { "name": "151朗姆酒 (151 Proof Rum)", "volume": 15, "abv": 75.5 }
+    ],
+    "instructions": "将除151朗姆酒外的所有原料倒入摇酒器中，加冰摇匀。滤入装满碎冰的提基杯或高球杯中。小心地在顶部漂浮一层151朗姆酒，点燃（可选，注意安全），用薄荷枝和水果装饰。",
+    "estimatedAbv": 30,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000042",
+    "name": "新加坡司令 (Singapore Sling)",
+    "ingredients": [
+      { "name": "金酒 (Gin)", "volume": 30, "abv": 40 },
+      { "name": "樱桃利口酒 (Cherry Liqueur)", "volume": 15, "abv": 24 },
+      { "name": "橙皮利口酒 (Triple Sec)", "volume": 7.5, "abv": 40 },
+      { "name": "本笃会甜酒 (Bénédictine)", "volume": 7.5, "abv": 40 },
+      { "name": "菠萝汁 (Pineapple Juice)", "volume": 120, "abv": 0 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 15, "abv": 0 },
+      { "name": "红石榴糖浆 (Grenadine)", "volume": 10, "abv": 0 },
+      { "name": "安哥斯图拉苦精 (Angostura Bitters)", "volume": 1, "abv": 44.7 }
+    ],
+    "instructions": "将所有原料倒入摇酒器中，加冰摇匀，滤入装满冰块的高球杯中，用菠萝片和樱桃装饰。",
+    "estimatedAbv": 8,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000043",
+    "name": "龙舌兰日出 (Tequila Sunrise)",
+    "ingredients": [
+      { "name": "龙舌兰酒 (Tequila)", "volume": 50, "abv": 40 },
+      { "name": "橙汁 (Orange Juice)", "volume": 100, "abv": 0 },
+      { "name": "红石榴糖浆 (Grenadine)", "volume": 15, "abv": 0 }
+    ],
+    "instructions": "在高球杯中加入冰块，倒入龙舌兰酒和橙汁。沿着杯壁缓慢倒入红石榴糖浆，使其沉底形成日出效果，不要搅拌。用橙片和樱桃装饰。",
+    "estimatedAbv": 12,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000044",
+    "name": "海风 (Sea Breeze)",
+    "ingredients": [
+      { "name": "伏特加 (Vodka)", "volume": 40, "abv": 40 },
+      { "name": "蔓越莓汁 (Cranberry Juice)", "volume": 120, "abv": 0 },
+      { "name": "西柚汁 (Grapefruit Juice)", "volume": 30, "abv": 0 }
+    ],
+    "instructions": "在高球杯中加入冰块，倒入伏特加，加满蔓越莓汁和西柚汁，轻轻搅拌，用青柠角装饰。",
+    "estimatedAbv": 8,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000045",
+    "name": "咸狗 (Salty Dog)",
+    "ingredients": [
+      { "name": "伏特加或金酒 (Vodka or Gin)", "volume": 50, "abv": 40 },
+      { "name": "西柚汁 (Grapefruit Juice)", "volume": 100, "abv": 0 }
+    ],
+    "instructions": "用青柠角湿润高球杯口，蘸上盐形成盐边。在杯中加入冰块，倒入伏特加或金酒，加满西柚汁，轻轻搅拌。",
+    "estimatedAbv": 13,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000046",
+    "name": "灰狗 (Greyhound)",
+    "ingredients": [
+      { "name": "伏特加或金酒 (Vodka or Gin)", "volume": 50, "abv": 40 },
+      { "name": "西柚汁 (Grapefruit Juice)", "volume": 100, "abv": 0 }
+    ],
+    "instructions": "在高球杯中加入冰块，倒入伏特加或金酒，加满西柚汁，轻轻搅拌。",
+    "estimatedAbv": 13,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000047",
+    "name": "帕洛玛 (Paloma)",
+    "ingredients": [
+      { "name": "龙舌兰酒 (Tequila)", "volume": 50, "abv": 40 },
+      { "name": "西柚苏打水 (Grapefruit Soda)", "volume": 100, "abv": 0 },
+      { "name": "青柠汁 (Lime Juice)", "volume": 15, "abv": 0 },
+      { "name": "盐 (Salt)", "volume": 0, "abv": 0 }
+    ],
+    "instructions": "用青柠角湿润高球杯口，蘸上盐形成盐边。在杯中加入冰块，倒入龙舌兰酒和青柠汁，加满西柚苏打水，轻轻搅拌，用青柠角装饰。",
+    "estimatedAbv": 11,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000048",
+    "name": "美国佬 (Americano)",
+    "ingredients": [
+      { "name": "金巴利 (Campari)", "volume": 30, "abv": 25 },
+      { "name": "甜味美思 (Sweet Vermouth)", "volume": 30, "abv": 15 },
+      { "name": "苏打水 (Soda Water)", "volume": 60, "abv": 0 }
+    ],
+    "instructions": "在高球杯或老式杯中加入冰块，倒入金巴利和甜味美思，搅拌均匀，加满苏打水，用橙片或柠檬皮装饰。",
+    "estimatedAbv": 10,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000049",
+    "name": "基尔 (Kir)",
+    "ingredients": [
+      { "name": "白葡萄酒 (Dry White Wine)", "volume": 120, "abv": 12 },
+      { "name": "黑加仑利口酒 (Crème de Cassis)", "volume": 15, "abv": 15 }
+    ],
+    "instructions": "在冰镇的葡萄酒杯中倒入黑加仑利口酒，然后缓缓加入白葡萄酒。",
+    "estimatedAbv": 12,
+    "visitCount": 0
+  },
+  {
+    "id": "recipe_1700000000050",
+    "name": "皇家基尔 (Kir Royale)",
+    "ingredients": [
+      { "name": "香槟或起泡酒 (Champagne or Sparkling Wine)", "volume": 120, "abv": 12 },
+      { "name": "黑加仑利口酒 (Crème de Cassis)", "volume": 15, "abv": 15 }
+    ],
+    "instructions": "在冰镇的香槟杯中倒入黑加仑利口酒，然后缓缓加入香槟。",
+    "estimatedAbv": 12,
+    "visitCount": 0
   }
 ]
