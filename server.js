@@ -513,7 +513,7 @@ app.get('/calculator/', (req, res) => {
     res.sendFile(path.join(__dirname, 'calculator', 'index.html')); // Assuming calculator page is index.html
 });
 
-// API to get recipes (example) - Gets ALL recipes
+// API to get recipes (example) - Gets ALL recipes -> NOW WITH PAGINATION
 app.get('/api/recipes', async (req, res) => {
     try {
         // Explicitly specify utf8 encoding and handle potential BOM
@@ -522,11 +522,44 @@ app.get('/api/recipes', async (req, res) => {
         if (data.charCodeAt(0) === 0xFEFF) {
             data = data.slice(1);
         }
-        res.json(JSON.parse(data));
+        const allRecipes = JSON.parse(data);
+
+        // --- Pagination Logic ---
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        const results = {};
+        const totalItems = allRecipes.length;
+        results.totalItems = totalItems;
+        results.totalPages = Math.ceil(totalItems / limit);
+        results.currentPage = page;
+
+        if (endIndex < totalItems) {
+            results.next = {
+                page: page + 1,
+                limit: limit
+            };
+        }
+
+        if (startIndex > 0) {
+            results.previous = {
+                page: page - 1,
+                limit: limit
+            };
+        }
+
+        results.recipes = allRecipes.slice(startIndex, endIndex);
+        // --- End Pagination Logic ---
+
+        res.json(results); // Return paginated results
+
     } catch (error) {
         console.error("Error reading recipes:", error);
         if (error.code === 'ENOENT') {
-            res.json([]); // Return empty array if file doesn't exist
+            // Return empty pagination structure if file doesn't exist
+            res.json({ recipes: [], totalItems: 0, totalPages: 0, currentPage: 1 });
         } else {
             res.status(500).json({ message: '无法加载配方' });
         }

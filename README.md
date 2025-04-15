@@ -115,23 +115,3 @@ Cybar/
 4. 推送到分支 (`git push origin feature/amazing-feature`)
 5. 开启一个 Pull Request
 
-## 许可证
-
-本项目使用 MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件
-
-## 未来计划
-
-- [ ] 密码加密存储 (使用 bcrypt 等库)
-- [ ] 用户账户系统 (增强，如密码重置、个人资料)
-- [ ] 更持久化的访问统计 (例如按天存储到文件或数据库)
-- [ ] 配方编辑功能
-- [ ] 配方搜索/过滤功能
-- [ ] 更多视觉效果和动画
-- [ ] 移动应用支持
-- [ ] 社区分享功能
-- [ ] 多语言支持
-
-## 联系方式
-
-- 项目维护者: [Your Name](mailto:your.email@example.com)
-- 项目主页: [GitHub Repository](https://github.com/yourusername/Cybar)
