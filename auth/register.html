@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 - Cybar</title>
     <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/auth/auth.css">
 </head>
 <body>
     <header>
@@ -22,11 +23,12 @@
             </div>
             <div>
                 <label for="password">密码:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" required minlength="3">
             </div>
             <button type="submit">注册</button>
         </form>
         <p id="register-message" class="message" style="display: none;"></p>
+        <p class="login-hint">请妥善保存您的密码，丢了就找不回来咯(&#186;´༎ຶД༎ຶ`)</p>
         <p>已有账号？ <a href="/auth/login/">立即登录</a></p>
     </main>
     <footer>
