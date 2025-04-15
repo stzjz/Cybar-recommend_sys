@@ -382,44 +382,91 @@ app.get('/api/admin/users', isAuthenticated, isAdmin, async (req, res) => {
     }
 });
 
+// --- New API Route to get ALL comments (Admin only) ---
+app.get('/api/admin/comments', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const allCommentsData = await readComments(); // Reads the { recipeId: [comments...] } structure
+        const flatCommentList = [];
+
+        // Flatten the comments structure into a single list, adding recipeId to each comment
+        for (const recipeId in allCommentsData) {
+            allCommentsData[recipeId].forEach(comment => {
+                flatCommentList.push({
+                    ...comment, // Spread existing comment properties (id, userId, username, text, timestamp)
+                    recipeId: recipeId // Add the recipeId it belongs to
+                });
+            });
+        }
+
+        // Optional: Sort comments by timestamp, newest first
+        flatCommentList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        res.json(flatCommentList); // Send the flattened list
+    } catch (error) {
+        console.error("Error reading comments for admin:", error);
+        res.status(500).json({ message: '无法加载评论信息' });
+    }
+});
+
 // --- New API Route to DELETE a comment (Admin only) ---
+// Ensure this route is already protected by isAuthenticated and isAdmin
 app.delete('/api/comments/:commentId', isAuthenticated, isAdmin, async (req, res) => {
     const commentIdToDelete = req.params.commentId;
+    const adminUsername = req.session.username; // Get admin username for logging
+    console.log(`Admin '${adminUsername}' attempting to delete comment ID: ${commentIdToDelete}`); // Log attempt
+
     try {
+        console.log(`Reading comments file: ${COMMENTS_FILE}`);
         const allComments = await readComments();
         let commentFound = false;
         let recipeIdOfComment = null;
+        let updatedCommentsForRecipe = null;
 
         // Iterate through all recipes' comments to find the comment by ID
         for (const recipeId in allComments) {
             const commentsForRecipe = allComments[recipeId];
             const initialLength = commentsForRecipe.length;
+
             // Filter out the comment to delete
-            allComments[recipeId] = commentsForRecipe.filter(comment => comment.id !== commentIdToDelete);
-            // Check if a comment was removed
-            if (allComments[recipeId].length < initialLength) {
+            const filteredComments = commentsForRecipe.filter(comment => comment.id !== commentIdToDelete);
+
+            // Check if a comment was removed for this recipe
+            if (filteredComments.length < initialLength) {
+                console.log(`Comment ${commentIdToDelete} found in recipe ${recipeId}.`);
                 commentFound = true;
                 recipeIdOfComment = recipeId;
-                // If the recipe now has no comments, remove the recipe key (optional cleanup)
-                if (allComments[recipeId].length === 0) {
+                updatedCommentsForRecipe = filteredComments; // Store the filtered array
+
+                // If the recipe now has no comments, remove the recipe key
+                if (updatedCommentsForRecipe.length === 0) {
+                    console.log(`Recipe ${recipeId} has no comments left, removing key.`);
                     delete allComments[recipeId];
+                } else {
+                    // Otherwise, update the comments for this recipe
+                    allComments[recipeId] = updatedCommentsForRecipe;
                 }
                 break; // Stop searching once found and removed
             }
         }
 
         if (!commentFound) {
+            console.log(`Comment ${commentIdToDelete} not found.`);
             return res.status(404).json({ message: '未找到要删除的评论' });
         }
 
         // Write the updated comments object back to the file
+        console.log(`Writing updated comments back to ${COMMENTS_FILE}`);
         await writeComments(allComments);
-        console.log(`Admin ${req.session.username} deleted comment ${commentIdToDelete} from recipe ${recipeIdOfComment}`);
-        res.status(200).json({ message: '评论删除成功' }); // Or 204 No Content
+        console.log(`Admin '${adminUsername}' successfully deleted comment ${commentIdToDelete} from recipe ${recipeIdOfComment}`);
+        res.status(200).json({ message: '评论删除成功' }); // Use 200 OK or 204 No Content
 
     } catch (error) {
-        console.error(`Error deleting comment ${commentIdToDelete}:`, error);
-        res.status(500).json({ message: '删除评论时出错' });
+        console.error(`Error during deletion of comment ${commentIdToDelete} by admin '${adminUsername}':`, error);
+        // Check for specific file system errors if needed
+        if (error.code) {
+             console.error(`File system error code: ${error.code}`);
+        }
+        res.status(500).json({ message: '删除评论时发生服务器内部错误' });
     }
 });
 

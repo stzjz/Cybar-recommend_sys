@@ -1,15 +1,16 @@
 // --- Updated DOMContentLoaded Listener ---
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Start of initialization logic (previously inside initializeAdminPage) ---
+    // --- Start of initialization logic ---
     const recipeListContainer = document.getElementById('admin-recipe-list');
-    const userListContainer = document.getElementById('admin-user-list'); // Get user list container
+    const userListContainer = document.getElementById('admin-user-list');
+    const commentListContainer = document.getElementById('admin-comment-list'); // Get comment list container
     const statsContainer = document.getElementById('admin-stats');
-    const refreshButton = document.getElementById('refresh-admin-data-btn'); // Get refresh button
+    const refreshButton = document.getElementById('refresh-admin-data-btn');
 
     // --- Modal Elements ---
     const modal = document.getElementById('user-action-modal');
     const overlay = document.getElementById('modal-overlay');
-    const closeModalBtn = modal.querySelector('.close-modal-btn');
+    const closeModalBtn = modal?.querySelector('.close-modal-btn'); // Add null check
     const modalUserIdInput = document.getElementById('modal-user-id');
     const modalUsernameTitle = document.getElementById('modal-username');
     const modalRoleSelect = document.getElementById('modal-role-select');
@@ -17,21 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalDeleteUserBtn = document.getElementById('modal-delete-user-btn');
     const modalMessage = document.getElementById('modal-message');
 
-    // --- Keep the current initialization logic ---
+    // --- Load Initial Data ---
     if (statsContainer) {
-        loadStats(); // Ensure this function exists and works with current HTML
+        loadStats();
     } else {
         console.error("Stats container 'admin-stats' not found.");
     }
 
     if (recipeListContainer) {
-        loadRecipesForAdmin(); // Ensure this function exists and works with current HTML
+        loadRecipesForAdmin();
         // Add event listener for deleting recipes (using event delegation)
         recipeListContainer.addEventListener('click', (event) => {
             if (event.target.classList.contains('delete-recipe-btn')) {
                 const recipeId = event.target.dataset.id;
                 if (recipeId && confirm(`确定要删除 ID 为 ${recipeId} 的配方吗？`)) {
-                    deleteRecipe(recipeId); // Ensure this function exists
+                    deleteRecipe(recipeId, event.target); // Pass button for feedback
                 }
             }
         });
@@ -41,45 +42,25 @@ document.addEventListener('DOMContentLoaded', () => {
          if(msgElement) msgElement.textContent = "无法加载配方列表容器。";
     }
 
-    // --- Load Users ---
     if (userListContainer) {
-        loadUsersForAdmin(); // Call function to load users
+        loadUsersForAdmin();
 
-        // --- Add Event Listener for User Actions (using delegation) ---
+        // --- REMOVED Redundant Event Listener for User Actions (using prompt) ---
+        // userListContainer.addEventListener('click', (event) => { ... });
+
+        // --- Event Listener for Opening Modal (via Manage button) ---
         userListContainer.addEventListener('click', (event) => {
-            const target = event.target;
-            const userId = target.dataset.userId;
+            // Check if the click is on the manage button
+            if (event.target.classList.contains('manage-user-btn')) {
+                const row = event.target.closest('tr'); // Find the parent row
+                if (row) {
+                    const userId = row.dataset.userId;
+                    const username = row.dataset.username;
+                    const currentRole = row.dataset.currentRole || 'user';
 
-            if (!userId) return; // Ignore clicks not on buttons with user ID
-
-            if (target.classList.contains('delete-user-btn')) {
-                if (confirm(`确定要删除用户 ID 为 ${userId} 的账户吗？此操作无法撤销。`)) {
-                    deleteUser(userId, target);
-                }
-            } else if (target.classList.contains('change-role-btn')) {
-                const currentRole = target.dataset.currentRole;
-                const newRole = prompt(`为用户 ID ${userId} 选择新角色 (user, admin):`, currentRole);
-                if (newRole && newRole !== currentRole && ['user', 'admin'].includes(newRole)) {
-                     updateUserRole(userId, newRole, target);
-                } else if (newRole !== null) { // User entered something invalid or cancelled
-                    alert('无效的角色或操作已取消。');
-                }
-            }
-        });
-        // --- End User Actions Listener ---
-
-        // --- Event Listener for Opening Modal (Admins only) ---
-        userListContainer.addEventListener('click', (event) => {
-            // Check if the click is on a TR element within the tbody and user is admin
-            const row = event.target.closest('tr');
-            // Use 'is-admin' class now
-            if (row && document.body.classList.contains('is-admin')) {
-                const userId = row.dataset.userId;
-                const username = row.dataset.username;
-                const currentRole = row.dataset.currentRole || 'user';
-
-                if (userId && username) {
-                    openUserModal(userId, username, currentRole);
+                    if (userId && username) {
+                        openUserModal(userId, username, currentRole);
+                    }
                 }
             }
         });
@@ -88,6 +69,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const userMsgElement = document.getElementById('admin-user-message');
         if(userMsgElement) userMsgElement.textContent = "无法加载用户列表容器。";
     }
+
+    // --- Load Comments ---
+    if (commentListContainer) {
+        loadCommentsForAdmin(); // Call function to load comments
+
+        // Add event listener for deleting comments (using event delegation)
+        commentListContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('delete-comment-btn')) {
+                const commentId = event.target.dataset.commentId;
+                if (commentId && confirm(`确定要删除 ID 为 ${commentId} 的评论吗？`)) {
+                    deleteComment(commentId, event.target); // Pass button for feedback
+                }
+            }
+        });
+    } else {
+        console.error("Comment list container 'admin-comment-list' not found.");
+        const commentMsgElement = document.getElementById('admin-comment-message');
+        if(commentMsgElement) commentMsgElement.textContent = "无法加载评论列表容器。";
+    }
+
 
     // --- Add Event Listener for Refresh Button ---
     if (refreshButton) {
@@ -99,17 +100,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const recipeTbody = document.getElementById('admin-recipe-list');
             const userMsg = document.getElementById('admin-user-message');
             const userTbody = document.getElementById('admin-user-list');
+            const commentMsg = document.getElementById('admin-comment-message'); // Get comment message element
+            const commentTbody = document.getElementById('admin-comment-list'); // Get comment table body
 
             if(statsMsg) statsMsg.textContent = '正在刷新统计...';
             if(recipeMsg) recipeMsg.textContent = '正在刷新配方...';
-            if(recipeTbody) recipeTbody.innerHTML = '<tr><td colspan="3">正在刷新...</td></tr>'; // Clear table body
+            if(recipeTbody) recipeTbody.innerHTML = '<tr><td colspan="3">正在刷新...</td></tr>';
             if(userMsg) userMsg.textContent = '正在刷新用户...';
-            if(userTbody) userTbody.innerHTML = '<tr><td colspan="3">正在刷新...</td></tr>';
+            if(userTbody) userTbody.innerHTML = '<tr><td colspan="4">正在刷新...</td></tr>'; // Adjust colspan
+            if(commentMsg) commentMsg.textContent = '正在刷新评论...'; // Update comment message
+            if(commentTbody) commentTbody.innerHTML = '<tr><td colspan="6">正在刷新...</td></tr>'; // Clear comment table body, adjust colspan
 
             // Call functions to reload data
             loadStats();
             loadRecipesForAdmin();
-            loadUsersForAdmin(); // Reload users on refresh
+            loadUsersForAdmin();
+            loadCommentsForAdmin(); // *** ADDED: Reload comments on refresh ***
         });
     } else {
         console.error("Refresh button 'refresh-admin-data-btn' not found.");
@@ -118,6 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Modal Control Event Listeners ---
     if (closeModalBtn) {
         closeModalBtn.addEventListener('click', closeUserModal);
+    } else if (modal) { // Fallback if button not found but modal exists
+        console.warn("Modal close button not found.");
     }
     if (overlay) {
         overlay.addEventListener('click', closeUserModal); // Close modal if overlay is clicked
@@ -126,20 +134,19 @@ document.addEventListener('DOMContentLoaded', () => {
         modalSaveRoleBtn.addEventListener('click', () => {
             const userId = modalUserIdInput.value;
             const newRole = modalRoleSelect.value;
-            // Ensure newRole is valid (user or admin)
             if (userId && newRole && ['user', 'admin'].includes(newRole)) {
                  updateUserRole(userId, newRole, modalSaveRoleBtn);
             } else if (newRole && !['user', 'admin'].includes(newRole)) {
-                 alert('无效的角色选择。'); // Add validation feedback
+                 alert('无效的角色选择。');
             }
         });
     }
     if (modalDeleteUserBtn) {
         modalDeleteUserBtn.addEventListener('click', () => {
             const userId = modalUserIdInput.value;
-            const username = modalUsernameTitle.textContent.replace('管理用户: ', ''); // Get username for confirm msg
+            const username = modalUsernameTitle.textContent.replace('管理用户: ', '');
             if (userId && confirm(`确定要删除用户 "${username}" (ID: ${userId}) 吗？此操作无法撤销。`)) {
-                deleteUser(userId, modalDeleteUserBtn); // Pass button for feedback
+                deleteUser(userId, modalDeleteUserBtn);
             }
         });
     }
@@ -161,12 +168,6 @@ function openUserModal(userId, username, currentRole) {
     modalRoleSelect.value = currentRole;
     if(modalMessage) modalMessage.style.display = 'none'; // Hide previous messages
 
-    // Ensure the select only shows valid options if needed, though HTML change is primary
-    modalRoleSelect.value = currentRole;
-    // Optionally disable 'god' if it somehow still exists
-    const godOption = modalRoleSelect.querySelector('option[value="god"]');
-    if (godOption) godOption.disabled = true;
-
     // Show modal and overlay
     if (modal) modal.style.display = 'block';
     if (overlay) overlay.style.display = 'block';
@@ -178,7 +179,7 @@ function closeUserModal() {
     const overlay = document.getElementById('modal-overlay');
     if (modal) modal.style.display = 'none';
     if (overlay) overlay.style.display = 'none';
-    // Reset button states if needed
+    // Reset button states
     const saveBtn = document.getElementById('modal-save-role-btn');
     const deleteBtn = document.getElementById('modal-delete-user-btn');
     if(saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '保存角色'; }
@@ -187,42 +188,43 @@ function closeUserModal() {
 
 // --- Function to load users for admin (Updated) ---
 async function loadUsersForAdmin() {
-    const container = document.getElementById('admin-user-list'); // Target tbody
+    const container = document.getElementById('admin-user-list');
     const messageElement = document.getElementById('admin-user-message');
     if (!container) return;
-    if (messageElement) messageElement.textContent = '正在加载用户...';
+    if (messageElement) {
+        messageElement.textContent = '正在加载用户...';
+        messageElement.style.color = 'inherit';
+    }
 
     try {
         const response = await fetch('/api/admin/users');
         if (!response.ok) {
+             // Pass the specific message element
              if (handleAuthError(response, messageElement)) return;
              throw new Error(`HTTP error! status: ${response.status}`);
         }
         const users = await response.json();
 
-        container.innerHTML = ''; // Clear existing list
+        container.innerHTML = '';
         if (users.length === 0) {
-            container.innerHTML = `<tr><td colspan="4">没有用户可显示。</td></tr>`; // Adjust colspan
+            container.innerHTML = `<tr><td colspan="4">没有用户可显示。</td></tr>`;
             if (messageElement) messageElement.textContent = '';
             return;
         }
 
         users.forEach(user => {
             const row = document.createElement('tr');
-
-            // Always add data attributes if user is admin (which they must be to see this page)
+            // Add data attributes to the row for the modal
             row.dataset.userId = user.id;
             row.dataset.username = user.username;
             row.dataset.currentRole = user.role || 'user';
-            row.title = "点击管理此用户"; // Add tooltip
+            // row.title = "点击管理此用户"; // Title on row might be confusing, keep it on button
 
-            // Always add an empty actions cell (content added via CSS/JS if needed, or keep empty)
-            // Or directly add a button/icon to trigger the modal
             row.innerHTML = `
                 <td>${user.id || 'N/A'}</td>
                 <td>${user.username}</td>
                 <td>${user.role || 'user'}</td>
-                <td><button class="manage-user-btn" data-user-id="${user.id}" title="管理用户">管理</button></td>
+                <td><button class="manage-user-btn" data-user-id="${user.id}" title="管理用户 ${user.username}">管理</button></td>
             `;
             container.appendChild(row);
         });
@@ -231,7 +233,7 @@ async function loadUsersForAdmin() {
     } catch (error) {
         console.error('Error loading users for admin:', error);
         const colspan = 4;
-        if (container) container.innerHTML = `<tr><td colspan="${colspan}">加载用户列表失败。</td></tr>`; // Adjust colspan
+        if (container) container.innerHTML = `<tr><td colspan="${colspan}">加载用户列表失败。</td></tr>`;
         if (messageElement) {
             messageElement.textContent = '加载用户列表失败: ' + error.message;
             messageElement.style.color = 'red';
@@ -241,7 +243,7 @@ async function loadUsersForAdmin() {
 
 // --- Function to delete a user (Admin) ---
 async function deleteUser(userId, buttonElement) {
-    const modalMessage = document.getElementById('modal-message');
+    const modalMessage = document.getElementById('modal-message'); // Target modal message element
     buttonElement.disabled = true;
     buttonElement.textContent = '删除中...';
     if (modalMessage) { modalMessage.textContent = `正在删除用户 ${userId}...`; modalMessage.style.display = 'block'; modalMessage.style.color = 'inherit';}
@@ -256,6 +258,7 @@ async function deleteUser(userId, buttonElement) {
             closeUserModal(); // Close modal on success
             loadUsersForAdmin(); // Refresh the user list
         } else {
+            // Pass the modal message element
             if (handleAuthError(response, modalMessage)) { buttonElement.disabled = false; buttonElement.textContent = '删除此用户'; return; }
             let errorResult = { message: `删除失败 (${response.status})` };
             try { errorResult = await response.json(); } catch (e) {}
@@ -264,6 +267,8 @@ async function deleteUser(userId, buttonElement) {
                 modalMessage.textContent = `删除用户失败: ${errorResult.message}`;
                 modalMessage.style.color = 'red';
                 modalMessage.style.display = 'block';
+            } else { // Fallback if modal message element not found
+                alert(`删除用户失败: ${errorResult.message}`);
             }
             buttonElement.disabled = false;
             buttonElement.textContent = '删除此用户';
@@ -274,6 +279,8 @@ async function deleteUser(userId, buttonElement) {
             modalMessage.textContent = '删除用户时发生网络错误。';
             modalMessage.style.color = 'red';
             modalMessage.style.display = 'block';
+        } else {
+             alert('删除用户时发生网络错误。');
         }
         buttonElement.disabled = false;
         buttonElement.textContent = '删除此用户';
@@ -282,16 +289,16 @@ async function deleteUser(userId, buttonElement) {
 
 // --- Function to update user role (Admin) ---
 async function updateUserRole(userId, newRole, buttonElement) {
-    const modalMessage = document.getElementById('modal-message');
+    const modalMessage = document.getElementById('modal-message'); // Target modal message element
     buttonElement.disabled = true;
     buttonElement.textContent = '保存中...';
     if (modalMessage) { modalMessage.textContent = `正在修改用户 ${userId} 角色为 ${newRole}...`; modalMessage.style.display = 'block'; modalMessage.style.color = 'inherit';}
 
-    // Ensure newRole validation matches allowed roles ('user', 'admin')
     if (!['user', 'admin'].includes(newRole)) {
-        alert('无法将角色设置为 ' + newRole);
+        alert('无效的角色: ' + newRole);
         buttonElement.disabled = false;
         buttonElement.textContent = '保存角色';
+        if (modalMessage) modalMessage.style.display = 'none';
         return;
     }
 
@@ -308,6 +315,7 @@ async function updateUserRole(userId, newRole, buttonElement) {
             closeUserModal(); // Close modal on success
             loadUsersForAdmin(); // Refresh the user list
         } else {
+            // Pass the modal message element
             if (handleAuthError(response, modalMessage)) { buttonElement.disabled = false; buttonElement.textContent = '保存角色'; return; }
             let errorResult = { message: `修改失败 (${response.status})` };
             try { errorResult = await response.json(); } catch (e) {}
@@ -316,6 +324,8 @@ async function updateUserRole(userId, newRole, buttonElement) {
                 modalMessage.textContent = `修改角色失败: ${errorResult.message}`;
                 modalMessage.style.color = 'red';
                 modalMessage.style.display = 'block';
+            } else {
+                alert(`修改角色失败: ${errorResult.message}`);
             }
             buttonElement.disabled = false;
             buttonElement.textContent = '保存角色';
@@ -326,27 +336,34 @@ async function updateUserRole(userId, newRole, buttonElement) {
             modalMessage.textContent = '修改角色时发生网络错误。';
             modalMessage.style.color = 'red';
             modalMessage.style.display = 'block';
+        } else {
+            alert('修改角色时发生网络错误。');
         }
         buttonElement.disabled = false;
         buttonElement.textContent = '保存角色';
     }
 }
 
+// --- Function to load recipes for admin ---
 async function loadRecipesForAdmin() {
-    const container = document.getElementById('admin-recipe-list'); // Target tbody
-    const messageElement = document.getElementById('admin-message');
+    const container = document.getElementById('admin-recipe-list');
+    const messageElement = document.getElementById('admin-message'); // Target recipe message element
     if (!container) return;
-    if (messageElement) messageElement.textContent = '正在加载配方...';
+    if (messageElement) {
+        messageElement.textContent = '正在加载配方...';
+        messageElement.style.color = 'inherit';
+    }
 
     try {
         const response = await fetch('/api/recipes');
         if (!response.ok) {
+             // Pass the specific message element
              if (handleAuthError(response, messageElement)) return;
              throw new Error(`HTTP error! status: ${response.status}`);
         }
         const recipes = await response.json();
 
-        container.innerHTML = ''; // Clear existing list (tbody content)
+        container.innerHTML = '';
         if (recipes.length === 0) {
             container.innerHTML = '<tr><td colspan="3">没有配方可管理。</td></tr>';
             if (messageElement) messageElement.textContent = '';
@@ -373,15 +390,17 @@ async function loadRecipesForAdmin() {
             messageElement.textContent = '加载配方列表失败: ' + error.message;
             messageElement.style.color = 'red';
         }
-        // Don't call handleAuthError again if it was already checked in !response.ok
     }
 }
 
-async function deleteRecipe(recipeId) {
-    const messageElement = document.getElementById('admin-message');
+// --- Function to delete a recipe (Admin) ---
+async function deleteRecipe(recipeId, buttonElement) {
+    const messageElement = document.getElementById('admin-message'); // Target recipe message element
+    buttonElement.disabled = true; // Disable button during operation
+    buttonElement.textContent = '删除中...';
     if (messageElement) {
         messageElement.textContent = `正在删除配方 ${recipeId}...`;
-        messageElement.style.color = 'inherit'; // Reset color
+        messageElement.style.color = 'inherit';
     }
 
     try {
@@ -394,71 +413,180 @@ async function deleteRecipe(recipeId) {
             if (messageElement) messageElement.textContent = '配方删除成功！';
             loadRecipesForAdmin(); // Refresh the list
         } else {
-             if (handleAuthError(response, messageElement)) return;
+             // Pass the specific message element
+             if (handleAuthError(response, messageElement)) { buttonElement.disabled = false; buttonElement.textContent = '删除'; return; }
 
              let errorResult = { message: `删除失败 (${response.status})` };
              try {
-                 const contentType = response.headers.get("content-type");
-                 if (contentType && contentType.includes("application/json")) {
-                    errorResult = await response.json();
-                 } else { errorResult.message = response.statusText || errorResult.message; }
-             } catch (e) { errorResult.message = response.statusText || errorResult.message; }
+                 // Try to parse JSON, otherwise use status text
+                 errorResult = await response.json();
+             } catch (e) {
+                 errorResult.message = response.statusText || errorResult.message;
+             }
 
              console.error('Error deleting recipe:', response.status, errorResult);
-             alert(`删除失败: ${errorResult.message}`);
+             const finalMessage = `删除失败: ${errorResult.message}`;
+             alert(finalMessage);
              if (messageElement) {
-                 messageElement.textContent = `删除失败: ${errorResult.message}`;
+                 messageElement.textContent = finalMessage;
                  messageElement.style.color = 'red';
              }
+             buttonElement.disabled = false; // Re-enable button on error
+             buttonElement.textContent = '删除';
         }
     } catch (error) {
         console.error('Network or script error during deletion:', error);
-        alert('删除配方时发生网络错误。');
+        const finalMessage = '删除配方时发生网络错误。';
+        alert(finalMessage);
         if (messageElement) {
-            messageElement.textContent = '删除配方时发生网络错误。';
+            messageElement.textContent = finalMessage;
+            messageElement.style.color = 'red';
+        }
+        buttonElement.disabled = false; // Re-enable button on error
+        buttonElement.textContent = '删除';
+    }
+}
+
+// --- Function to load comments for admin (Re-added) ---
+async function loadCommentsForAdmin() {
+    const container = document.getElementById('admin-comment-list');
+    const messageElement = document.getElementById('admin-comment-message'); // Target comment message element
+    if (!container) return;
+    if (messageElement) {
+        messageElement.textContent = '正在加载评论...';
+        messageElement.style.color = 'inherit';
+    }
+
+    try {
+        const response = await fetch('/api/admin/comments');
+        if (!response.ok) {
+             // Pass the specific message element
+             if (handleAuthError(response, messageElement)) return;
+             throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const comments = await response.json();
+
+        container.innerHTML = '';
+        if (comments.length === 0) {
+            container.innerHTML = `<tr><td colspan="6">没有评论可显示。</td></tr>`;
+            if (messageElement) messageElement.textContent = '';
+            return;
+        }
+
+        comments.forEach(comment => {
+            const row = document.createElement('tr');
+            const commentTextShort = comment.text.length > 50 ? comment.text.substring(0, 50) + '...' : comment.text;
+            const timestampFormatted = comment.timestamp ? new Date(comment.timestamp).toLocaleString('zh-CN') : 'N/A';
+
+            row.innerHTML = `
+                <td>${comment.id || 'N/A'}</td>
+                <td>${comment.username || 'N/A'}</td>
+                <td>${comment.recipeId || 'N/A'}</td>
+                <td title="${comment.text}">${commentTextShort}</td>
+                <td>${timestampFormatted}</td>
+                <td>
+                    <button class="delete-comment-btn" data-comment-id="${comment.id}">删除</button>
+                </td>
+            `;
+            container.appendChild(row);
+        });
+        if (messageElement) messageElement.textContent = '';
+
+    } catch (error) {
+        console.error('Error loading comments for admin:', error);
+        const colspan = 6;
+        if (container) container.innerHTML = `<tr><td colspan="${colspan}">加载评论列表失败。</td></tr>`;
+        if (messageElement) {
+            messageElement.textContent = '加载评论列表失败: ' + error.message;
             messageElement.style.color = 'red';
         }
     }
 }
 
+// --- Function to delete a comment (Admin) (Re-added) ---
+async function deleteComment(commentId, buttonElement) {
+    const messageElement = document.getElementById('admin-comment-message'); // Target comment message element
+    buttonElement.disabled = true;
+    buttonElement.textContent = '删除中...';
+    if (messageElement) {
+        messageElement.textContent = `正在删除评论 ${commentId}...`;
+        messageElement.style.color = 'inherit';
+    }
+
+    try {
+        const response = await fetch(`/api/comments/${commentId}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok || response.status === 204) {
+            alert('评论删除成功！');
+            if (messageElement) messageElement.textContent = '评论删除成功！';
+            loadCommentsForAdmin(); // Refresh the comment list
+        } else {
+            // Pass the specific message element
+            if (handleAuthError(response, messageElement)) { buttonElement.disabled = false; buttonElement.textContent = '删除'; return; }
+            let errorResult = { message: `删除失败 (${response.status})` };
+            try { errorResult = await response.json(); } catch (e) {}
+            console.error('Error deleting comment:', response.status, errorResult);
+            const finalMessage = `删除评论失败: ${errorResult.message}`;
+            alert(finalMessage);
+            if (messageElement) {
+                messageElement.textContent = finalMessage;
+                messageElement.style.color = 'red';
+            }
+            buttonElement.disabled = false;
+            buttonElement.textContent = '删除';
+        }
+    } catch (error) {
+        console.error('Network error deleting comment:', error);
+        // Updated error message to suggest checking the server
+        const finalMessage = '删除评论时发生网络错误。请检查服务器是否正在运行以及网络连接是否正常。';
+        alert(finalMessage);
+        if (messageElement) {
+            messageElement.textContent = finalMessage;
+            messageElement.style.color = 'red';
+        }
+        buttonElement.disabled = false;
+        buttonElement.textContent = '删除';
+    }
+}
+
+
 let pageVisitsChartInstance = null; // Variable to hold the chart instance
 
 async function loadStats() {
     const statsContainer = document.getElementById('admin-stats');
-    const messageElement = document.getElementById('admin-message');
+    // Use the general admin message for auth errors if statsContainer itself is used for loading text
+    const messageElementForAuth = document.getElementById('admin-message') || statsContainer;
     const totalRecipesEl = document.getElementById('stat-total-recipes');
     const totalUsersEl = document.getElementById('stat-total-users');
-    // Remove reference to old page visits list UL if it was removed from HTML
-    // const pageVisitsList = document.getElementById('stat-page-visits');
-    const chartCanvas = document.getElementById('pageVisitsChart'); // Get canvas element
+    const chartCanvas = document.getElementById('pageVisitsChart');
 
-    // Basic check for chart context
     if (!chartCanvas) {
         console.error("Chart canvas element 'pageVisitsChart' not found.");
-        // Optionally display an error message in statsContainer
         if(statsContainer) statsContainer.textContent = '无法加载图表容器。';
-        return; // Stop if canvas doesn't exist
+        return;
     }
     const ctx = chartCanvas.getContext('2d');
     if (!ctx) {
          console.error("Failed to get 2D context for chart canvas.");
          if(statsContainer) statsContainer.textContent = '无法初始化图表。';
-         return; // Stop if context fails
+         return;
     }
-
 
     if (!statsContainer || !totalRecipesEl || !totalUsersEl) {
         console.error("One or more stats text elements not found.");
         return;
     }
     statsContainer.textContent = '正在加载统计数据...';
-    if (messageElement) messageElement.textContent = '';
+    statsContainer.style.color = 'inherit'; // Reset color
 
     try {
         const response = await fetch('/api/admin/stats');
 
         if (!response.ok) {
-            if (handleAuthError(response, messageElement || statsContainer)) return;
+            // Pass the specific message element for auth errors
+            if (handleAuthError(response, messageElementForAuth)) return;
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const stats = await response.json();
@@ -478,21 +606,15 @@ async function loadStats() {
             datasets: [{
                 label: '页面访问次数',
                 data: visitCounts,
-                backgroundColor: [ // Example colors - add more if needed
-                    'rgba(0, 229, 255, 0.6)', // Cyan
-                    'rgba(255, 64, 129, 0.6)', // Pink
-                    'rgba(255, 152, 0, 0.6)',  // Orange
-                    'rgba(76, 175, 80, 0.6)',   // Green
-                    'rgba(156, 39, 176, 0.6)', // Purple
-                    'rgba(255, 235, 59, 0.6)', // Yellow
+                backgroundColor: [
+                    'rgba(0, 229, 255, 0.6)', 'rgba(255, 64, 129, 0.6)', 'rgba(255, 152, 0, 0.6)',
+                    'rgba(76, 175, 80, 0.6)', 'rgba(156, 39, 176, 0.6)', 'rgba(255, 235, 59, 0.6)',
+                    'rgba(120, 144, 156, 0.6)' // Add more colors if more pages are tracked
                 ],
-                borderColor: [ // Example border colors
-                    'rgba(0, 229, 255, 1)',
-                    'rgba(255, 64, 129, 1)',
-                    'rgba(255, 152, 0, 1)',
-                    'rgba(76, 175, 80, 1)',
-                    'rgba(156, 39, 176, 1)',
-                    'rgba(255, 235, 59, 1)',
+                borderColor: [
+                    'rgba(0, 229, 255, 1)', 'rgba(255, 64, 129, 1)', 'rgba(255, 152, 0, 1)',
+                    'rgba(76, 175, 80, 1)', 'rgba(156, 39, 176, 1)', 'rgba(255, 235, 59, 1)',
+                    'rgba(120, 144, 156, 1)'
                 ],
                 borderWidth: 1
             }]
@@ -500,52 +622,22 @@ async function loadStats() {
 
         const chartOptions = {
             responsive: true,
-            maintainAspectRatio: false, // Allow chart to fill container height/width
+            maintainAspectRatio: false,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                         color: '#e0e0e0' // Light color for Y-axis labels
-                    },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)' // Light grid lines
-                    }
-                },
-                x: {
-                     ticks: {
-                         color: '#e0e0e0' // Light color for X-axis labels
-                     },
-                     grid: {
-                        color: 'rgba(255, 255, 255, 0.1)' // Light grid lines
-                    }
-                }
+                y: { beginAtZero: true, ticks: { color: '#e0e0e0' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                x: { ticks: { color: '#e0e0e0' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
             },
             plugins: {
-                legend: {
-                    display: false // Hide legend for a cleaner look with few datasets
-                },
-                title: {
-                    display: true,
-                    text: '页面访问统计',
-                    color: '#ffffff', // White title
-                    font: { size: 16 }
-                }
+                legend: { display: false },
+                title: { display: true, text: '页面访问统计', color: '#ffffff', font: { size: 16 } }
             }
         };
 
-        // Destroy previous chart instance if it exists before creating a new one
         if (pageVisitsChartInstance) {
             pageVisitsChartInstance.destroy();
         }
 
-        // Create the new chart
-        pageVisitsChartInstance = new Chart(ctx, {
-            type: 'bar', // Or 'pie', 'line', etc.
-            data: chartData,
-            options: chartOptions
-        });
-        // --- End Chart.js ---
-
+        pageVisitsChartInstance = new Chart(ctx, { type: 'bar', data: chartData, options: chartOptions });
 
         statsContainer.textContent = ''; // Clear loading message
 
@@ -554,19 +646,17 @@ async function loadStats() {
         const errorMsg = `加载统计数据失败: ${error.message || '未知错误'}`;
         statsContainer.textContent = errorMsg;
         statsContainer.style.color = 'red';
-        // Clear text stats on error
         totalRecipesEl.textContent = '错误';
         totalUsersEl.textContent = '错误';
-        // Optionally clear or hide the chart canvas on error
         if (pageVisitsChartInstance) {
             pageVisitsChartInstance.destroy();
             pageVisitsChartInstance = null;
         }
-        ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height); // Clear canvas
-
-        if (messageElement) {
-            messageElement.textContent = errorMsg;
-            messageElement.style.color = 'red';
+        ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+        // Use the auth message element for general errors too if statsContainer is showing the error
+        if (messageElementForAuth && messageElementForAuth !== statsContainer) {
+            messageElementForAuth.textContent = errorMsg;
+            messageElementForAuth.style.color = 'red';
         }
     }
 }
@@ -575,13 +665,18 @@ async function loadStats() {
 function handleAuthError(responseOrError, messageElement) {
     const status = responseOrError?.status;
     if (status === 401 || status === 403) {
+         const msg = status === 401 ? '会话无效或未登录。' : '无权访问此资源。';
+         const fullMsg = `${msg} 请重新登录。正在跳转...`;
          if (messageElement) {
-             messageElement.textContent = '会话无效或未登录，请重新登录。正在跳转...';
+             messageElement.textContent = fullMsg;
              messageElement.style.color = 'red'; // Ensure error color
+             messageElement.style.display = 'block'; // Ensure it's visible
+         } else {
+             alert(fullMsg); // Fallback alert
          }
          setTimeout(() => {
              window.location.href = '/auth/login/';
-         }, 1500);
+         }, 2000); // Slightly longer delay
          return true;
     }
     return false;
