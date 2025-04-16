@@ -90,34 +90,37 @@ node server.js
 
 ```
 Cybar/
-├── admin/              # 后台管理界面 (HTML, CSS, JS)
-│   ├── index.html
-│   ├── admin.css
-│   └── admin.js
-├── add/                # 添加配方界面 (HTML, JS)
-│   ├── index.html
-│   └── script.js       # (Or your actual script name)
-├── auth/               # 用户认证相关文件
-│   ├── login.html
-│   ├── register.html
-│   └── auth.js
-├── calculator/         # 酒精度计算器 (HTML, JS)
-│   ├── index.html
-│   └── calculator.js   # (Or your actual script name)
-├── js/                 # 全局 JavaScript
-│   └── global.js       # Handles auth status display, logout
-├── recipes/            # 配方列表和详情 (HTML, JS)
-│   ├── index.html      # Recipe list page (paginated)
-│   ├── detail.html     # Recipe detail page
-│   ├── recipes.js      # Handles recipe list logic (pagination)
-│   └── detail.js       # Handles recipe detail logic
-├── server.js           # Node.js服务器入口
-├── package.json        # 项目依赖
-├── recipes.json        # 配方数据存储 (包含 createdBy)
-├── users.json          # 用户数据存储
-├── comments.json       # 评论数据存储
-├── style.css           # 全局样式
-└── README.md           # 项目文档
+├── admin/                         # 后台管理界面
+│   ├── index.html                 # 管理员控制面板HTML页面
+│   ├── admin.css                  # 管理面板专用样式
+│   └── admin.js                   # 管理员功能实现（统计数据展示、用户管理、配方管理、评论管理）
+├── add/                           # 添加配方功能
+│   ├── index.html                 # 添加配方表单页面
+│   ├── add.js                     # 处理配方添加请求
+│   └── script.js                  # 表单验证与动态功能
+├── auth/                          # 用户认证功能
+│   ├── login.html                 # 用户登录页面
+│   ├── register.html              # 用户注册页面
+│   └── auth.js                    # 处理用户认证逻辑（登录、注册、会话管理）
+├── calculator/                    # 酒精度计算功能
+│   ├── index.html                 # 酒精度计算器页面
+│   └── calculator.js              # 计算逻辑实现
+├── js/                            # 全局JavaScript
+│   └── global.js                  # 全局功能（登录状态显示、注销功能、页面导航）
+├── recipes/                       # 配方展示功能
+│   ├── index.html                 # 配方列表页面（分页展示）
+│   ├── detail.html                # 配方详情页面（包含评论系统）
+│   ├── recipes.js                 # 处理配方列表逻辑（获取列表、分页、搜索、排序）
+│   └── detail.js                  # 处理配方详情和评论功能（获取配方、加载评论、提交评论）
+├── index.html                     # 网站主页（功能概览和导航）
+├── server.js                      # Node.js服务器入口（API实现、路由设置、中间件）
+├── script.js                      # 主页脚本文件（主页动态效果）
+├── package.json                   # 项目依赖配置（Express、express-session等）
+├── recipes.json                   # 配方数据存储文件（包含配方名称、材料、步骤、createdBy等）
+├── users.json                     # 用户数据存储（包含用户名、密码哈希、角色等）
+├── comments.json                  # 评论数据存储（包含评论内容、用户ID、配方ID、时间戳等）
+├── style.css                      # 全局样式文件（共享UI组件、响应式设计）
+└── README.md                      # 项目文档（安装指南、API文档、功能说明）
 ```
 
 ## 开发指南
