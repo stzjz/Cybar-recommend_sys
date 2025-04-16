@@ -365,61 +365,142 @@ app.get('/api/admin/stats', isAuthenticated, isAdmin, (req, res) => { // Add isA
     });
 });
 
-// --- New API Route to get all users (Admin only) ---
+// --- New API Route to get all users (Admin only - MODIFIED FOR PAGINATION) ---
 app.get('/api/admin/users', isAuthenticated, isAdmin, async (req, res) => {
     try {
-        const users = await readUsers();
+        const allUsers = await readUsers();
         // Map users to exclude password field
-        const usersWithoutPasswords = users.map(user => ({
+        const usersWithoutPasswords = allUsers.map(user => ({
             id: user.id,
             username: user.username,
-            role: user.role || 'user' // Ensure role is included, default to 'user'
+            role: user.role || 'user'
         }));
-        res.json(usersWithoutPasswords);
+
+        // --- Pagination Logic ---
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10; // Default limit
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        const results = {};
+        const totalItems = usersWithoutPasswords.length;
+        results.totalItems = totalItems;
+        results.totalPages = Math.ceil(totalItems / limit);
+        results.currentPage = page;
+
+        // Slice the array for the current page
+        results.users = usersWithoutPasswords.slice(startIndex, endIndex);
+        // --- End Pagination Logic ---
+
+        res.json(results); // Return paginated results
+
     } catch (error) {
         console.error("Error reading users for admin:", error);
         res.status(500).json({ message: '无法加载用户信息' });
     }
 });
 
+// --- New API Route to get ALL comments (Admin only - MODIFIED FOR PAGINATION) ---
+app.get('/api/admin/comments', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const allCommentsData = await readComments();
+        const flatCommentList = [];
+
+        for (const recipeId in allCommentsData) {
+            allCommentsData[recipeId].forEach(comment => {
+                flatCommentList.push({
+                    ...comment,
+                    recipeId: recipeId
+                });
+            });
+        }
+
+        // Sort comments by timestamp, newest first (before pagination)
+        flatCommentList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        // --- Pagination Logic ---
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 15; // Default limit
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+        const results = {};
+        const totalItems = flatCommentList.length;
+        results.totalItems = totalItems;
+        results.totalPages = Math.ceil(totalItems / limit);
+        results.currentPage = page;
+
+        // Slice the array for the current page
+        results.comments = flatCommentList.slice(startIndex, endIndex);
+        // --- End Pagination Logic ---
+
+        res.json(results); // Send the paginated, flattened list
+
+    } catch (error) {
+        console.error("Error reading comments for admin:", error);
+        res.status(500).json({ message: '无法加载评论信息' });
+    }
+});
+
 // --- New API Route to DELETE a comment (Admin only) ---
+// Ensure this route is already protected by isAuthenticated and isAdmin
 app.delete('/api/comments/:commentId', isAuthenticated, isAdmin, async (req, res) => {
     const commentIdToDelete = req.params.commentId;
+    const adminUsername = req.session.username; // Get admin username for logging
+    console.log(`Admin '${adminUsername}' attempting to delete comment ID: ${commentIdToDelete}`); // Log attempt
+
     try {
+        console.log(`Reading comments file: ${COMMENTS_FILE}`);
         const allComments = await readComments();
         let commentFound = false;
         let recipeIdOfComment = null;
+        let updatedCommentsForRecipe = null;
 
         // Iterate through all recipes' comments to find the comment by ID
         for (const recipeId in allComments) {
             const commentsForRecipe = allComments[recipeId];
             const initialLength = commentsForRecipe.length;
+
             // Filter out the comment to delete
-            allComments[recipeId] = commentsForRecipe.filter(comment => comment.id !== commentIdToDelete);
-            // Check if a comment was removed
-            if (allComments[recipeId].length < initialLength) {
+            const filteredComments = commentsForRecipe.filter(comment => comment.id !== commentIdToDelete);
+
+            // Check if a comment was removed for this recipe
+            if (filteredComments.length < initialLength) {
+                console.log(`Comment ${commentIdToDelete} found in recipe ${recipeId}.`);
                 commentFound = true;
                 recipeIdOfComment = recipeId;
-                // If the recipe now has no comments, remove the recipe key (optional cleanup)
-                if (allComments[recipeId].length === 0) {
+                updatedCommentsForRecipe = filteredComments; // Store the filtered array
+
+                // If the recipe now has no comments, remove the recipe key
+                if (updatedCommentsForRecipe.length === 0) {
+                    console.log(`Recipe ${recipeId} has no comments left, removing key.`);
                     delete allComments[recipeId];
+                } else {
+                    // Otherwise, update the comments for this recipe
+                    allComments[recipeId] = updatedCommentsForRecipe;
                 }
                 break; // Stop searching once found and removed
             }
         }
 
         if (!commentFound) {
+            console.log(`Comment ${commentIdToDelete} not found.`);
             return res.status(404).json({ message: '未找到要删除的评论' });
         }
 
         // Write the updated comments object back to the file
+        console.log(`Writing updated comments back to ${COMMENTS_FILE}`);
         await writeComments(allComments);
-        console.log(`Admin ${req.session.username} deleted comment ${commentIdToDelete} from recipe ${recipeIdOfComment}`);
-        res.status(200).json({ message: '评论删除成功' }); // Or 204 No Content
+        console.log(`Admin '${adminUsername}' successfully deleted comment ${commentIdToDelete} from recipe ${recipeIdOfComment}`);
+        res.status(200).json({ message: '评论删除成功' }); // Use 200 OK or 204 No Content
 
     } catch (error) {
-        console.error(`Error deleting comment ${commentIdToDelete}:`, error);
-        res.status(500).json({ message: '删除评论时出错' });
+        console.error(`Error during deletion of comment ${commentIdToDelete} by admin '${adminUsername}':`, error);
+        // Check for specific file system errors if needed
+        if (error.code) {
+             console.error(`File system error code: ${error.code}`);
+        }
+        res.status(500).json({ message: '删除评论时发生服务器内部错误' });
     }
 });
 
@@ -444,18 +525,20 @@ app.delete('/api/admin/users/:userId', isAuthenticated, isAdmin, async (req, res
     try {
         let users = await readUsers();
         const initialLength = users.length;
-        users = users.filter(user => user.id !== userIdToDelete);
+        const userToDelete = users.find(u => u.id === req.params.userId); // Find user before filtering
+
+        users = users.filter(user => user.id !== req.params.userId);
 
         if (users.length === initialLength) {
             return res.status(404).json({ message: '未找到要删除的用户' });
         }
 
         await writeUsers(users);
-        console.log(`Admin User ${req.session.username} deleted user ${userIdToDelete}`);
+        console.log(`Admin User ${req.session.username} deleted user ${ (userToDelete && userToDelete.username) || req.params.userId}`); // Log username if found
         res.status(200).json({ message: '用户删除成功' });
 
     } catch (error) {
-        console.error(`Error deleting user ${userIdToDelete}:`, error);
+        console.error(`Error deleting user ${req.params.userId}:`, error);
         res.status(500).json({ message: '删除用户时出错' });
     }
 });
@@ -491,14 +574,15 @@ app.put('/api/admin/users/:userId/role', isAuthenticated, isAdmin, async (req, r
         }
 
         // Update the user's role
-        users[userIndex].role = newRole;
+        const oldRole = users[userIndex].role;
+        users[userIndex].role = req.body.newRole;
 
         await writeUsers(users);
-        console.log(`Admin User ${req.session.username} changed role of user ${userIdToUpdate} to ${newRole}`);
+        console.log(`Admin User ${req.session.username} changed role of user ${users[userIndex].username} from ${oldRole} to ${req.body.newRole}`);
         res.status(200).json({ message: '用户角色修改成功', updatedUser: { id: users[userIndex].id, username: users[userIndex].username, role: users[userIndex].role } });
 
     } catch (error) {
-        console.error(`Error updating role for user ${userIdToUpdate}:`, error);
+        console.error(`Error updating role for user ${req.params.userId}:`, error);
         res.status(500).json({ message: '修改用户角色时出错' });
     }
 });
@@ -648,9 +732,16 @@ app.post('/api/recipes/:id/comments', isAuthenticated, async (req, res) => {
 app.post('/api/recipes', isAuthenticated, async (req, res) => {
     // ... (Keep your existing logic for adding recipes)
     const newRecipe = req.body;
+    const creatorUsername = req.session.username; // Get username from session
+
     if (!newRecipe || !newRecipe.name) {
         return res.status(400).json({ message: '无效的配方数据' });
     }
+    if (!creatorUsername) {
+        // This should ideally not happen due to isAuthenticated, but good to check
+        return res.status(401).json({ message: '无法确定创建者，请重新登录' });
+    }
+
     try {
         let recipes = [];
         try {
@@ -664,6 +755,7 @@ app.post('/api/recipes', isAuthenticated, async (req, res) => {
             if (readError.code !== 'ENOENT') throw readError;
         }
         newRecipe.id = Date.now().toString();
+        newRecipe.createdBy = creatorUsername; // Add the creator username
         recipes.push(newRecipe);
         // Explicitly specify utf8 encoding for writing
         await fs.writeFile(RECIPES_FILE, JSON.stringify(recipes, null, 2), 'utf8'); // Already specifies 'utf8'

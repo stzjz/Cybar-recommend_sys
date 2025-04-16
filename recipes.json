@@ -20,7 +20,8 @@
       }
     ],
     "instructions": "在高球杯中加入冰块，倒入金酒，加满汤力水，轻轻搅拌，用青柠角装饰。",
-    "estimatedAbv": 10
+    "estimatedAbv": 10,
+    "createdBy": "252"
   },
   {
     "id": "recipe_1700000000002",
@@ -38,7 +39,8 @@
       }
     ],
     "instructions": "在高球杯中加入冰块，倒入伏特加，加满橙汁，轻轻搅拌。",
-    "estimatedAbv": 10
+    "estimatedAbv": 10,
+    "createdBy": "252"
   },
   {
     "name": "新的生命",
@@ -51,7 +53,8 @@
       }
     ],
     "estimatedAbv": 96,
-    "id": "1744625138526"
+    "id": "1744625138526",
+    "createdBy": "running_kuma"
   },
   {
     "name": "柠檬树下柠檬果",
@@ -74,6 +77,215 @@
       }
     ],
     "estimatedAbv": 10,
-    "id": "1744628113626"
+    "id": "1744628113626",
+    "createdBy": "252"
+  },
+  {
+    "name": "One Sip from Hell",
+    "instructions": "【步骤】\n将 Shot 杯预先冷却，保持冰爽，以减缓入口酒精与辣度冲击。\n\n在调酒杯中依次加入 Everclear、Ancho Reyes、Mezcal，搅拌均匀。\n\n小心加入辣酱混合液，建议使用滴管操作，避免手部直接接触。\n\n加入番茄浓缩液，轻微搅拌形成均匀液体。\n\n用过滤网过滤杂质后，将液体倒入冰镇 Shot 杯中。\n\n杯口可根据需要抹上辣椒粉和盐混合边，提升视觉与口感冲击。\n\n如需增加冷感，可在杯中加入极小片冰晶。\n\n\n【饮用方式】\n饮前请深呼吸三次，稳定心跳。\n\n一口饮尽，不得犹豫。\n\n饮后不建议立刻说话或进食，需静坐30秒以观察反应。\n\n建议准备牛奶、酸奶或冰柠檬水用于后续缓解。\n\n\n【警告】\n不可空腹饮用\n\n不适合对酒精或辣椒敏感者\n\n不建议心脏病、高血压、肠胃病患者尝试\n\n饮后可能短暂出现流泪、发汗、头晕、面部发热等症状，属正常范围",
+    "ingredients": [
+      {
+        "name": "Everclear",
+        "volume": 10,
+        "abv": 95
+      },
+      {
+        "name": "墨西哥辣椒利口酒",
+        "volume": 10,
+        "abv": 30
+      },
+      {
+        "name": "龙舌兰(Mezcal，烟熏款)",
+        "volume": 5,
+        "abv": 40
+      },
+      {
+        "name": "Tabasco & Da Bomb辣椒酱混合液",
+        "volume": 2,
+        "abv": 0
+      },
+      {
+        "name": "番茄浓缩液（超辣椒汁调和）",
+        "volume": 3,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 48.3,
+    "id": "1744691847322",
+    "createdBy": "Andrew"
+  },
+  {
+    "name": "绝对零感（Absolute Zero）",
+    "instructions": "【调制方式】\n将 Shot 杯彻底冰镇至 -18°C 以下。\n\n使用玻璃移液管或精准计量工具，加入 29.85 ml 无水乙醇。\n\n加入 0.15 ml 蒸馏水或冰水，轻轻旋转混合。\n\n密封冷藏至 -10°C 左右，呈现极清透效果。\n\n饮用前滴入一滴柠檬油，作为唯一的“味觉提示”。（可选）\n\n【饮用建议】\n一次仅饮一口（5-10ml）\n\n饮后需配合大量冰水或牛奶清洁口腔\n\n避免空腹、独饮、饮后立即运动\n\n不得在封闭空间点火，禁止靠近明火或加热源\n\n禁止未成年人、心脑血管病患者接触",
+    "ingredients": [
+      {
+        "name": "无水乙醇",
+        "volume": 29.85,
+        "abv": 99.9
+      },
+      {
+        "name": "纯水",
+        "volume": 0.15,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 99.4,
+    "id": "1744692303176",
+    "createdBy": "Andrew"
+  },
+  {
+    "name": "生命之源",
+    "instructions": "2份氢气+1份氧气点燃",
+    "ingredients": [
+      {
+        "name": "氢气",
+        "volume": 2,
+        "abv": 0
+      },
+      {
+        "name": "氧气",
+        "volume": 1,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 0,
+    "id": "1744693514324",
+    "createdBy": "Andrew"
+  },
+  {
+    "name": "浓缩暗物质",
+    "instructions": "两份火岩夸克+一份的铯+一整瓶的生命之源（具体见生命之源配方）",
+    "ingredients": [
+      {
+        "name": "火岩夸克",
+        "volume": 200,
+        "abv": 100
+      },
+      {
+        "name": "铯",
+        "volume": 100,
+        "abv": 100
+      },
+      {
+        "name": "生命之源",
+        "volume": 500,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 37.5,
+    "id": "1744694215227",
+    "createdBy": "cdy"
+  },
+  {
+    "id": "recipe_1700000000005",
+    "name": "长岛冰茶 (Long Island Iced Tea)",
+    "ingredients": [
+      {
+        "name": "伏特加 (Vodka)",
+        "volume": 15,
+        "abv": 40
+      },
+      {
+        "name": "龙舌兰酒 (Tequila)",
+        "volume": 15,
+        "abv": 40
+      },
+      {
+        "name": "白朗姆酒 (White Rum)",
+        "volume": 15,
+        "abv": 40
+      },
+      {
+        "name": "金酒 (Gin)",
+        "volume": 15,
+        "abv": 40
+      },
+      {
+        "name": "橙皮利口酒 (Triple Sec)",
+        "volume": 15,
+        "abv": 40
+      },
+      {
+        "name": "柠檬汁 (Lemon Juice)",
+        "volume": 30,
+        "abv": 0
+      },
+      {
+        "name": "糖浆 (Simple Syrup)",
+        "volume": 20,
+        "abv": 0
+      },
+      {
+        "name": "可乐 (Cola)",
+        "volume": 60,
+        "abv": 0
+      }
+    ],
+    "instructions": "在高球杯中加入冰块，依次倒入伏特加、龙舌兰酒、朗姆酒、金酒、橙皮利口酒、柠檬汁和糖浆。用吧勺轻轻搅拌。最后加满可乐，用柠檬角装饰。",
+    "estimatedAbv": 16.2,
+    "createdBy": "252"
+  },
+  {
+    "name": "绝对日落",
+    "instructions": "1杯中加入冰块\n2加入伏特加\n3橙汁五分满\n4搅拌均匀\n5葡萄气泡水补满",
+    "ingredients": [
+      {
+        "name": "伏特加",
+        "volume": 40,
+        "abv": 40
+      },
+      {
+        "name": "橙汁",
+        "volume": 100,
+        "abv": 0
+      },
+      {
+        "name": "葡萄气泡水",
+        "volume": 60,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 8,
+    "id": "1744718483773",
+    "createdBy": "lvy"
+  },
+  {
+    "name": "命苦（BITTER LIFE）",
+    "instructions": "调制步骤 Method\n1. 混合基酒：在摇酒壶中加入金酒、苦杏酒、柠檬汁和黑糖糖浆，加冰摇匀至充分混合。  \n2. 双重苦涩：在装满冰块的岩石杯中滴入苦精，旋转杯壁使其附着。  \n3. 注入命运：将摇好的酒液过滤倒入杯中，顶部缓缓倒入苏打水，形成分层效果（象征无法逃脱的苦难）。  \n4. 点睛之痛：挤拧柠檬皮释放油脂，丢弃皮，最后在杯口放一颗咖啡豆——寓意“清醒地承受”。  \n\n“初尝辛辣，继而甜媚，终以苦涩回甘——如命运般矛盾。但那颗咖啡豆提醒你：清醒，才能熬过一切。”\n\n暗黑哲学系调酒，适合搭配低沉爵士乐或深夜独饮。",
+    "ingredients": [
+      {
+        "name": "金酒",
+        "volume": 45,
+        "abv": 40
+      },
+      {
+        "name": "苦杏酒",
+        "volume": 30,
+        "abv": 28
+      },
+      {
+        "name": "柠檬汁",
+        "volume": 15,
+        "abv": 0
+      },
+      {
+        "name": "黑糖糖浆",
+        "volume": 10,
+        "abv": 0
+      },
+      {
+        "name": "苦精",
+        "volume": 0.5,
+        "abv": 45
+      },
+      {
+        "name": "苏打水",
+        "volume": 25,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 21.2,
+    "id": "1744719369162",
+    "createdBy": "252"
   }
 ]

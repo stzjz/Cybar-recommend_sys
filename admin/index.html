@@ -74,6 +74,10 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Add Pagination Controls Container -->
+                <div id="admin-recipe-pagination" class="pagination-controls" style="text-align: center; margin-top: 15px;">
+                    <!-- Recipe pagination controls will be loaded here -->
+                </div>
             </div>
 
             <!-- User Management Section -->
@@ -95,6 +99,38 @@
                             <tr><td colspan="4">正在加载用户...</td></tr>
                         </tbody>
                     </table>
+                </div>
+                <!-- Add User Pagination Controls Container -->
+                <div id="admin-user-pagination" class="pagination-controls" style="text-align: center; margin-top: 15px;">
+                    <!-- User pagination controls will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Comment Management Section -->
+            <div class="admin-section" id="comments-management-section">
+                <h3>评论管理</h3>
+                <p id="admin-comment-message" class="message"></p> <!-- Status/Error messages for comments -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>评论 ID</th>
+                                <th>用户名</th>
+                                <th>配方 ID</th>
+                                <th>评论内容</th>
+                                <th>时间戳</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-comment-list">
+                            <!-- Comment rows will be loaded here by admin.js -->
+                            <tr><td colspan="6">正在加载评论...</td></tr>
+                        </tbody>
+                    </table>
+                    <!-- Add Comment Pagination Controls Container -->
+                    <div id="admin-comment-pagination" class="pagination-controls" style="text-align: center; margin-top: 15px;">
+                        <!-- Comment pagination controls will be loaded here -->
+                    </div>
                 </div>
             </div>
 

@@ -1,5 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const userStatusDiv = document.getElementById('user-status');
+    const loginPrompt = document.getElementById('login-prompt'); // Get the login prompt element
+
+    // Initially hide the prompt
+    if (loginPrompt) {
+        loginPrompt.style.display = 'none';
+    }
 
     fetch('/api/auth/status')
         .then(response => response.json())
@@ -8,6 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.loggedIn) {
                 document.body.classList.add('logged-in');
                 document.body.classList.remove('logged-out');
+
+                // Hide login prompt when logged in
+                if (loginPrompt) {
+                    loginPrompt.style.display = 'none';
+                }
 
                 const userRole = data.role;
                 console.log('User Role:', userRole);
@@ -56,6 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.remove('logged-in');
                 document.body.classList.remove('is-admin');
                 document.body.classList.remove('is-god'); // Ensure removed
+
+                // Show login prompt when logged out
+                if (loginPrompt) {
+                    loginPrompt.style.display = 'block';
+                }
+
                 if (userStatusDiv) {
                     userStatusDiv.innerHTML = `
                         <a href="/auth/login/">登录</a> |
@@ -71,6 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.remove('logged-in');
             document.body.classList.remove('is-admin');
             document.body.classList.remove('is-god'); // Ensure removed
+
+            // Show login prompt in case of error (likely logged out)
+            if (loginPrompt) {
+                loginPrompt.style.display = 'block';
+            }
+
             if (userStatusDiv) {
                 userStatusDiv.innerHTML = '<a href="/auth/login/">登录</a> | <a href="/auth/register/">注册</a>'; // Fallback
             }
