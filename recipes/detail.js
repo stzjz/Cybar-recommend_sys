@@ -61,6 +61,13 @@ function displayRecipeDetail(recipe) {
     title.textContent = recipe.name;
     container.appendChild(title);
 
+    // --- Add Creator Info ---
+    const creatorInfo = document.createElement('p');
+    creatorInfo.classList.add('recipe-creator-detail'); // Add class for styling
+    creatorInfo.innerHTML = `<strong>创建者:</strong> ${recipe.createdBy || '未知用户'}`;
+    container.appendChild(creatorInfo);
+    // --- End Creator Info ---
+
     const ingredientsTitle = document.createElement('h3');
     ingredientsTitle.textContent = '配料:';
     container.appendChild(ingredientsTitle);

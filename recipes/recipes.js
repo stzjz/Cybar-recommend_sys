@@ -32,6 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
             nameHeading.appendChild(nameLink);
             article.appendChild(nameHeading);
 
+            // --- Add Creator Info ---
+            const creatorInfo = document.createElement('p');
+            creatorInfo.classList.add('recipe-creator'); // Add class for styling
+            creatorInfo.textContent = `由 ${recipe.createdBy || '未知用户'} 创建`;
+            article.appendChild(creatorInfo);
+            // --- End Creator Info ---
+
             // Optionally display brief ingredients or instructions here if needed
             const instructions = document.createElement('p');
             // Ensure instructions exist before trying to access substring

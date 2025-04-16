@@ -20,7 +20,8 @@
       }
     ],
     "instructions": "在高球杯中加入冰块，倒入金酒，加满汤力水，轻轻搅拌，用青柠角装饰。",
-    "estimatedAbv": 10
+    "estimatedAbv": 10,
+    "createdBy": "252"
   },
   {
     "id": "recipe_1700000000002",
@@ -38,7 +39,8 @@
       }
     ],
     "instructions": "在高球杯中加入冰块，倒入伏特加，加满橙汁，轻轻搅拌。",
-    "estimatedAbv": 10
+    "estimatedAbv": 10,
+    "createdBy": "252"
   },
   {
     "name": "新的生命",
@@ -51,7 +53,8 @@
       }
     ],
     "estimatedAbv": 96,
-    "id": "1744625138526"
+    "id": "1744625138526",
+    "createdBy": "running_kuma"
   },
   {
     "name": "柠檬树下柠檬果",
@@ -74,7 +77,8 @@
       }
     ],
     "estimatedAbv": 10,
-    "id": "1744628113626"
+    "id": "1744628113626",
+    "createdBy": "252"
   },
   {
     "name": "One Sip from Hell",
@@ -107,7 +111,8 @@
       }
     ],
     "estimatedAbv": 48.3,
-    "id": "1744691847322"
+    "id": "1744691847322",
+    "createdBy": "Andrew"
   },
   {
     "name": "绝对零感（Absolute Zero）",
@@ -125,7 +130,8 @@
       }
     ],
     "estimatedAbv": 99.4,
-    "id": "1744692303176"
+    "id": "1744692303176",
+    "createdBy": "Andrew"
   },
   {
     "name": "生命之源",
@@ -143,7 +149,8 @@
       }
     ],
     "estimatedAbv": 0,
-    "id": "1744693514324"
+    "id": "1744693514324",
+    "createdBy": "Andrew"
   },
   {
     "name": "浓缩暗物质",
@@ -166,63 +173,8 @@
       }
     ],
     "estimatedAbv": 37.5,
-    "id": "1744694215227"
-  },
-  {
-    "id": "recipe_1700000000003",
-    "name": "莫吉托 (Mojito)",
-    "ingredients": [
-      {
-        "name": "白朗姆酒 (White Rum)",
-        "volume": 50,
-        "abv": 40
-      },
-      {
-        "name": "青柠汁 (Lime Juice)",
-        "volume": 25,
-        "abv": 0
-      },
-      {
-        "name": "糖浆 (Sugar Syrup)",
-        "volume": 15,
-        "abv": 0
-      },
-      {
-        "name": "薄荷叶 (Mint Leaves)",
-        "volume": 0,
-        "abv": 0
-      },
-      {
-        "name": "苏打水 (Soda Water)",
-        "volume": 100,
-        "abv": 0
-      }
-    ],
-    "instructions": "在高球杯中，轻轻捣压薄荷叶、青柠汁和糖浆。加入碎冰，倒入朗姆酒，加满苏打水。轻轻搅拌，用薄荷枝和青柠角装饰。",
-    "estimatedAbv": 10.5
-  },
-  {
-    "id": "recipe_1700000000004",
-    "name": "玛格丽特 (Margarita)",
-    "ingredients": [
-      {
-        "name": "龙舌兰酒 (Tequila)",
-        "volume": 50,
-        "abv": 40
-      },
-      {
-        "name": "橙皮利口酒 (Triple Sec)",
-        "volume": 25,
-        "abv": 40
-      },
-      {
-        "name": "青柠汁 (Lime Juice)",
-        "volume": 25,
-        "abv": 0
-      }
-    ],
-    "instructions": "用青柠角湿润玛格丽特杯口，并沾上盐边。将龙舌兰酒、橙皮利口酒和青柠汁与冰块摇匀。滤入准备好的杯中，用青柠角装饰。",
-    "estimatedAbv": 30
+    "id": "1744694215227",
+    "createdBy": "cdy"
   },
   {
     "id": "recipe_1700000000005",
@@ -270,6 +222,70 @@
       }
     ],
     "instructions": "在高球杯中加入冰块，依次倒入伏特加、龙舌兰酒、朗姆酒、金酒、橙皮利口酒、柠檬汁和糖浆。用吧勺轻轻搅拌。最后加满可乐，用柠檬角装饰。",
-    "estimatedAbv": 16.2
+    "estimatedAbv": 16.2,
+    "createdBy": "252"
+  },
+  {
+    "name": "绝对日落",
+    "instructions": "1杯中加入冰块\n2加入伏特加\n3橙汁五分满\n4搅拌均匀\n5葡萄气泡水补满",
+    "ingredients": [
+      {
+        "name": "伏特加",
+        "volume": 40,
+        "abv": 40
+      },
+      {
+        "name": "橙汁",
+        "volume": 100,
+        "abv": 0
+      },
+      {
+        "name": "葡萄气泡水",
+        "volume": 60,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 8,
+    "id": "1744718483773",
+    "createdBy": "lvy"
+  },
+  {
+    "name": "命苦（BITTER LIFE）",
+    "instructions": "调制步骤 Method\n1. 混合基酒：在摇酒壶中加入金酒、苦杏酒、柠檬汁和黑糖糖浆，加冰摇匀至充分混合。  \n2. 双重苦涩：在装满冰块的岩石杯中滴入苦精，旋转杯壁使其附着。  \n3. 注入命运：将摇好的酒液过滤倒入杯中，顶部缓缓倒入苏打水，形成分层效果（象征无法逃脱的苦难）。  \n4. 点睛之痛：挤拧柠檬皮释放油脂，丢弃皮，最后在杯口放一颗咖啡豆——寓意“清醒地承受”。  \n\n“初尝辛辣，继而甜媚，终以苦涩回甘——如命运般矛盾。但那颗咖啡豆提醒你：清醒，才能熬过一切。”\n\n暗黑哲学系调酒，适合搭配低沉爵士乐或深夜独饮。",
+    "ingredients": [
+      {
+        "name": "金酒",
+        "volume": 45,
+        "abv": 40
+      },
+      {
+        "name": "苦杏酒",
+        "volume": 30,
+        "abv": 28
+      },
+      {
+        "name": "柠檬汁",
+        "volume": 15,
+        "abv": 0
+      },
+      {
+        "name": "黑糖糖浆",
+        "volume": 10,
+        "abv": 0
+      },
+      {
+        "name": "苦精",
+        "volume": 0.5,
+        "abv": 45
+      },
+      {
+        "name": "苏打水",
+        "volume": 25,
+        "abv": 0
+      }
+    ],
+    "estimatedAbv": 21.2,
+    "id": "1744719369162",
+    "createdBy": "252"
   }
 ]

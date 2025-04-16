@@ -5,11 +5,11 @@ Cybar是一个鸡尾酒配方管理和酒精度计算工具，帮助用户管理
 
 ## 功能特点
 
-- **配方管理**：浏览、查看配方列表（分页显示）和详情。
+- **配方管理**：浏览、查看配方列表（分页显示，包含创建者信息）和详情（包含创建者信息）。
 - **酒精度计算**：精确计算混合饮料的最终酒精含量。
 - **用户认证**：提供用户注册和登录功能，使用会话管理。
 - **登录状态显示**：在页面右上角显示当前登录状态，提供登录/注册或注销链接。
-- **添加新配方**：登录用户可以访问受保护的页面添加自定义鸡尾酒配方，自动计算并保存预估酒精度。
+- **添加新配方**：登录用户可以访问受保护的页面添加自定义鸡尾酒配方，自动计算并保存预估酒精度，同时记录创建者用户名。
 - **评论系统**：登录用户可以对配方发表评论，查看其他用户的评论。
 - **后台管理**：
     - **管理员访问**：只有管理员角色的用户可以访问后台管理页面。
@@ -57,20 +57,21 @@ node server.js
 
 ### 使用说明
 
-1. **浏览配方**：访问 http://localhost:8080/recipes/ 查看鸡尾酒配方列表（分页显示）。
-2. **查看配方详情/评论**：点击配方列表中的链接进入详情页查看配方、评论，并发表评论（需登录）。
+1. **浏览配方**：访问 http://localhost:8080/recipes/ 查看鸡尾酒配方列表（分页显示，包含创建者）。
+2. **查看配方详情/评论**：点击配方列表中的链接进入详情页查看配方（包含创建者）、评论，并发表评论（需登录）。
 3. **计算酒精度**：访问 http://localhost:8080/calculator/ 计算混合饮料的酒精含量
 4. **用户注册**：访问 http://localhost:8080/auth/register/ 进行注册
 5. **用户登录**：访问 http://localhost:8080/auth/login/ 进行登录
-6. **添加配方**：登录后访问 http://localhost:8080/add/ 添加新的鸡尾酒配方
+6. **添加配方**：登录后访问 http://localhost:8080/add/ 添加新的鸡尾酒配方（将记录您的用户名）。
 7. **后台管理**：以管理员身份登录后访问 http://localhost:8080/admin/ 管理配方、用户和评论，查看统计数据。
 
 ## API 端点 (部分)
 
 - `GET /api/recipes?page=<page_number>&limit=<items_per_page>`: 获取配方列表（分页）。
-    - 返回: `{ recipes: [...], totalItems: number, totalPages: number, currentPage: number }`
+    - 返回: `{ recipes: [{..., createdBy: string}, ...], totalItems: number, totalPages: number, currentPage: number }`
 - `GET /api/recipes/:id`: 获取单个配方详情。
-- `POST /api/recipes`: 添加新配方 (需要登录)。
+    - 返回: `{..., createdBy: string}`
+- `POST /api/recipes`: 添加新配方 (需要登录，自动添加 `createdBy` 字段)。
 - `DELETE /api/recipes/:id`: 删除配方 (需要管理员权限)。
 - `GET /api/recipes/:id/comments`: 获取配方的评论。
 - `POST /api/recipes/:id/comments`: 添加评论 (需要登录)。
@@ -112,7 +113,7 @@ Cybar/
 │   └── detail.js       # Handles recipe detail logic
 ├── server.js           # Node.js服务器入口
 ├── package.json        # 项目依赖
-├── recipes.json        # 配方数据存储
+├── recipes.json        # 配方数据存储 (包含 createdBy)
 ├── users.json          # 用户数据存储
 ├── comments.json       # 评论数据存储
 ├── style.css           # 全局样式

@@ -1,3 +1,15 @@
+// --- Add Global Variables for Recipe Pagination ---
+let currentRecipePage = 1;
+const adminRecipeLimit = 10; // Number of recipes per page in admin view
+
+// --- Add Global Variables for User Pagination ---
+let currentUserPage = 1;
+const adminUserLimit = 10; // Number of users per page
+
+// --- Add Global Variables for Comment Pagination ---
+let currentCommentPage = 1;
+const adminCommentLimit = 15; // Number of comments per page
+
 // --- Updated DOMContentLoaded Listener ---
 document.addEventListener('DOMContentLoaded', () => {
     // --- Start of initialization logic ---
@@ -26,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (recipeListContainer) {
-        loadRecipesForAdmin();
+        loadRecipesForAdmin(1); // Load first page initially
         // Add event listener for deleting recipes (using event delegation)
         recipeListContainer.addEventListener('click', (event) => {
             if (event.target.classList.contains('delete-recipe-btn')) {
@@ -43,11 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (userListContainer) {
-        loadUsersForAdmin();
-
-        // --- REMOVED Redundant Event Listener for User Actions (using prompt) ---
-        // userListContainer.addEventListener('click', (event) => { ... });
-
+        loadUsersForAdmin(1); // Load first page initially
+        // ... (keep existing event listener for modal)
         // --- Event Listener for Opening Modal (via Manage button) ---
         userListContainer.addEventListener('click', (event) => {
             // Check if the click is on the manage button
@@ -72,8 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Load Comments ---
     if (commentListContainer) {
-        loadCommentsForAdmin(); // Call function to load comments
-
+        loadCommentsForAdmin(1); // Load first page initially
         // Add event listener for deleting comments (using event delegation)
         commentListContainer.addEventListener('click', (event) => {
             if (event.target.classList.contains('delete-comment-btn')) {
@@ -111,11 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if(commentMsg) commentMsg.textContent = '正在刷新评论...'; // Update comment message
             if(commentTbody) commentTbody.innerHTML = '<tr><td colspan="6">正在刷新...</td></tr>'; // Clear comment table body, adjust colspan
 
-            // Call functions to reload data
+            // Call functions to reload data - load first page for all paginated lists
             loadStats();
-            loadRecipesForAdmin();
-            loadUsersForAdmin();
-            loadCommentsForAdmin(); // *** ADDED: Reload comments on refresh ***
+            loadRecipesForAdmin(1);
+            loadUsersForAdmin(1); // Load page 1 on refresh
+            loadCommentsForAdmin(1); // Load page 1 on refresh
         });
     } else {
         console.error("Refresh button 'refresh-admin-data-btn' not found.");
@@ -186,40 +194,50 @@ function closeUserModal() {
     if(deleteBtn) { deleteBtn.disabled = false; deleteBtn.textContent = '删除此用户'; }
 }
 
-// --- Function to load users for admin (Updated) ---
-async function loadUsersForAdmin() {
+// --- Function to load users for admin (MODIFIED FOR PAGINATION) ---
+async function loadUsersForAdmin(page = 1) { // Accept page number
     const container = document.getElementById('admin-user-list');
     const messageElement = document.getElementById('admin-user-message');
-    if (!container) return;
+    const paginationContainer = document.getElementById('admin-user-pagination'); // Get pagination container
+    if (!container || !paginationContainer) return;
+
     if (messageElement) {
-        messageElement.textContent = '正在加载用户...';
+        messageElement.textContent = `正在加载第 ${page} 页用户...`;
         messageElement.style.color = 'inherit';
     }
+    container.innerHTML = `<tr><td colspan="4">正在加载...</td></tr>`; // Show loading in table
+    paginationContainer.innerHTML = ''; // Clear old pagination
 
     try {
-        const response = await fetch('/api/admin/users');
+        // Fetch paginated users
+        const response = await fetch(`/api/admin/users?page=${page}&limit=${adminUserLimit}`);
         if (!response.ok) {
-             // Pass the specific message element
              if (handleAuthError(response, messageElement)) return;
-             throw new Error(`HTTP error! status: ${response.status}`);
+             let errorMsg = `HTTP error! status: ${response.status}`;
+             try {
+                 const errData = await response.json();
+                 errorMsg = errData.message || errorMsg;
+             } catch (e) { /* Ignore parsing error */ }
+             throw new Error(errorMsg);
         }
-        const users = await response.json();
 
-        container.innerHTML = '';
-        if (users.length === 0) {
-            container.innerHTML = `<tr><td colspan="4">没有用户可显示。</td></tr>`;
+        const responseData = await response.json();
+        const users = responseData.users; // Expecting { users: [], ... }
+        currentUserPage = responseData.currentPage; // Update global current page
+
+        container.innerHTML = ''; // Clear loading row
+        if (!users || users.length === 0) {
+            container.innerHTML = `<tr><td colspan="4">第 ${page} 页没有用户可显示。</td></tr>`;
             if (messageElement) messageElement.textContent = '';
+            renderUserPagination(responseData.totalPages, responseData.currentPage);
             return;
         }
 
         users.forEach(user => {
             const row = document.createElement('tr');
-            // Add data attributes to the row for the modal
             row.dataset.userId = user.id;
             row.dataset.username = user.username;
             row.dataset.currentRole = user.role || 'user';
-            // row.title = "点击管理此用户"; // Title on row might be confusing, keep it on button
-
             row.innerHTML = `
                 <td>${user.id || 'N/A'}</td>
                 <td>${user.username}</td>
@@ -228,7 +246,9 @@ async function loadUsersForAdmin() {
             `;
             container.appendChild(row);
         });
-        if (messageElement) messageElement.textContent = '';
+
+        if (messageElement) messageElement.textContent = ''; // Clear loading message
+        renderUserPagination(responseData.totalPages, responseData.currentPage); // Render pagination controls
 
     } catch (error) {
         console.error('Error loading users for admin:', error);
@@ -238,7 +258,45 @@ async function loadUsersForAdmin() {
             messageElement.textContent = '加载用户列表失败: ' + error.message;
             messageElement.style.color = 'red';
         }
+        paginationContainer.innerHTML = ''; // Clear pagination on error
     }
+}
+
+// --- Function to Render User Pagination Controls ---
+function renderUserPagination(totalPages, currentPage) {
+    const paginationContainer = document.getElementById('admin-user-pagination');
+    if (!paginationContainer) return;
+    paginationContainer.innerHTML = ''; // Clear existing controls
+
+    if (totalPages <= 1) return; // No controls needed
+
+    // Previous Button
+    const prevButton = document.createElement('button');
+    prevButton.textContent = '上一页';
+    prevButton.disabled = currentPage === 1;
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            loadUsersForAdmin(currentPage - 1);
+        }
+    });
+    paginationContainer.appendChild(prevButton);
+
+    // Page Info Span
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = ` 第 ${currentPage} / ${totalPages} 页 `;
+    pageInfo.style.margin = '0 10px';
+    paginationContainer.appendChild(pageInfo);
+
+    // Next Button
+    const nextButton = document.createElement('button');
+    nextButton.textContent = '下一页';
+    nextButton.disabled = currentPage === totalPages;
+    nextButton.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            loadUsersForAdmin(currentPage + 1);
+        }
+    });
+    paginationContainer.appendChild(nextButton);
 }
 
 // --- Function to delete a user (Admin) ---
@@ -256,7 +314,9 @@ async function deleteUser(userId, buttonElement) {
         if (response.ok || response.status === 204) {
             alert('用户删除成功！');
             closeUserModal(); // Close modal on success
-            loadUsersForAdmin(); // Refresh the user list
+            // --- MODIFICATION: Reload the CURRENT user page after deletion ---
+            loadUsersForAdmin(currentUserPage);
+            // --- END MODIFICATION ---
         } else {
             // Pass the modal message element
             if (handleAuthError(response, modalMessage)) { buttonElement.disabled = false; buttonElement.textContent = '删除此用户'; return; }
@@ -313,7 +373,9 @@ async function updateUserRole(userId, newRole, buttonElement) {
             const result = await response.json();
             alert(result.message || '角色修改成功！');
             closeUserModal(); // Close modal on success
-            loadUsersForAdmin(); // Refresh the user list
+            // --- MODIFICATION: Reload the CURRENT user page after update ---
+            loadUsersForAdmin(currentUserPage);
+            // --- END MODIFICATION ---
         } else {
             // Pass the modal message element
             if (handleAuthError(response, modalMessage)) { buttonElement.disabled = false; buttonElement.textContent = '保存角色'; return; }
@@ -344,25 +406,25 @@ async function updateUserRole(userId, newRole, buttonElement) {
     }
 }
 
-// --- Function to load recipes for admin ---
-async function loadRecipesForAdmin() {
+// --- Function to load recipes for admin (MODIFIED FOR PAGINATION) ---
+async function loadRecipesForAdmin(page = 1) { // Accept page number
     const container = document.getElementById('admin-recipe-list');
-    const messageElement = document.getElementById('admin-message'); // Target recipe message element
-    if (!container) return;
+    const messageElement = document.getElementById('admin-message');
+    const paginationContainer = document.getElementById('admin-recipe-pagination'); // Get pagination container
+    if (!container || !paginationContainer) return;
+
     if (messageElement) {
-        messageElement.textContent = '正在加载配方...';
+        messageElement.textContent = `正在加载第 ${page} 页配方...`;
         messageElement.style.color = 'inherit';
     }
+    container.innerHTML = `<tr><td colspan="3">正在加载...</td></tr>`; // Show loading in table
+    paginationContainer.innerHTML = ''; // Clear old pagination
 
     try {
-        // Fetch potentially paginated recipes. For admin, we might want all,
-        // but let's handle the current API response structure first.
-        // Consider adding ?limit=1000 or similar if you need all recipes.
-        const response = await fetch('/api/recipes'); // Or /api/recipes?limit=1000
+        // Fetch paginated recipes
+        const response = await fetch(`/api/recipes?page=${page}&limit=${adminRecipeLimit}`);
         if (!response.ok) {
-             // Pass the specific message element
              if (handleAuthError(response, messageElement)) return;
-             // Try to parse error JSON
              let errorMsg = `HTTP error! status: ${response.status}`;
              try {
                  const errData = await response.json();
@@ -370,17 +432,17 @@ async function loadRecipesForAdmin() {
              } catch (e) { /* Ignore parsing error */ }
              throw new Error(errorMsg);
         }
-        // --- MODIFICATION START ---
-        // The API now returns an object { recipes: [], ... }
-        const responseData = await response.json();
-        const recipes = responseData.recipes; // Extract the array
-        // --- MODIFICATION END ---
 
-        container.innerHTML = '';
-        // Check if the extracted recipes array is valid and has items
+        const responseData = await response.json();
+        const recipes = responseData.recipes;
+        currentRecipePage = responseData.currentPage; // Update global current page
+
+        container.innerHTML = ''; // Clear loading row
         if (!recipes || recipes.length === 0) {
-            container.innerHTML = '<tr><td colspan="3">没有配方可管理。</td></tr>';
+            container.innerHTML = `<tr><td colspan="3">第 ${page} 页没有配方可管理。</td></tr>`;
             if (messageElement) messageElement.textContent = '';
+            // Still render pagination if there are other pages
+            renderRecipePagination(responseData.totalPages, responseData.currentPage);
             return;
         }
 
@@ -395,16 +457,56 @@ async function loadRecipesForAdmin() {
             `;
             container.appendChild(row);
         });
-        if (messageElement) messageElement.textContent = '';
+
+        if (messageElement) messageElement.textContent = ''; // Clear loading message
+        renderRecipePagination(responseData.totalPages, responseData.currentPage); // Render pagination controls
 
     } catch (error) {
         console.error('Error loading recipes for admin:', error);
-        if (container) container.innerHTML = '<tr><td colspan="3">加载配方列表失败。</td></tr>';
+        if (container) container.innerHTML = `<tr><td colspan="3">加载配方列表失败。</td></tr>`;
         if (messageElement) {
             messageElement.textContent = '加载配方列表失败: ' + error.message;
             messageElement.style.color = 'red';
         }
+        paginationContainer.innerHTML = ''; // Clear pagination on error
     }
+}
+
+// --- Function to Render Recipe Pagination Controls ---
+function renderRecipePagination(totalPages, currentPage) {
+    const paginationContainer = document.getElementById('admin-recipe-pagination');
+    if (!paginationContainer) return;
+    paginationContainer.innerHTML = ''; // Clear existing controls
+
+    if (totalPages <= 1) return; // No controls needed for 1 or 0 pages
+
+    // Previous Button
+    const prevButton = document.createElement('button');
+    prevButton.textContent = '上一页';
+    prevButton.disabled = currentPage === 1;
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            loadRecipesForAdmin(currentPage - 1);
+        }
+    });
+    paginationContainer.appendChild(prevButton);
+
+    // Page Info Span
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = ` 第 ${currentPage} / ${totalPages} 页 `;
+    pageInfo.style.margin = '0 10px'; // Add some spacing
+    paginationContainer.appendChild(pageInfo);
+
+    // Next Button
+    const nextButton = document.createElement('button');
+    nextButton.textContent = '下一页';
+    nextButton.disabled = currentPage === totalPages;
+    nextButton.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            loadRecipesForAdmin(currentPage + 1);
+        }
+    });
+    paginationContainer.appendChild(nextButton);
 }
 
 // --- Function to delete a recipe (Admin) ---
@@ -425,7 +527,9 @@ async function deleteRecipe(recipeId, buttonElement) {
         if (response.ok || response.status === 204) {
             alert('配方删除成功！');
             if (messageElement) messageElement.textContent = '配方删除成功！';
-            loadRecipesForAdmin(); // Refresh the list
+            // --- MODIFICATION: Reload the CURRENT page after deletion ---
+            loadRecipesForAdmin(currentRecipePage);
+            // --- END MODIFICATION ---
         } else {
              // Pass the specific message element
              if (handleAuthError(response, messageElement)) { buttonElement.disabled = false; buttonElement.textContent = '删除'; return; }
@@ -461,29 +565,42 @@ async function deleteRecipe(recipeId, buttonElement) {
     }
 }
 
-// --- Function to load comments for admin (Re-added) ---
-async function loadCommentsForAdmin() {
+// --- Function to load comments for admin (MODIFIED FOR PAGINATION) ---
+async function loadCommentsForAdmin(page = 1) { // Accept page number
     const container = document.getElementById('admin-comment-list');
-    const messageElement = document.getElementById('admin-comment-message'); // Target comment message element
-    if (!container) return;
+    const messageElement = document.getElementById('admin-comment-message');
+    const paginationContainer = document.getElementById('admin-comment-pagination'); // Get pagination container
+    if (!container || !paginationContainer) return;
+
     if (messageElement) {
-        messageElement.textContent = '正在加载评论...';
+        messageElement.textContent = `正在加载第 ${page} 页评论...`;
         messageElement.style.color = 'inherit';
     }
+    container.innerHTML = `<tr><td colspan="6">正在加载...</td></tr>`; // Show loading in table
+    paginationContainer.innerHTML = ''; // Clear old pagination
 
     try {
-        const response = await fetch('/api/admin/comments');
+        // Fetch paginated comments
+        const response = await fetch(`/api/admin/comments?page=${page}&limit=${adminCommentLimit}`);
         if (!response.ok) {
-             // Pass the specific message element
              if (handleAuthError(response, messageElement)) return;
-             throw new Error(`HTTP error! status: ${response.status}`);
+             let errorMsg = `HTTP error! status: ${response.status}`;
+             try {
+                 const errData = await response.json();
+                 errorMsg = errData.message || errorMsg;
+             } catch (e) { /* Ignore parsing error */ }
+             throw new Error(errorMsg);
         }
-        const comments = await response.json();
 
-        container.innerHTML = '';
-        if (comments.length === 0) {
-            container.innerHTML = `<tr><td colspan="6">没有评论可显示。</td></tr>`;
+        const responseData = await response.json();
+        const comments = responseData.comments; // Expecting { comments: [], ... }
+        currentCommentPage = responseData.currentPage; // Update global current page
+
+        container.innerHTML = ''; // Clear loading row
+        if (!comments || comments.length === 0) {
+            container.innerHTML = `<tr><td colspan="6">第 ${page} 页没有评论可显示。</td></tr>`;
             if (messageElement) messageElement.textContent = '';
+            renderCommentPagination(responseData.totalPages, responseData.currentPage);
             return;
         }
 
@@ -504,7 +621,9 @@ async function loadCommentsForAdmin() {
             `;
             container.appendChild(row);
         });
-        if (messageElement) messageElement.textContent = '';
+
+        if (messageElement) messageElement.textContent = ''; // Clear loading message
+        renderCommentPagination(responseData.totalPages, responseData.currentPage); // Render pagination controls
 
     } catch (error) {
         console.error('Error loading comments for admin:', error);
@@ -514,10 +633,48 @@ async function loadCommentsForAdmin() {
             messageElement.textContent = '加载评论列表失败: ' + error.message;
             messageElement.style.color = 'red';
         }
+        paginationContainer.innerHTML = ''; // Clear pagination on error
     }
 }
 
-// --- Function to delete a comment (Admin) (Re-added) ---
+// --- Function to Render Comment Pagination Controls ---
+function renderCommentPagination(totalPages, currentPage) {
+    const paginationContainer = document.getElementById('admin-comment-pagination');
+    if (!paginationContainer) return;
+    paginationContainer.innerHTML = ''; // Clear existing controls
+
+    if (totalPages <= 1) return; // No controls needed
+
+    // Previous Button
+    const prevButton = document.createElement('button');
+    prevButton.textContent = '上一页';
+    prevButton.disabled = currentPage === 1;
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            loadCommentsForAdmin(currentPage - 1);
+        }
+    });
+    paginationContainer.appendChild(prevButton);
+
+    // Page Info Span
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = ` 第 ${currentPage} / ${totalPages} 页 `;
+    pageInfo.style.margin = '0 10px';
+    paginationContainer.appendChild(pageInfo);
+
+    // Next Button
+    const nextButton = document.createElement('button');
+    nextButton.textContent = '下一页';
+    nextButton.disabled = currentPage === totalPages;
+    nextButton.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            loadCommentsForAdmin(currentPage + 1);
+        }
+    });
+    paginationContainer.appendChild(nextButton);
+}
+
+// --- Function to delete a comment (Admin) ---
 async function deleteComment(commentId, buttonElement) {
     const messageElement = document.getElementById('admin-comment-message'); // Target comment message element
     buttonElement.disabled = true;
@@ -535,7 +692,9 @@ async function deleteComment(commentId, buttonElement) {
         if (response.ok || response.status === 204) {
             alert('评论删除成功！');
             if (messageElement) messageElement.textContent = '评论删除成功！';
-            loadCommentsForAdmin(); // Refresh the comment list
+            // --- MODIFICATION: Reload the CURRENT comment page after deletion ---
+            loadCommentsForAdmin(currentCommentPage);
+            // --- END MODIFICATION ---
         } else {
             // Pass the specific message element
             if (handleAuthError(response, messageElement)) { buttonElement.disabled = false; buttonElement.textContent = '删除'; return; }
