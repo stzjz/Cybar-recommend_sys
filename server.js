@@ -914,6 +914,61 @@ app.get('/api/recipes/:id/interactions', isAuthenticated, async (req, res) => {
     }
 });
 
+// --- User Profile Routes ---
+app.get('/api/user/current', isAuthenticated, (req, res) => {
+    res.json({
+        id: req.session.userId,
+        username: req.session.username,
+        role: req.session.role
+    });
+});
+
+app.get('/api/user/likes', isAuthenticated, async (req, res) => {
+    try {
+        const likes = await readLikes();
+        const recipes = await fs.readFile(RECIPES_FILE, 'utf8').then(JSON.parse);
+        const likedRecipes = [];
+        
+        // 遍历所有配方的点赞数据
+        for (const recipeId in likes) {
+            if (likes[recipeId].includes(req.session.userId)) {
+                const recipe = recipes.find(r => r.id === recipeId);
+                if (recipe) {
+                    likedRecipes.push(recipe);
+                }
+            }
+        }
+        
+        res.json(likedRecipes);
+    } catch (error) {
+        console.error('Error fetching user likes:', error);
+        res.status(500).json({ error: '获取点赞历史失败' });
+    }
+});
+
+app.get('/api/user/favorites', isAuthenticated, async (req, res) => {
+    try {
+        const favorites = await readFavorites();
+        const recipes = await fs.readFile(RECIPES_FILE, 'utf8').then(JSON.parse);
+        const favoritedRecipes = [];
+        
+        // 遍历所有配方的收藏数据
+        for (const recipeId in favorites) {
+            if (favorites[recipeId].includes(req.session.userId)) {
+                const recipe = recipes.find(r => r.id === recipeId);
+                if (recipe) {
+                    favoritedRecipes.push(recipe);
+                }
+            }
+        }
+        
+        res.json(favoritedRecipes);
+    } catch (error) {
+        console.error('Error fetching user favorites:', error);
+        res.status(500).json({ error: '获取收藏历史失败' });
+    }
+});
+
 // Start server
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`); // Update console log message
