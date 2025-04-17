@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="../style.css">
     <!-- Updated Google Fonts link -->
     <link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
@@ -22,6 +24,16 @@
         <section id="recipe-detail">
             <!-- Recipe details will be loaded here by JavaScript -->
             <div id="loading-detail-message">正在加载配方详情...</div>
+            
+            <!-- Interaction buttons container -->
+            <div id="interaction-buttons" style="display: none; margin: 20px 0;">
+                <button id="like-button" class="interaction-button">
+                    <i class="far fa-heart"></i> <span id="like-count">0</span>
+                </button>
+                <button id="favorite-button" class="interaction-button">
+                    <i class="far fa-star"></i> <span id="favorite-count">0</span>
+                </button>
+            </div>
         </section>
         <p id="error-message" style="color: red;"></p>
 

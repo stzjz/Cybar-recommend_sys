@@ -19,7 +19,9 @@ const pageVisitCounts = {
 
 const USERS_FILE = path.join(__dirname, 'users.json');
 const RECIPES_FILE = path.join(__dirname, 'recipes.json');
-const COMMENTS_FILE = path.join(__dirname, 'comments.json'); // Define comments file path
+const COMMENTS_FILE = path.join(__dirname, 'comments.json');
+const LIKES_FILE = path.join(__dirname, 'likes.json');
+const FAVORITES_FILE = path.join(__dirname, 'favorites.json');
 
 // Middleware
 // Middleware to count page loads (HTML requests)
@@ -101,6 +103,58 @@ const writeComments = async (comments) => {
         await fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 2), 'utf8');
     } catch (error) {
         console.error("Error writing comments file:", error);
+        throw error;
+    }
+};
+
+// Helper function to read likes
+const readLikes = async () => {
+    try {
+        let data = await fs.readFile(LIKES_FILE, 'utf8');
+        if (data.charCodeAt(0) === 0xFEFF) { data = data.slice(1); }
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            console.log("likes.json not found, returning empty object.");
+            return {}; // Return empty object if file doesn't exist
+        }
+        console.error("Error reading or parsing likes file:", error);
+        throw error;
+    }
+};
+
+// Helper function to write likes
+const writeLikes = async (likes) => {
+    try {
+        await fs.writeFile(LIKES_FILE, JSON.stringify(likes, null, 2), 'utf8');
+    } catch (error) {
+        console.error("Error writing likes file:", error);
+        throw error;
+    }
+};
+
+// Helper function to read favorites
+const readFavorites = async () => {
+    try {
+        let data = await fs.readFile(FAVORITES_FILE, 'utf8');
+        if (data.charCodeAt(0) === 0xFEFF) { data = data.slice(1); }
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            console.log("favorites.json not found, returning empty object.");
+            return {}; // Return empty object if file doesn't exist
+        }
+        console.error("Error reading or parsing favorites file:", error);
+        throw error;
+    }
+};
+
+// Helper function to write favorites
+const writeFavorites = async (favorites) => {
+    try {
+        await fs.writeFile(FAVORITES_FILE, JSON.stringify(favorites, null, 2), 'utf8');
+    } catch (error) {
+        console.error("Error writing favorites file:", error);
         throw error;
     }
 };
@@ -770,6 +824,94 @@ app.post('/api/recipes', isAuthenticated, async (req, res) => {
 app.get('/', (req, res) => {
     // Example: Redirect to recipes page or a dashboard
     res.redirect('/recipes/');
+});
+
+// API Route to toggle like for a recipe
+app.post('/api/recipes/:id/like', isAuthenticated, async (req, res) => {
+    const recipeId = req.params.id;
+    const userId = req.session.userId;
+
+    try {
+        const likes = await readLikes();
+        if (!likes[recipeId]) {
+            likes[recipeId] = [];
+        }
+
+        const userIndex = likes[recipeId].indexOf(userId);
+        if (userIndex === -1) {
+            likes[recipeId].push(userId);
+        } else {
+            likes[recipeId].splice(userIndex, 1);
+        }
+
+        await writeLikes(likes);
+        res.json({ 
+            success: true,
+            isLiked: userIndex === -1,
+            likeCount: likes[recipeId].length
+        });
+    } catch (error) {
+        console.error(`Error toggling like for recipe ${recipeId}:`, error);
+        res.status(500).json({ message: '操作失败' });
+    }
+});
+
+// API Route to toggle favorite for a recipe
+app.post('/api/recipes/:id/favorite', isAuthenticated, async (req, res) => {
+    const recipeId = req.params.id;
+    const userId = req.session.userId;
+
+    try {
+        const favorites = await readFavorites();
+        if (!favorites[recipeId]) {
+            favorites[recipeId] = [];
+        }
+
+        const userIndex = favorites[recipeId].indexOf(userId);
+        if (userIndex === -1) {
+            favorites[recipeId].push(userId);
+        } else {
+            favorites[recipeId].splice(userIndex, 1);
+        }
+
+        await writeFavorites(favorites);
+        res.json({ 
+            success: true,
+            isFavorited: userIndex === -1,
+            favoriteCount: favorites[recipeId].length
+        });
+    } catch (error) {
+        console.error(`Error toggling favorite for recipe ${recipeId}:`, error);
+        res.status(500).json({ message: '操作失败' });
+    }
+});
+
+// API Route to get like and favorite status for a recipe
+app.get('/api/recipes/:id/interactions', isAuthenticated, async (req, res) => {
+    const recipeId = req.params.id;
+    const userId = req.session.userId;
+
+    try {
+        const [likes, favorites] = await Promise.all([
+            readLikes(),
+            readFavorites()
+        ]);
+
+        const likeCount = likes[recipeId] ? likes[recipeId].length : 0;
+        const favoriteCount = favorites[recipeId] ? favorites[recipeId].length : 0;
+        const isLiked = likes[recipeId] ? likes[recipeId].includes(userId) : false;
+        const isFavorited = favorites[recipeId] ? favorites[recipeId].includes(userId) : false;
+
+        res.json({
+            likeCount,
+            favoriteCount,
+            isLiked,
+            isFavorited
+        });
+    } catch (error) {
+        console.error(`Error getting interactions for recipe ${recipeId}:`, error);
+        res.status(500).json({ message: '获取互动数据失败' });
+    }
 });
 
 // Start server
