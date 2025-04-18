@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const recipeDetailContainer = document.getElementById('recipe-detail'); // Your container ID for details
     const errorMessageElement = document.getElementById('error-message'); // Element to show errors
+    const interactionButtons = document.getElementById('interaction-buttons');
+    const likeButton = document.getElementById('like-button');
+    const favoriteButton = document.getElementById('favorite-button');
+    const likeCountSpan = document.getElementById('like-count');
+    const favoriteCountSpan = document.getElementById('favorite-count');
 
     // --- Get recipe ID from URL query parameter ---
     const urlParams = new URLSearchParams(window.location.search);
@@ -23,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(recipe => {
             displayRecipeDetail(recipe);
+            // Load interaction data if user is logged in
+            loadInteractionData(recipeId);
         })
         .catch(error => {
             console.error('获取配方详情时出错:', error.message);
@@ -47,30 +54,77 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- Setup like button click handler ---
+    if (likeButton) {
+        likeButton.addEventListener('click', () => {
+            toggleLike(recipeId);
+        });
+    }
+
+    // --- Setup favorite button click handler ---
+    if (favoriteButton) {
+        favoriteButton.addEventListener('click', () => {
+            toggleFavorite(recipeId);
+        });
+    }
 });
 
 function displayRecipeDetail(recipe) {
     const container = document.getElementById('recipe-detail');
     if (!container) return;
 
-    // Clear previous content or loading message
+    // 清除加载消息和现有内容
     container.innerHTML = '';
 
-    // Populate the container with recipe details
+    // 创建新的内容容器
+    const contentContainer = document.createElement('div');
+    contentContainer.classList.add('recipe-content');
+
+    // 设置标题
     const title = document.createElement('h2');
     title.textContent = recipe.name;
-    container.appendChild(title);
+    contentContainer.appendChild(title);
 
-    // --- Add Creator Info ---
+    // 创建社交互动栏（包含点赞、收藏）
+    const socialBar = document.createElement('div');
+    socialBar.classList.add('social-interaction-bar');
+    socialBar.style.cssText = 'display: flex; gap: 20px; align-items: center; margin: 15px 0; padding: 10px; border-bottom: 1px solid #eee;';
+
+    // 重组点赞按钮
+    const likeWrapper = document.createElement('div');
+    likeWrapper.classList.add('interaction-wrapper');
+    likeWrapper.innerHTML = `
+        <button id="like-button" class="interaction-btn" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+            <i class="far fa-heart" style="transition: color 0.3s ease"></i>
+            <span id="like-count">0</span>
+        </button>
+    `;
+
+    // 重组收藏按钮
+    const favoriteWrapper = document.createElement('div');
+    favoriteWrapper.classList.add('interaction-wrapper');
+    favoriteWrapper.innerHTML = `
+        <button id="favorite-button" class="interaction-btn" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+            <i class="far fa-bookmark" style="transition: color 0.3s ease"></i>
+            <span id="favorite-count">0</span>
+        </button>
+    `;
+
+    socialBar.appendChild(likeWrapper);
+    socialBar.appendChild(favoriteWrapper);
+    contentContainer.appendChild(socialBar);
+
+    // 添加创建者信息
     const creatorInfo = document.createElement('p');
-    creatorInfo.classList.add('recipe-creator-detail'); // Add class for styling
+    creatorInfo.classList.add('recipe-creator-detail');
     creatorInfo.innerHTML = `<strong>创建者:</strong> ${recipe.createdBy || '未知用户'}`;
-    container.appendChild(creatorInfo);
-    // --- End Creator Info ---
+    contentContainer.appendChild(creatorInfo);
 
+    // 添加配料标题和列表
     const ingredientsTitle = document.createElement('h3');
     ingredientsTitle.textContent = '配料:';
-    container.appendChild(ingredientsTitle);
+    contentContainer.appendChild(ingredientsTitle);
 
     const ingredientsList = document.createElement('ul');
     recipe.ingredients.forEach(ing => {
@@ -78,26 +132,150 @@ function displayRecipeDetail(recipe) {
         li.textContent = `${ing.name}: ${ing.volume}ml (ABV: ${ing.abv}%)`;
         ingredientsList.appendChild(li);
     });
-    container.appendChild(ingredientsList);
+    contentContainer.appendChild(ingredientsList);
 
+    // 添加制作方法
     const instructionsTitle = document.createElement('h3');
     instructionsTitle.textContent = '制作方法:';
-    container.appendChild(instructionsTitle);
+    contentContainer.appendChild(instructionsTitle);
 
     const instructions = document.createElement('p');
     instructions.textContent = recipe.instructions;
-    container.appendChild(instructions);
+    contentContainer.appendChild(instructions);
 
+    // 添加预计酒精度
     const abv = document.createElement('p');
     abv.innerHTML = `<strong>预计酒精度:</strong> ${recipe.estimatedAbv}%`;
-    container.appendChild(abv);
+    contentContainer.appendChild(abv);
 
-    // Add back link if needed
-    const backLink = document.createElement('a');
-    backLink.href = './'; // Link back to the recipe list page
-    backLink.textContent = '返回配方列表';
-    backLink.classList.add('back-link'); // Add class for styling if needed
-    container.appendChild(backLink);
+    // 添加新的内容到容器
+    container.appendChild(contentContainer);
+
+    // 重新绑定事件监听器
+    setupInteractionListeners(recipe.id);
+}
+
+// --- Function to setup interaction listeners ---
+function setupInteractionListeners(recipeId) {
+    const likeButton = document.getElementById('like-button');
+    const favoriteButton = document.getElementById('favorite-button');
+
+    if (likeButton) {
+        likeButton.addEventListener('click', async () => {
+            if (!document.body.classList.contains('logged-in')) {
+                alert('请登录后再点赞');
+                return;
+            }
+            try {
+                const response = await fetch(`/api/recipes/${recipeId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to toggle like');
+                }
+
+                const data = await response.json();
+                updateInteractionUI(data);
+            } catch (error) {
+                console.error('Error toggling like:', error);
+                alert('操作失败，请重试');
+            }
+        });
+    }
+
+    if (favoriteButton) {
+        favoriteButton.addEventListener('click', async () => {
+            if (!document.body.classList.contains('logged-in')) {
+                alert('请登录后再收藏');
+                return;
+            }
+            try {
+                const response = await fetch(`/api/recipes/${recipeId}/favorite`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to toggle favorite');
+                }
+
+                const data = await response.json();
+                updateInteractionUI(data);
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+                alert('操作失败，请重试');
+            }
+        });
+    }
+}
+
+// --- Function to update interaction UI ---
+function updateInteractionUI(data) {
+    const likeButton = document.getElementById('like-button');
+    const favoriteButton = document.getElementById('favorite-button');
+    const likeCountSpan = document.getElementById('like-count');
+    const favoriteCountSpan = document.getElementById('favorite-count');
+
+    if (!likeButton || !favoriteButton || !likeCountSpan || !favoriteCountSpan) return;
+
+    // 只更新传入数据中存在的计数
+    if (typeof data.likeCount !== 'undefined') {
+        likeCountSpan.textContent = data.likeCount;
+    }
+    if (typeof data.favoriteCount !== 'undefined') {
+        favoriteCountSpan.textContent = data.favoriteCount;
+    }
+
+    // 更新点赞状态（仅当传入数据包含isLiked时）
+    if (typeof data.isLiked !== 'undefined') {
+        const likeIcon = likeButton.querySelector('i');
+        if (data.isLiked) {
+            likeIcon.classList.remove('far');
+            likeIcon.classList.add('fas');
+            likeIcon.style.color = '#ff4757';
+            likeButton.classList.add('active');
+        } else {
+            likeIcon.classList.remove('fas');
+            likeIcon.classList.add('far');
+            likeIcon.style.color = '#6c757d';
+            likeButton.classList.remove('active');
+        }
+    }
+
+    // 更新收藏状态（仅当传入数据包含isFavorited时）
+    if (typeof data.isFavorited !== 'undefined') {
+        const favoriteIcon = favoriteButton.querySelector('i');
+        if (data.isFavorited) {
+            favoriteIcon.classList.remove('far');
+            favoriteIcon.classList.add('fas');
+            favoriteIcon.style.color = '#ffa502';
+            favoriteButton.classList.add('active');
+        } else {
+            favoriteIcon.classList.remove('fas');
+            favoriteIcon.classList.add('far');
+            favoriteIcon.style.color = '#6c757d';
+            favoriteButton.classList.remove('active');
+        }
+    }
+
+    // 为未登录用户禁用按钮
+    if (!document.body.classList.contains('logged-in')) {
+        likeButton.disabled = true;
+        favoriteButton.disabled = true;
+        likeButton.title = '请登录后点赞';
+        favoriteButton.title = '请登录后收藏';
+    } else {
+        likeButton.disabled = false;
+        favoriteButton.disabled = false;
+        likeButton.title = data.isLiked ? '取消点赞' : '点赞';
+        favoriteButton.title = data.isFavorited ? '取消收藏' : '收藏';
+    }
 }
 
 // --- Function to load and display comments ---
@@ -299,5 +477,94 @@ async function deleteComment(commentId, buttonElement) {
         // Re-enable button on failure
         buttonElement.disabled = false;
         buttonElement.textContent = '×';
+    }
+}
+
+// --- Function to load interaction data ---
+async function loadInteractionData(recipeId) {
+    try {
+        const response = await fetch(`/api/recipes/${recipeId}/interactions`);
+        if (!response.ok) {
+            throw new Error('Failed to load interaction data');
+        }
+        const data = await response.json();
+        
+        // Update UI with interaction data
+        updateInteractionUI(data);
+
+        // Show interaction buttons for all users
+        const interactionButtons = document.getElementById('interaction-buttons');
+        interactionButtons.style.display = 'block';
+
+        // If user is not logged in, disable the buttons
+        if (!document.body.classList.contains('logged-in')) {
+            const likeButton = document.getElementById('like-button');
+            const favoriteButton = document.getElementById('favorite-button');
+            
+            if (likeButton) {
+                likeButton.disabled = true;
+                likeButton.title = '请登录后点赞';
+            }
+            if (favoriteButton) {
+                favoriteButton.disabled = true;
+                favoriteButton.title = '请登录后收藏';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading interaction data:', error);
+        // Hide interaction buttons if there's an error
+        document.getElementById('interaction-buttons').style.display = 'none';
+    }
+}
+
+// --- Function to toggle like ---
+async function toggleLike(recipeId) {
+    try {
+        const response = await fetch(`/api/recipes/${recipeId}/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to toggle like');
+        }
+
+        const data = await response.json();
+        // 只更新点赞相关的状态
+        updateInteractionUI({
+            likeCount: data.likeCount,
+            isLiked: data.isLiked
+        });
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        alert('操作失败，请重试');
+    }
+}
+
+// --- Function to toggle favorite ---
+async function toggleFavorite(recipeId) {
+    try {
+        const response = await fetch(`/api/recipes/${recipeId}/favorite`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to toggle favorite');
+        }
+
+        const data = await response.json();
+        // 只更新收藏相关的状态
+        updateInteractionUI({
+            favoriteCount: data.favoriteCount,
+            isFavorited: data.isFavorited
+        });
+    } catch (error) {
+        console.error('Error toggling favorite:', error);
+        alert('操作失败，请重试');
     }
 }
