@@ -1,22 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
     const recipesContainer = document.getElementById('recipes-container');
     const loadingMessage = document.getElementById('loading-message');
-    const paginationControls = document.getElementById('pagination-controls');
-    let currentPage = 1; // Keep track of the current page
+    // Remove load button logic
+    // const loadButton = document.getElementById('load-recipes-btn');
+    const paginationContainer = document.getElementById('pagination-controls'); // Get pagination container
+
+    let currentPage = 1;
+    const limit = 10; // Or any other desired limit
 
     const displayRecipes = (data) => {
-        recipesContainer.innerHTML = ''; // Clear previous recipes or loading message
-        loadingMessage.style.display = 'none'; // Hide loading message
+        recipesContainer.innerHTML = ''; // Clear previous results
+        loadingMessage.style.display = 'none';
         recipesContainer.style.display = 'block'; // Show container
 
-        if (!data.recipes || data.recipes.length === 0) {
-            recipesContainer.innerHTML = '<p>没有找到配方。</p>';
+        if (!data || !data.recipes || data.recipes.length === 0) {
+            recipesContainer.innerHTML = '<p>暂无配方。</p>';
+            paginationContainer.innerHTML = ''; // Clear pagination if no recipes
             return;
         }
 
         data.recipes.forEach(recipe => {
             const article = document.createElement('article');
-            article.classList.add('cocktail'); // Use existing class for styling
+            article.classList.add('cocktail');
 
             const nameHeading = document.createElement('h3');
             const nameLink = document.createElement('a');
@@ -34,15 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
             article.appendChild(creatorInfo);
             // --- End Creator Info ---
 
-            // --- Add Interaction Counts (Likes & Favorites) ---
+            // Add interaction counts
             const interactionInfo = document.createElement('div');
-            interactionInfo.classList.add('interaction-info'); // Add class for styling
-            // Use counts directly from the recipe data
-            const likeCount = recipe.likeCount !== undefined ? recipe.likeCount : 0;
-            const favoriteCount = recipe.favoriteCount !== undefined ? recipe.favoriteCount : 0;
-            interactionInfo.textContent = `👍 ${likeCount} | ⭐ ${favoriteCount}`;
+            interactionInfo.classList.add('interaction-counts');
+            interactionInfo.innerHTML = `
+                <span class="like-count"><i class="far fa-heart"></i> <span class="count">0</span></span>
+                <span class="favorite-count"><i class="far fa-star"></i> <span class="count">0</span></span>
+            `;
             article.appendChild(interactionInfo);
-            // --- End Interaction Counts ---
 
             // Optionally display brief ingredients or instructions here if needed
             const instructions = document.createElement('p');
@@ -52,75 +56,114 @@ document.addEventListener('DOMContentLoaded', () => {
 
             recipesContainer.appendChild(article);
 
-            // REMOVED: loadInteractionCounts(recipe.id, article); - Counts are now included directly
+            // Load interaction counts for this recipe
+            loadInteractionCounts(recipe.id, article);
         });
 
         // --- Render Pagination Controls ---
         renderPagination(data.totalPages, data.currentPage);
     };
 
-    // REMOVED: Function to load interaction counts for a recipe (loadInteractionCounts)
-
-    // Function to fetch recipes for a specific page
-    const fetchRecipes = async (page = 1) => {
-        loadingMessage.style.display = 'block'; // Show loading message
-        recipesContainer.style.display = 'none'; // Hide container while loading
-        paginationControls.innerHTML = ''; // Clear pagination while loading
-
+    // Function to load interaction counts for a recipe
+    async function loadInteractionCounts(recipeId, article) {
         try {
-            // Fetch recipes with pagination parameters
-            const response = await fetch(`/api/recipes?page=${page}&limit=10`); // Assuming 10 items per page
+            const response = await fetch(`/api/recipes/${recipeId}/interactions`);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error('Failed to load interaction counts');
             }
             const data = await response.json();
-            currentPage = data.currentPage; // Update current page tracker
-            displayRecipes(data);
+            
+            // Update the counts in the article
+            const likeCount = article.querySelector('.like-count .count');
+            const favoriteCount = article.querySelector('.favorite-count .count');
+            
+            if (likeCount) likeCount.textContent = data.likeCount;
+            if (favoriteCount) favoriteCount.textContent = data.favoriteCount;
         } catch (error) {
-            console.error('无法加载配方:', error);
-            loadingMessage.textContent = '加载配方失败。请稍后重试。';
-            loadingMessage.style.color = 'red';
-            recipesContainer.style.display = 'none'; // Keep container hidden on error
+            console.error(`Error loading interaction counts for recipe ${recipeId}:`, error);
         }
+    }
+
+    const fetchAndDisplayRecipes = (page = 1) => {
+        loadingMessage.textContent = '正在加载配方...';
+        loadingMessage.style.display = 'block';
+        recipesContainer.style.display = 'none'; // Hide container while loading
+        paginationContainer.innerHTML = ''; // Clear old pagination
+        const searchInput = document.getElementById('search-input').value;
+        // Fetch recipes for the specific page
+        fetch(`/api/recipes?page=${page}&limit=${limit}&search=${encodeURIComponent(searchInput)}`)
+            .then(response => {
+                if (!response.ok) {
+                    // Try to parse error response if possible
+                    return response.json().then(err => { throw new Error(err.message || `HTTP error! status: ${response.status}`) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                currentPage = data.currentPage; // Update current page
+                displayRecipes(data);
+            })
+            .catch(error => {
+                loadingMessage.textContent = `加载配方失败: ${error.message}. 请稍后重试或检查服务器是否运行。`;
+                recipesContainer.style.display = 'none';
+                console.error('获取配方时出错:', error);
+            });
     };
 
-    // Function to render pagination controls
+    // --- Function to Render Pagination Controls ---
     const renderPagination = (totalPages, currentPage) => {
-        paginationControls.innerHTML = ''; // Clear existing controls
+        paginationContainer.innerHTML = ''; // Clear existing controls
 
-        if (totalPages <= 1) {
-            return; // No pagination needed for single page
-        }
+        if (totalPages <= 1) return; // No controls needed for 1 or 0 pages
 
-        // Previous Button
         const prevButton = document.createElement('button');
         prevButton.textContent = '上一页';
         prevButton.disabled = currentPage === 1;
         prevButton.addEventListener('click', () => {
             if (currentPage > 1) {
-                fetchRecipes(currentPage - 1);
+                fetchAndDisplayRecipes(currentPage - 1);
             }
         });
-        paginationControls.appendChild(prevButton);
+        paginationContainer.appendChild(prevButton);
 
-        // Page Info Span
         const pageInfo = document.createElement('span');
         pageInfo.textContent = ` 第 ${currentPage} / ${totalPages} 页 `;
         pageInfo.style.margin = '0 10px'; // Add some spacing
-        paginationControls.appendChild(pageInfo);
+        paginationContainer.appendChild(pageInfo);
 
-        // Next Button
         const nextButton = document.createElement('button');
         nextButton.textContent = '下一页';
         nextButton.disabled = currentPage === totalPages;
         nextButton.addEventListener('click', () => {
             if (currentPage < totalPages) {
-                fetchRecipes(currentPage + 1);
+                fetchAndDisplayRecipes(currentPage + 1);
             }
         });
-        paginationControls.appendChild(nextButton);
+        paginationContainer.appendChild(nextButton);
     };
 
-    // Initial load of recipes (load page 1)
-    fetchRecipes(1);
+    // ▼▼▼ 新增：搜索功能 ▼▼▼
+    // 搜索按钮点击事件
+    document.getElementById('search-button').addEventListener('click', () => {
+        fetchAndDisplayRecipes(1); // 搜索时回到第一页
+    });
+
+    // 回车键触发搜索
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            fetchAndDisplayRecipes(1);
+        }
+    });
+
+    // Remove event listener for the load button
+    /*
+    if (loadButton) {
+        loadButton.addEventListener('click', fetchAndDisplayRecipes);
+    } else {
+         loadingMessage.textContent = '无法找到加载按钮。';
+    }
+    */
+
+    // Initially load the first page of recipes
+    fetchAndDisplayRecipes(1);
 });
