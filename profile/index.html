@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybar - 用户界面</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>Cybar</h1>
+        <div id="user-status">
+            <!-- Status will be loaded by global.js -->
+        </div>
+    </header>
+
+    <nav>
+        <a href="/" class="back-link">返回主菜单</a>
+    </nav>
+
+    <main id="profile-content">
+        <h2>用户界面</h2>
+        <div class="user-info">
+            <h3>欢迎回来, <span id="username">加载中...</span></h3>
+        </div>
+
+        <div class="history-tabs">
+            <button class="tab-button active" data-tab="likes">
+                <i class="fas fa-heart"></i> 我的点赞
+            </button>
+            <button class="tab-button" data-tab="favorites">
+                <i class="fas fa-bookmark"></i> 我的收藏
+            </button>
+        </div>
+
+        <div class="history-content">
+            <div id="likes-content" class="tab-content active">
+                <h3>我的点赞历史</h3>
+                <div id="likes-list" class="recipe-list">
+                    <!-- 点赞列表将通过 JavaScript 动态加载 -->
+                    <p class="loading">加载中...</p>
+                </div>
+            </div>
+
+            <div id="favorites-content" class="tab-content">
+                <h3>我的收藏历史</h3>
+                <div id="favorites-list" class="recipe-list">
+                    <!-- 收藏列表将通过 JavaScript 动态加载 -->
+                    <p class="loading">加载中...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Cybar<br>made by 252</p>
+    </footer>
+
+    <script src="/js/global.js"></script>
+    <script src="profile.js"></script>
+</body>
+</html> 

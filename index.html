@@ -30,6 +30,10 @@
             <a href="add/" class="menu-link admin-link"> <!-- Keep add recipe link here for now, or move if desired -->
                 <span class="icon">➕</span> 添加新配方
             </a>
+            <!-- Hide profile link by default. global.js should show it if logged in. -->
+            <a href="profile/" class="menu-link profile-link" style="display: none;">
+                <span class="icon">👤</span> 用户界面
+            </a>
         </div>
         <!-- Move Admin link outside the main group -->
         <a href="admin/" class="menu-link admin-link admin-corner-link">后台管理</a>
@@ -48,6 +52,7 @@
         <p>&copy; 2025 Cybar<br>made by 252</p>
     </footer>
 
-    <script src="/js/global.js"></script> <!-- Add global script -->
+    <!-- global.js needs to check login status and show elements like .profile-link if logged in -->
+    <script src="/js/global.js"></script>
 </body>
 </html>
