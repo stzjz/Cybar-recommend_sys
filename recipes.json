@@ -287,5 +287,19 @@
     "estimatedAbv": 21.2,
     "id": "1744719369162",
     "createdBy": "252"
+  },
+  {
+    "name": "搜索测试(test)",
+    "instructions": "一名程序员",
+    "ingredients": [
+      {
+        "name": "JavaScript",
+        "volume": 10,
+        "abv": 100
+      }
+    ],
+    "estimatedAbv": 100,
+    "id": "1744974598501",
+    "createdBy": "zengj233"
   }
 ]

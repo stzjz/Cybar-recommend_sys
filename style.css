@@ -1084,3 +1084,27 @@ body.logged-in #login-prompt {
     margin-right: 5px;
     color: #ff6b6b;
 }
+
+/* 搜索框样式 */
+#search-input {
+    padding: 8px 12px;
+    border: 1px solid #4a4a4a;
+    border-radius: 20px;
+    background: #1a1a1a;
+    color: #fff;
+    margin-right: 10px;
+}
+
+#search-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#search-button:hover {
+    background: #0056b3;
+}

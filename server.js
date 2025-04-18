@@ -662,6 +662,21 @@ app.get('/api/recipes', async (req, res) => {
         }
         const allRecipes = JSON.parse(data);
 
+        // ▼▼▼ 新增：搜索逻辑 ▼▼▼
+        let filteredRecipes = [...allRecipes];
+        const searchQuery = req.query.search;
+        if (searchQuery) {
+            const lowerSearch = searchQuery.toLowerCase();
+            filteredRecipes = allRecipes.filter(recipe => {
+                // 匹配名称/原料/创建者/说明
+                return recipe.name.toLowerCase().includes(lowerSearch) ||
+                    recipe.ingredients.some(ing => ing.name.toLowerCase().includes(lowerSearch)) ||
+                    (recipe.createdBy && recipe.createdBy.toLowerCase().includes(lowerSearch)) ||
+                    recipe.instructions.toLowerCase().includes(lowerSearch);
+            });
+        }
+        // ▲▲▲ 新增结束 ▲▲▲
+
         // --- Pagination Logic ---
         const page = parseInt(req.query.page) || 1; // Default to page 1
         const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
@@ -669,7 +684,7 @@ app.get('/api/recipes', async (req, res) => {
         const endIndex = page * limit;
 
         const results = {};
-        const totalItems = allRecipes.length;
+        const totalItems = filteredRecipes.length;
         results.totalItems = totalItems;
         results.totalPages = Math.ceil(totalItems / limit);
         results.currentPage = page;
@@ -688,7 +703,7 @@ app.get('/api/recipes', async (req, res) => {
             };
         }
 
-        results.recipes = allRecipes.slice(startIndex, endIndex);
+        results.recipes = filteredRecipes.slice(startIndex, endIndex);
         // --- End Pagination Logic ---
 
         res.json(results); // Return paginated results
@@ -913,6 +928,9 @@ app.get('/api/recipes/:id/interactions', isAuthenticated, async (req, res) => {
         res.status(500).json({ message: '获取互动数据失败' });
     }
 });
+
+// search
+
 
 // --- User Profile Routes ---
 app.get('/api/user/current', isAuthenticated, (req, res) => {

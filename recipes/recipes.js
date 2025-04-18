@@ -89,9 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingMessage.style.display = 'block';
         recipesContainer.style.display = 'none'; // Hide container while loading
         paginationContainer.innerHTML = ''; // Clear old pagination
-
+        const searchInput = document.getElementById('search-input').value;
         // Fetch recipes for the specific page
-        fetch(`/api/recipes?page=${page}&limit=${limit}`)
+        fetch(`/api/recipes?page=${page}&limit=${limit}&search=${encodeURIComponent(searchInput)}`)
             .then(response => {
                 if (!response.ok) {
                     // Try to parse error response if possible
@@ -142,6 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
         paginationContainer.appendChild(nextButton);
     };
 
+    // ▼▼▼ 新增：搜索功能 ▼▼▼
+    // 搜索按钮点击事件
+    document.getElementById('search-button').addEventListener('click', () => {
+        fetchAndDisplayRecipes(1); // 搜索时回到第一页
+    });
+
+    // 回车键触发搜索
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            fetchAndDisplayRecipes(1);
+        }
+    });
 
     // Remove event listener for the load button
     /*
