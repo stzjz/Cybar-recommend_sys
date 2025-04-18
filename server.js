@@ -659,6 +659,21 @@ app.get('/api/recipes', async (req, res) => {
         if (data.charCodeAt(0) === 0xFEFF) { data = data.slice(1); }
         const allRecipes = JSON.parse(data);
 
+        // ▼▼▼ 新增：搜索逻辑 ▼▼▼
+        let filteredRecipes = [...allRecipes];
+        const searchQuery = req.query.search;
+        if (searchQuery) {
+            const lowerSearch = searchQuery.toLowerCase();
+            filteredRecipes = allRecipes.filter(recipe => {
+                // 匹配名称/原料/创建者/说明
+                return recipe.name.toLowerCase().includes(lowerSearch) ||
+                    recipe.ingredients.some(ing => ing.name.toLowerCase().includes(lowerSearch)) ||
+                    (recipe.createdBy && recipe.createdBy.toLowerCase().includes(lowerSearch)) ||
+                    recipe.instructions.toLowerCase().includes(lowerSearch);
+            });
+        }
+        // ▲▲▲ 新增结束 ▲▲▲
+
         // --- Read Likes and Favorites Data ---
         let likes = {};
         let favorites = {};
@@ -679,13 +694,13 @@ app.get('/api/recipes', async (req, res) => {
         const endIndex = page * limit;
 
         const results = {};
-        const totalItems = allRecipes.length;
+        const totalItems = filteredRecipes.length;
         results.totalItems = totalItems;
         results.totalPages = Math.ceil(totalItems / limit);
         results.currentPage = page;
 
         // Slice the array for the current page
-        const paginatedRecipes = allRecipes.slice(startIndex, endIndex);
+        const paginatedRecipes = filteredRecipes.slice(startIndex, endIndex);
 
         // --- Add Like and Favorite Counts to Paginated Recipes ---
         results.recipes = paginatedRecipes.map(recipe => {

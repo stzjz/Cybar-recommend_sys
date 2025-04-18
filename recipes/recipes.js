@@ -69,7 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Fetch recipes with pagination parameters
-            const response = await fetch(`/api/recipes?page=${page}&limit=10`); // Assuming 10 items per page
+            const searchInput = document.getElementById('search-input').value; // 获取搜索框内容
+            const encodedSearch = encodeURIComponent(searchInput); // 编码特殊字符
+            const response = await fetch(`/api/recipes?page=${page}&limit=10&search=${encodedSearch}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -120,6 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         paginationControls.appendChild(nextButton);
     };
+
+    document.getElementById('search-button').addEventListener('click', () => {
+        fetchRecipes(1); // 搜索时强制回到第一页
+    });
+
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            fetchRecipes(1);
+        }
+    });
 
     // Initial load of recipes (load page 1)
     fetchRecipes(1);
