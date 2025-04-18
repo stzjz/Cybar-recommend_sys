@@ -39,6 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
             article.appendChild(creatorInfo);
             // --- End Creator Info ---
 
+            // Add interaction counts
+            const interactionInfo = document.createElement('div');
+            interactionInfo.classList.add('interaction-counts');
+            interactionInfo.innerHTML = `
+                <span class="like-count"><i class="far fa-heart"></i> <span class="count">0</span></span>
+                <span class="favorite-count"><i class="far fa-star"></i> <span class="count">0</span></span>
+            `;
+            article.appendChild(interactionInfo);
+
             // Optionally display brief ingredients or instructions here if needed
             const instructions = document.createElement('p');
             // Ensure instructions exist before trying to access substring
@@ -46,11 +55,34 @@ document.addEventListener('DOMContentLoaded', () => {
             article.appendChild(instructions);
 
             recipesContainer.appendChild(article);
+
+            // Load interaction counts for this recipe
+            loadInteractionCounts(recipe.id, article);
         });
 
         // --- Render Pagination Controls ---
         renderPagination(data.totalPages, data.currentPage);
     };
+
+    // Function to load interaction counts for a recipe
+    async function loadInteractionCounts(recipeId, article) {
+        try {
+            const response = await fetch(`/api/recipes/${recipeId}/interactions`);
+            if (!response.ok) {
+                throw new Error('Failed to load interaction counts');
+            }
+            const data = await response.json();
+            
+            // Update the counts in the article
+            const likeCount = article.querySelector('.like-count .count');
+            const favoriteCount = article.querySelector('.favorite-count .count');
+            
+            if (likeCount) likeCount.textContent = data.likeCount;
+            if (favoriteCount) favoriteCount.textContent = data.favoriteCount;
+        } catch (error) {
+            console.error(`Error loading interaction counts for recipe ${recipeId}:`, error);
+        }
+    }
 
     const fetchAndDisplayRecipes = (page = 1) => {
         loadingMessage.textContent = '正在加载配方...';
