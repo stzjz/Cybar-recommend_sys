@@ -107,6 +107,21 @@ section,
     margin-right: 5px;
 }
 
+/* Style for recipe creator info */
+.recipe-creator {
+    font-size: 0.9em;
+    color: #aaa; /* Lighter grey */
+    margin-top: -10px; /* Adjust spacing relative to heading */
+    margin-bottom: 10px;
+}
+
+/* Style for interaction counts (likes/favorites) */
+.interaction-info {
+    font-size: 0.9em;
+    color: #ccc; /* Slightly brighter grey */
+    margin-bottom: 10px;
+}
+
 /* Form Group and Label Styles (Dark Theme) */
 .form-group {
     margin-bottom: 20px; /* Consistent spacing */

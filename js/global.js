@@ -1,11 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const userStatusDiv = document.getElementById('user-status');
     const loginPrompt = document.getElementById('login-prompt'); // Get the login prompt element
+    const profileLink = document.querySelector('.profile-link'); // Get the profile link
 
     // Initially hide the prompt
     if (loginPrompt) {
         loginPrompt.style.display = 'none';
     }
+    // Profile link is hidden by default via HTML style attribute
 
     fetch('/api/auth/status')
         .then(response => response.json())
@@ -14,6 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.loggedIn) {
                 document.body.classList.add('logged-in');
                 document.body.classList.remove('logged-out');
+
+                // Show profile link when logged in
+                if (profileLink) {
+                    profileLink.style.display = 'block'; // Or 'flex' if your layout requires it
+                }
 
                 // Hide login prompt when logged in
                 if (loginPrompt) {
@@ -68,6 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.remove('is-admin');
                 document.body.classList.remove('is-god'); // Ensure removed
 
+                // Ensure profile link is hidden when logged out
+                if (profileLink) {
+                    profileLink.style.display = 'none';
+                }
+
                 // Show login prompt when logged out
                 if (loginPrompt) {
                     loginPrompt.style.display = 'block';
@@ -88,6 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.remove('logged-in');
             document.body.classList.remove('is-admin');
             document.body.classList.remove('is-god'); // Ensure removed
+
+            // Ensure profile link is hidden on error
+            if (profileLink) {
+                profileLink.style.display = 'none';
+            }
 
             // Show login prompt in case of error (likely logged out)
             if (loginPrompt) {
