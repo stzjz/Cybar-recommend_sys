@@ -651,21 +651,31 @@ app.get('/calculator/', (req, res) => {
     res.sendFile(path.join(__dirname, 'calculator', 'index.html')); // Assuming calculator page is index.html
 });
 
-// API to get recipes (example) - Gets ALL recipes -> NOW WITH PAGINATION
+// API to get recipes (example) - Gets ALL recipes -> NOW WITH PAGINATION & COUNTS
 app.get('/api/recipes', async (req, res) => {
     try {
         // Explicitly specify utf8 encoding and handle potential BOM
-        let data = await fs.readFile(RECIPES_FILE, 'utf8'); // Already specifies 'utf8'
-        // Remove BOM if present
-        if (data.charCodeAt(0) === 0xFEFF) {
-            data = data.slice(1);
-        }
+        let data = await fs.readFile(RECIPES_FILE, 'utf8');        // Remove BOM if present
+        if (data.charCodeAt(0) === 0xFEFF) { data = data.slice(1); }
         const allRecipes = JSON.parse(data);
 
+        // --- Read Likes and Favorites Data ---
+        let likes = {};
+        let favorites = {};
+        try {
+            likes = await readLikes();
+        } catch (likeError) {
+            console.warn("Could not read likes file, defaulting to empty:", likeError.code);
+        }
+        try {
+            favorites = await readFavorites();
+        } catch (favError) {
+            console.warn("Could not read favorites file, defaulting to empty:", favError.code);
+        }
+        // --- End Read Likes and Favorites ---
+
         // --- Pagination Logic ---
-        const page = parseInt(req.query.page) || 1; // Default to page 1
-        const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
-        const startIndex = (page - 1) * limit;
+        const page = parseInt(req.query.page) || 1;        const limit = parseInt(req.query.limit) || 10;        const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
 
         const results = {};
@@ -674,33 +684,25 @@ app.get('/api/recipes', async (req, res) => {
         results.totalPages = Math.ceil(totalItems / limit);
         results.currentPage = page;
 
-        if (endIndex < totalItems) {
-            results.next = {
-                page: page + 1,
-                limit: limit
+        // Slice the array for the current page
+        const paginatedRecipes = allRecipes.slice(startIndex, endIndex);
+
+        // --- Add Like and Favorite Counts to Paginated Recipes ---
+        results.recipes = paginatedRecipes.map(recipe => {
+            const likeCount = likes[recipe.id] ? likes[recipe.id].length : 0;
+            const favoriteCount = favorites[recipe.id] ? favorites[recipe.id].length : 0;
+            return {
+                ...recipe, // Spread existing recipe properties
+                likeCount: likeCount,
+                favoriteCount: favoriteCount
             };
-        }
+        });
+        // --- End Add Counts ---
 
-        if (startIndex > 0) {
-            results.previous = {
-                page: page - 1,
-                limit: limit
-            };
-        }
-
-        results.recipes = allRecipes.slice(startIndex, endIndex);
-        // --- End Pagination Logic ---
-
-        res.json(results); // Return paginated results
-
+        res.json(results);
     } catch (error) {
         console.error("Error reading recipes:", error);
-        if (error.code === 'ENOENT') {
-            // Return empty pagination structure if file doesn't exist
-            res.json({ recipes: [], totalItems: 0, totalPages: 0, currentPage: 1 });
-        } else {
-            res.status(500).json({ message: '无法加载配方' });
-        }
+        if (error.code === 'ENOENT') { res.status(404).json({ message: '配方数据文件未找到' }); } else { res.status(500).json({ message: '读取配方时出错' }); }
     }
 });
 
@@ -887,6 +889,7 @@ app.post('/api/recipes/:id/favorite', isAuthenticated, async (req, res) => {
 });
 
 // API Route to get like and favorite status for a recipe
+// This route is still useful for the detail page or logged-in specific status
 app.get('/api/recipes/:id/interactions', isAuthenticated, async (req, res) => {
     const recipeId = req.params.id;
     const userId = req.session.userId;
@@ -900,17 +903,26 @@ app.get('/api/recipes/:id/interactions', isAuthenticated, async (req, res) => {
         const likeCount = likes[recipeId] ? likes[recipeId].length : 0;
         const favoriteCount = favorites[recipeId] ? favorites[recipeId].length : 0;
         const isLiked = likes[recipeId] ? likes[recipeId].includes(userId) : false;
+        // --- Add isFavorited calculation ---
         const isFavorited = favorites[recipeId] ? favorites[recipeId].includes(userId) : false;
 
         res.json({
             likeCount,
             favoriteCount,
             isLiked,
-            isFavorited
+            isFavorited // Include isFavorited in the response
         });
+        // --- End Add isFavorited ---
     } catch (error) {
         console.error(`Error getting interactions for recipe ${recipeId}:`, error);
-        res.status(500).json({ message: '获取互动数据失败' });
+        // Send generic counts even on error, but indicate user status might be wrong
+        res.status(500).json({
+            likeCount: 0,
+            favoriteCount: 0,
+            isLiked: false,
+            isFavorited: false,
+            message: '无法加载交互状态'
+        });
     }
 });
 
