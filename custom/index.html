@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义鸡尾酒创建器 - Cybar</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/custom/cocktail-simulation.css">
+    <style>
+        /* 自定义鸡尾酒创建器特定样式 */
+        .ingredient-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #444;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: rgba(25, 25, 50, 0.3);
+        }
+
+        .selected-ingredients {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #4a90e2;
+            border-radius: 5px;
+            background-color: rgba(25, 25, 50, 0.3);
+        }
+
+        .ingredient-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background-color: rgba(40, 40, 80, 0.5);
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .ingredient-item:hover {
+            background-color: rgba(60, 60, 120, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .ingredient-details {
+            display: flex;
+            align-items: center;
+        }
+
+        .ingredient-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .ingredient-action {
+            display: flex;
+            align-items: center;
+        }
+
+        .ingredient-action button {
+            margin-left: 5px;
+            background: none;
+            border: none;
+            color: #4a90e2;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .ingredient-action button:hover {
+            color: #7fb5ff;
+        }
+
+        .ingredient-action input {
+            width: 60px;
+            text-align: center;
+            margin: 0 5px;
+            background-color: rgba(30, 30, 60, 0.7);
+            border: 1px solid #555;
+            color: white;
+            padding: 3px;
+            border-radius: 3px;
+        }
+
+        .create-steps {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .step-container {
+            margin-bottom: 15px;
+        }
+
+        .step-textarea {
+            width: 100%;
+            padding: 10px;
+            min-height: 60px;
+            background-color: rgba(30, 30, 60, 0.7);
+            border: 1px solid #555;
+            color: white;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        .add-step-btn {
+            align-self: flex-start;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .step-list {
+            margin-top: 15px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(40, 40, 80, 0.5);
+            margin-bottom: 8px;
+            border-radius: 5px;
+        }
+
+        .step-number {
+            margin-right: 10px;
+            background-color: #4a90e2;
+            color: white;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            flex-grow: 1;
+        }
+
+        .step-remove {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .summary-section {
+            background-color: rgba(25, 25, 50, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .abv-display {
+            font-size: 1.5rem;
+            text-align: center;
+            color: #4a90e2;
+            margin: 15px 0;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 标签样式 */
+        .ingredient-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: rgba(74, 144, 226, 0.3);
+            border: 1px solid #4a90e2;
+            border-radius: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+
+        .alert-banner {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .alert-error {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        /* 分类选项卡样式 */
+        .search-bar {
+            margin-bottom: 10px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 8px;
+            background-color: rgba(30, 30, 60, 0.7);
+            border: 1px solid #555;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .categories-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .category-tab {
+            padding: 6px 10px;
+            background-color: rgba(40, 40, 80, 0.5);
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .category-tab:hover {
+            background-color: rgba(60, 60, 120, 0.5);
+        }
+
+        .category-tab.active {
+            background-color: #4a90e2;
+            border-color: #4a90e2;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .two-columns {
+                flex-direction: column;
+            }
+
+            .column {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1><a href="/">Cybar</a></h1>
+        <nav>
+            <a href="/recipes/">配方</a>
+            <a href="/calculator/">调酒计算器</a>
+            <a href="/custom/" class="active">自定义创建</a>
+            <a href="/add/" class="profile-link" style="display: none;">添加配方</a>
+            <a href="/admin/" class="admin-link" style="display: none;">管理面板</a>
+        </nav>
+        <div id="user-status">
+            <a href="/auth/login/">登录</a> |
+            <a href="/auth/register/">注册</a>
+        </div>
+    </header>
+
+    <div id="login-prompt" style="display: none;">
+        <p>请 <a href="/auth/login/">登录</a> 以保存您的自定义鸡尾酒</p>
+    </div>
+
+    <main>
+        <h2>自定义鸡尾酒创建器</h2>
+        <p>创建您独特的鸡尾酒配方，展示您的创意</p>
+
+        <div id="alert-container" class="alert-banner"></div>
+
+        <form id="custom-cocktail-form">
+            <div class="form-section">
+                <h3>基本信息</h3>
+                <div class="form-group">
+                    <label for="cocktail-name">鸡尾酒名称</label>
+                    <input type="text" id="cocktail-name" name="cocktail-name" required placeholder="给您的鸡尾酒起个名字">
+                </div>
+
+                <div class="form-group">
+                    <label for="cocktail-description">描述</label>
+                    <textarea id="cocktail-description" name="cocktail-description"
+                        placeholder="描述您的鸡尾酒的口感特色"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>选择原料</h3>
+                <div class="two-columns">
+                    <div class="column">
+                        <div class="form-group">
+                            <label>可用原料</label>
+                            <div class="search-bar">
+                                <input type="text" id="ingredient-search" placeholder="搜索原料...">
+                            </div>
+                            <div class="categories-tabs" id="ingredient-categories">
+                                <button class="category-tab active" data-category="all">全部</button>
+                                <button class="category-tab" data-category="base_alcohol">基酒</button>
+                                <button class="category-tab" data-category="juice">果汁</button>
+                                <button class="category-tab" data-category="syrup">糖浆</button>
+                                <button class="category-tab" data-category="soda">碳酸饮料</button>
+                                <button class="category-tab" data-category="garnish">装饰</button>
+                                <button class="category-tab" data-category="other">其他</button>
+                            </div>
+                            <div class="ingredient-list" id="available-ingredients">
+                                <div class="loading">加载原料中...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div class="form-group">
+                            <label>已选原料</label>
+                            <div class="selected-ingredients" id="selected-ingredients">
+                                <p class="empty-message">尚未选择任何原料</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section" id="abv-calculation-section">
+                <h3>酒精含量计算</h3>
+                <div class="abv-display">估计酒精度: <span id="calculated-abv">0.0%</span></div>
+            </div>
+
+            <div class="form-section">
+                <h3>制作步骤</h3>
+                <div class="create-steps">
+                    <div class="step-container">
+                        <textarea class="step-textarea" id="step-input" placeholder="例如: 将所有原料倒入调酒杯中..."></textarea>
+                        <button type="button" class="add-step-btn" id="add-step-btn">添加步骤</button>
+                    </div>
+
+                    <div class="step-list" id="step-list">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>预览与创建</h3>
+                <div class="summary-section">
+                    <h4>配方摘要</h4>
+                    <div id="recipe-summary">
+                        <p>完成上述步骤后，这里将显示配方摘要</p>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="create-cocktail-btn" disabled>创建鸡尾酒</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="back-section">
+            <a href="/" class="back-link">← 返回主页</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Cybar<br>made by 252</p>
+    </footer>
+
+    <script src="/js/global.js"></script>
+    <script src="/custom/cocktail-debug.js"></script>
+    <script src="/custom/cocktail-simulation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let ingredientsByCategory = {};
+            let filteredIngredients = [];
+            let selectedIngredients = [];
+            let steps = [];
+            let estimatedAbv = 0;
+            let currentCategory = 'all';
+            let searchTerm = '';
+            const alertContainer = document.getElementById('alert-container');
+
+            // 设置分类标签点击事件
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', function () {
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategory = this.dataset.category;
+                    filterAndRenderIngredients();
+                });
+            });
+
+            // 设置搜索输入事件
+            document.getElementById('ingredient-search').addEventListener('input', function () {
+                searchTerm = this.value.trim().toLowerCase();
+                filterAndRenderIngredients();
+            });
+
+            // 获取所有原料
+            fetch('/api/custom/ingredients')
+                .then(response => response.json())
+                .then(data => {
+                    // 存储原始分类数据
+                    ingredientsByCategory = {};
+
+                    // 确保数据结构正确
+                    if (data && data.ingredients && Array.isArray(data.ingredients)) {
+                        data.ingredients.forEach(category => {
+                            if (category.category && Array.isArray(category.items)) {
+                                ingredientsByCategory[category.category] = category.items.map(item => {
+                                    // 为每个原料添加颜色属性
+                                    return {
+                                        ...item,
+                                        color: getColorForIngredient(item, category.category)
+                                    };
+                                });
+                            }
+                        });
+
+                        // 初始化渲染
+                        filterAndRenderIngredients();
+                    } else {
+                        console.error('原料数据结构不正确:', data);
+                        showAlert('原料数据结构不正确，请联系管理员', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('获取原料失败:', error);
+                    showAlert('无法加载原料数据，请刷新页面重试', 'error');
+                });
+
+            // 为原料分配颜色
+            function getColorForIngredient(ingredient, category) {
+                // 根据分类分配颜色
+                const categoryColors = {
+                    'base_alcohol': '#ff9f1c', // 橙色调 - 酒精基酒
+                    'juice': '#70d143',        // 绿色调 - 果汁
+                    'syrup': '#ffcf56',        // 黄色调 - 糖浆
+                    'soda': '#58d0ff',         // 蓝色调 - 碳酸饮料
+                    'garnish': '#ff5a5a',      // 红色调 - 装饰物
+                    'other': '#c78dff'         // 紫色调 - 其他原料
+                };
+
+                return categoryColors[category] || '#cccccc';
+            }
+
+            // 过滤并渲染原料列表
+            function filterAndRenderIngredients() {
+                // 根据当前分类和搜索词过滤原料
+                filteredIngredients = [];
+
+                Object.keys(ingredientsByCategory).forEach(category => {
+                    if (currentCategory === 'all' || currentCategory === category) {
+                        const categoryIngredients = ingredientsByCategory[category].filter(ingredient => {
+                            // 搜索过滤
+                            if (searchTerm && !ingredient.name.toLowerCase().includes(searchTerm)) {
+                                return false;
+                            }
+
+                            // 跳过已选择的原料
+                            return !selectedIngredients.find(item => item.id === ingredient.id);
+                        });
+
+                        filteredIngredients = filteredIngredients.concat(categoryIngredients);
+                    }
+                });
+
+                renderAvailableIngredients();
+            }
+
+            // 渲染可用原料列表
+            function renderAvailableIngredients() {
+                const container = document.getElementById('available-ingredients');
+                container.innerHTML = '';
+
+                if (filteredIngredients.length === 0) {
+                    container.innerHTML = '<p class="empty-message">未找到符合条件的原料</p>';
+                    return;
+                }
+
+                filteredIngredients.forEach(ingredient => {
+                    const item = document.createElement('div');
+                    item.className = 'ingredient-item fade-in';
+                    item.innerHTML = `
+                        <div class="ingredient-details">
+                            <div class="ingredient-color" style="background-color: ${ingredient.color}"></div>
+                            <span>${ingredient.name} (${ingredient.abv}% ABV)</span>
+                        </div>
+                        <div class="ingredient-action">
+                            <button type="button" class="add-ingredient-btn" data-id="${ingredient.id}">+</button>
+                        </div>
+                    `;
+
+                    container.appendChild(item);
+
+                    // 添加点击事件
+                    item.querySelector('.add-ingredient-btn').addEventListener('click', function () {
+                        addIngredient(ingredient);
+                    });
+                });
+            }
+
+            // 添加原料
+            function addIngredient(ingredient) {
+                // 创建新的选中原料对象，包含容量字段
+                const selectedIngredient = {
+                    ...ingredient,
+                    volume: 30 // 默认30ml
+                };
+
+                selectedIngredients.push(selectedIngredient);
+                renderSelectedIngredients();
+                filterAndRenderIngredients(); // 重新过滤以移除已选择的
+                updateAbvCalculation();
+                updateSummary();
+                checkFormValidity();
+            }
+
+            // 渲染已选原料
+            function renderSelectedIngredients() {
+                const container = document.getElementById('selected-ingredients');
+                container.innerHTML = '';
+
+                if (selectedIngredients.length === 0) {
+                    container.innerHTML = '<p class="empty-message">尚未选择任何原料</p>';
+                    return;
+                }
+
+                selectedIngredients.forEach((ingredient, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'ingredient-item fade-in';
+                    item.innerHTML = `
+                        <div class="ingredient-details">
+                            <div class="ingredient-color" style="background-color: ${ingredient.color}"></div>
+                            <span>${ingredient.name} (${ingredient.abv}% ABV)</span>
+                        </div>
+                        <div class="ingredient-action">
+                            <button type="button" class="volume-btn volume-decrease" data-index="${index}">-</button>
+                            <input type="number" min="5" max="100" value="${ingredient.volume}" class="volume-input" data-index="${index}">
+                            <span>ml</span>
+                            <button type="button" class="volume-btn volume-increase" data-index="${index}">+</button>
+                            <button type="button" class="remove-ingredient-btn" data-index="${index}">×</button>
+                        </div>
+                    `;
+
+                    container.appendChild(item);
+
+                    // 添加事件监听
+                    item.querySelector('.volume-decrease').addEventListener('click', function () {
+                        if (ingredient.volume > 5) {
+                            ingredient.volume -= 5;
+                            updateIngredientVolume(index, ingredient.volume);
+                        }
+                    });
+
+                    item.querySelector('.volume-increase').addEventListener('click', function () {
+                        if (ingredient.volume < 100) {
+                            ingredient.volume += 5;
+                            updateIngredientVolume(index, ingredient.volume);
+                        }
+                    });
+
+                    item.querySelector('.volume-input').addEventListener('change', function (e) {
+                        let value = parseInt(e.target.value);
+                        if (isNaN(value)) value = 30;
+                        if (value < 5) value = 5;
+                        if (value > 100) value = 100;
+                        updateIngredientVolume(index, value);
+                    });
+
+                    item.querySelector('.remove-ingredient-btn').addEventListener('click', function () {
+                        selectedIngredients.splice(index, 1);
+                        renderSelectedIngredients();
+                        filterAndRenderIngredients(); // 重新过滤以显示移除的原料
+                        updateAbvCalculation();
+                        updateSummary();
+                        checkFormValidity();
+                    });
+                });
+            }
+
+            // 更新原料容量
+            function updateIngredientVolume(index, volume) {
+                selectedIngredients[index].volume = volume;
+                document.querySelectorAll('.volume-input')[index].value = volume;
+                updateAbvCalculation();
+                updateSummary();
+            }
+
+            // 更新ABV计算
+            function updateAbvCalculation() {
+                if (selectedIngredients.length === 0) {
+                    estimatedAbv = 0;
+                    document.getElementById('calculated-abv').textContent = '0.0%';
+                    return;
+                }
+
+                let totalAlcoholVolume = 0;
+                let totalVolume = 0;
+
+                selectedIngredients.forEach(ingredient => {
+                    totalAlcoholVolume += (ingredient.volume * (ingredient.abv / 100));
+                    totalVolume += ingredient.volume;
+                });
+
+                estimatedAbv = totalAlcoholVolume / totalVolume * 100;
+                document.getElementById('calculated-abv').textContent = estimatedAbv.toFixed(1) + '%';
+
+                // 发送自定义事件，通知调酒模拟器更新颜色
+                document.dispatchEvent(new CustomEvent('abv-updated', {
+                    detail: { abv: estimatedAbv }
+                }));
+            }
+
+            // 添加步骤
+            document.getElementById('add-step-btn').addEventListener('click', function () {
+                const stepInput = document.getElementById('step-input');
+                const stepText = stepInput.value.trim();
+
+                if (stepText) {
+                    steps.push(stepText);
+                    renderSteps();
+                    stepInput.value = '';
+                    updateSummary();
+                    checkFormValidity();
+                }
+            });
+
+            // 渲染步骤
+            function renderSteps() {
+                const stepList = document.getElementById('step-list');
+                stepList.innerHTML = '';
+
+                if (steps.length === 0) return;
+
+                steps.forEach((step, index) => {
+                    const stepItem = document.createElement('div');
+                    stepItem.className = 'step-item fade-in';
+                    stepItem.innerHTML = `
+                        <div class="step-number">${index + 1}</div>
+                        <div class="step-text">${step}</div>
+                        <button type="button" class="step-remove" data-index="${index}">×</button>
+                    `;
+
+                    stepList.appendChild(stepItem);
+
+                    // 添加删除事件
+                    stepItem.querySelector('.step-remove').addEventListener('click', function () {
+                        steps.splice(index, 1);
+                        renderSteps();
+                        updateSummary();
+                        checkFormValidity();
+                    });
+                });
+            }
+
+            // 更新配方摘要
+            function updateSummary() {
+                const summary = document.getElementById('recipe-summary');
+                const cocktailName = document.getElementById('cocktail-name').value.trim();
+                const cocktailDescription = document.getElementById('cocktail-description').value.trim();
+
+                if (!cocktailName && selectedIngredients.length === 0) {
+                    summary.innerHTML = '<p>完成上述步骤后，这里将显示配方摘要</p>';
+                    return;
+                }
+
+                let summaryHTML = '';
+
+                if (cocktailName) {
+                    summaryHTML += `<h5>${cocktailName}</h5>`;
+                } else {
+                    summaryHTML += `<h5>未命名鸡尾酒</h5>`;
+                }
+
+                if (cocktailDescription) {
+                    summaryHTML += `<p>${cocktailDescription}</p>`;
+                }
+
+                if (selectedIngredients.length > 0) {
+                    summaryHTML += '<div class="ingredient-summary"><h6>原料：</h6>';
+                    selectedIngredients.forEach(ingredient => {
+                        summaryHTML += `<span class="ingredient-tag">${ingredient.name} ${ingredient.volume}ml</span>`;
+                    });
+                    summaryHTML += '</div>';
+
+                    summaryHTML += `<p>估计酒精度: ${estimatedAbv.toFixed(1)}%</p>`;
+                }
+
+                if (steps.length > 0) {
+                    summaryHTML += '<div class="steps-summary"><h6>步骤：</h6><ol>';
+                    steps.forEach(step => {
+                        summaryHTML += `<li>${step}</li>`;
+                    });
+                    summaryHTML += '</ol></div>';
+                }
+
+                summary.innerHTML = summaryHTML;
+            }
+
+            // 检查表单有效性
+            function checkFormValidity() {
+                const cocktailName = document.getElementById('cocktail-name').value.trim();
+                const createButton = document.getElementById('create-cocktail-btn');
+
+                // 需要有名称、至少一种原料和至少一个步骤
+                const isValid = cocktailName && selectedIngredients.length > 0 && steps.length > 0;
+                createButton.disabled = !isValid;
+            }
+
+            // 监听名称输入更新摘要和检查有效性
+            document.getElementById('cocktail-name').addEventListener('input', function () {
+                updateSummary();
+                checkFormValidity();
+            });
+
+            document.getElementById('cocktail-description').addEventListener('input', function () {
+                updateSummary();
+            });
+
+            // 显示提示消息
+            function showAlert(message, type) {
+                alertContainer.className = `alert-banner alert-${type}`;
+                alertContainer.textContent = message;
+                alertContainer.style.display = 'block';
+
+                setTimeout(() => {
+                    alertContainer.style.display = 'none';
+                }, 5000);
+            }
+
+            // 提交表单
+            document.getElementById('custom-cocktail-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // 首先检查是否登录
+                try {
+                    const authResponse = await fetch('/api/auth/status');
+                    const authData = await authResponse.json();
+
+                    if (!authData.loggedIn) {
+                        showAlert('请先登录以保存您的鸡尾酒配方', 'error');
+                        return;
+                    }
+
+                    // 获取表单数据
+                    const cocktailName = document.getElementById('cocktail-name').value.trim();
+                    const cocktailDescription = document.getElementById('cocktail-description').value.trim();
+
+                    // 创建要提交的数据对象
+                    const cocktailData = {
+                        name: cocktailName,
+                        description: cocktailDescription,
+                        ingredients: selectedIngredients,
+                        steps: steps,
+                        estimatedAbv: parseFloat(estimatedAbv.toFixed(1))
+                    };
+
+                    // 提交到服务器
+                    const response = await fetch('/api/custom/cocktails', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(cocktailData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        showAlert('鸡尾酒创建成功！', 'success');
+                        // 重置表单
+                        document.getElementById('cocktail-name').value = '';
+                        document.getElementById('cocktail-description').value = '';
+                        selectedIngredients = [];
+                        steps = [];
+                        renderSelectedIngredients();
+                        filterAndRenderIngredients();
+                        renderSteps();
+                        updateAbvCalculation();
+                        updateSummary();
+                        checkFormValidity();
+
+                        // 跳转到配方页面
+                        setTimeout(() => {
+                            window.location.href = '/recipes/';
+                        }, 2000);
+                    } else {
+                        showAlert(result.message || '创建失败，请稍后重试', 'error');
+                    }
+                } catch (error) {
+                    console.error('提交配方时出错:', error);
+                    showAlert('提交过程中出错，请稍后重试', 'error');
+                }
+            });
+
+            // 初始更新
+            updateSummary();
+            checkFormValidity();
+        });
+    </script>
+</body>
+
+</html>
