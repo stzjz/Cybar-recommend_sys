@@ -23,6 +23,10 @@ const COMMENTS_FILE = path.join(__dirname, 'comments.json');
 const LIKES_FILE = path.join(__dirname, 'likes.json');
 const FAVORITES_FILE = path.join(__dirname, 'favorites.json');
 
+// 新增常量 - 自定义鸡尾酒相关文件路径
+const INGREDIENTS_FILE = path.join(__dirname, 'custom', 'ingredients.json');
+const CUSTOM_COCKTAILS_FILE = path.join(__dirname, 'custom', 'custom_cocktails.json');
+
 // Middleware
 // Middleware to count page loads (HTML requests)
 app.use((req, res, next) => {
@@ -186,12 +190,12 @@ const isAdmin = (req, res, next) => {
     if (!req.session.userId) {
         // For API requests, send 401 Unauthorized status and JSON error
         if (req.accepts('json') || req.path.startsWith('/api/')) {
-             console.log(`Authentication required for admin resource: ${req.method} ${req.originalUrl}`);
-             return res.status(401).json({ message: 'Authentication required.' });
+            console.log(`Authentication required for admin resource: ${req.method} ${req.originalUrl}`);
+            return res.status(401).json({ message: 'Authentication required.' });
         } else {
             // For non-API requests (page access), redirect to login
-             console.log(`Redirecting unauthenticated admin page request to login: ${req.method} ${req.originalUrl}`);
-             return res.redirect('/auth/login/'); // Redirect to login if not authenticated at all
+            console.log(`Redirecting unauthenticated admin page request to login: ${req.method} ${req.originalUrl}`);
+            return res.redirect('/auth/login/'); // Redirect to login if not authenticated at all
         }
     }
 
@@ -552,7 +556,7 @@ app.delete('/api/comments/:commentId', isAuthenticated, isAdmin, async (req, res
         console.error(`Error during deletion of comment ${commentIdToDelete} by admin '${adminUsername}':`, error);
         // Check for specific file system errors if needed
         if (error.code) {
-             console.error(`File system error code: ${error.code}`);
+            console.error(`File system error code: ${error.code}`);
         }
         res.status(500).json({ message: '删除评论时发生服务器内部错误' });
     }
@@ -588,7 +592,7 @@ app.delete('/api/admin/users/:userId', isAuthenticated, isAdmin, async (req, res
         }
 
         await writeUsers(users);
-        console.log(`Admin User ${req.session.username} deleted user ${ (userToDelete && userToDelete.username) || req.params.userId}`); // Log username if found
+        console.log(`Admin User ${req.session.username} deleted user ${(userToDelete && userToDelete.username) || req.params.userId}`); // Log username if found
         res.status(200).json({ message: '用户删除成功' });
 
     } catch (error) {
@@ -690,7 +694,7 @@ app.get('/api/recipes', async (req, res) => {
         // --- End Read Likes and Favorites ---
 
         // --- Pagination Logic ---
-        const page = parseInt(req.query.page) || 1;        const limit = parseInt(req.query.limit) || 10;        const startIndex = (page - 1) * limit;
+        const page = parseInt(req.query.page) || 1; const limit = parseInt(req.query.limit) || 10; const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
 
         const results = {};
@@ -862,7 +866,7 @@ app.post('/api/recipes/:id/like', isAuthenticated, async (req, res) => {
         }
 
         await writeLikes(likes);
-        res.json({ 
+        res.json({
             success: true,
             isLiked: userIndex === -1,
             likeCount: likes[recipeId].length
@@ -892,7 +896,7 @@ app.post('/api/recipes/:id/favorite', isAuthenticated, async (req, res) => {
         }
 
         await writeFavorites(favorites);
-        res.json({ 
+        res.json({
             success: true,
             isFavorited: userIndex === -1,
             favoriteCount: favorites[recipeId].length
@@ -955,7 +959,7 @@ app.get('/api/user/likes', isAuthenticated, async (req, res) => {
         const likes = await readLikes();
         const recipes = await fs.readFile(RECIPES_FILE, 'utf8').then(JSON.parse);
         const likedRecipes = [];
-        
+
         // 遍历所有配方的点赞数据
         for (const recipeId in likes) {
             if (likes[recipeId].includes(req.session.userId)) {
@@ -965,7 +969,7 @@ app.get('/api/user/likes', isAuthenticated, async (req, res) => {
                 }
             }
         }
-        
+
         res.json(likedRecipes);
     } catch (error) {
         console.error('Error fetching user likes:', error);
@@ -978,7 +982,7 @@ app.get('/api/user/favorites', isAuthenticated, async (req, res) => {
         const favorites = await readFavorites();
         const recipes = await fs.readFile(RECIPES_FILE, 'utf8').then(JSON.parse);
         const favoritedRecipes = [];
-        
+
         // 遍历所有配方的收藏数据
         for (const recipeId in favorites) {
             if (favorites[recipeId].includes(req.session.userId)) {
@@ -988,11 +992,150 @@ app.get('/api/user/favorites', isAuthenticated, async (req, res) => {
                 }
             }
         }
-        
+
         res.json(favoritedRecipes);
     } catch (error) {
         console.error('Error fetching user favorites:', error);
         res.status(500).json({ error: '获取收藏历史失败' });
+    }
+});
+
+// --- Custom Cocktail Creator Routes ---
+// 1. 静态页面路由
+app.get('/custom/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'custom', 'index.html'));
+});
+
+// 2. 获取所有原料的API
+app.get('/api/custom/ingredients', async (req, res) => {
+    try {
+        let data = await fs.readFile(INGREDIENTS_FILE, 'utf8');
+        if (data.charCodeAt(0) === 0xFEFF) {
+            data = data.slice(1);
+        }
+        const ingredients = JSON.parse(data);
+        res.json(ingredients);
+    } catch (error) {
+        console.error("Error reading ingredients:", error);
+        res.status(500).json({ message: '加载原料数据失败' });
+    }
+});
+
+// 3. 创建自定义鸡尾酒的API
+app.post('/api/custom/cocktails', isAuthenticated, async (req, res) => {
+    try {
+        const newCocktail = req.body;
+
+        // 验证必填字段
+        if (!newCocktail.name || !newCocktail.ingredients || newCocktail.ingredients.length === 0) {
+            return res.status(400).json({ message: '鸡尾酒名称和至少一种原料是必填的' });
+        }
+
+        // 读取自定义鸡尾酒数据
+        let customCocktails = { cocktails: [] };
+        try {
+            let data = await fs.readFile(CUSTOM_COCKTAILS_FILE, 'utf8');
+            if (data.charCodeAt(0) === 0xFEFF) {
+                data = data.slice(1);
+            }
+            customCocktails = JSON.parse(data);
+        } catch (error) {
+            if (error.code !== 'ENOENT') throw error;
+        }
+
+        // 给新鸡尾酒添加ID和创建者信息
+        const cocktailId = Date.now().toString();
+        const completeCocktail = {
+            ...newCocktail,
+            id: cocktailId,
+            createdBy: req.session.username,
+            createdAt: new Date().toISOString()
+        };
+
+        // 添加到自定义鸡尾酒列表
+        customCocktails.cocktails.push(completeCocktail);
+        await fs.writeFile(CUSTOM_COCKTAILS_FILE, JSON.stringify(customCocktails, null, 2), 'utf8');
+
+        // 添加到全局配方列表（这样可以在recipes页面中显示）
+        try {
+            let recipesData = await fs.readFile(RECIPES_FILE, 'utf8');
+            if (recipesData.charCodeAt(0) === 0xFEFF) {
+                recipesData = recipesData.slice(1);
+            }
+            const recipes = JSON.parse(recipesData);
+
+            // 转换成recipes.json格式
+            const recipeFormat = {
+                id: cocktailId,
+                name: newCocktail.name,
+                ingredients: newCocktail.ingredients.map(ing => ({
+                    name: ing.name,
+                    volume: ing.volume,
+                    abv: ing.abv
+                })),
+                instructions: newCocktail.steps.join('\n'),
+                estimatedAbv: newCocktail.estimatedAbv,
+                createdBy: req.session.username,
+                description: newCocktail.description || ''
+            };
+
+            recipes.push(recipeFormat);
+            await fs.writeFile(RECIPES_FILE, JSON.stringify(recipes, null, 2), 'utf8');
+        } catch (error) {
+            console.error("Error updating recipes.json:", error);
+            // 继续执行，因为自定义鸡尾酒已成功保存
+        }
+
+        res.status(201).json({
+            message: '鸡尾酒创建成功',
+            id: cocktailId
+        });
+
+    } catch (error) {
+        console.error("Error creating custom cocktail:", error);
+        res.status(500).json({ message: '创建鸡尾酒失败' });
+    }
+});
+
+// 4. 获取所有自定义鸡尾酒的API
+app.get('/api/custom/cocktails', async (req, res) => {
+    try {
+        let data = await fs.readFile(CUSTOM_COCKTAILS_FILE, 'utf8');
+        if (data.charCodeAt(0) === 0xFEFF) {
+            data = data.slice(1);
+        }
+        const customCocktails = JSON.parse(data);
+        res.json(customCocktails);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            // 文件不存在，返回空数组
+            return res.json({ cocktails: [] });
+        }
+        console.error("Error reading custom cocktails:", error);
+        res.status(500).json({ message: '加载自定义鸡尾酒失败' });
+    }
+});
+
+// 5. 获取单个自定义鸡尾酒的API
+app.get('/api/custom/cocktails/:id', async (req, res) => {
+    const cocktailId = req.params.id;
+
+    try {
+        let data = await fs.readFile(CUSTOM_COCKTAILS_FILE, 'utf8');
+        if (data.charCodeAt(0) === 0xFEFF) {
+            data = data.slice(1);
+        }
+        const customCocktails = JSON.parse(data);
+
+        const cocktail = customCocktails.cocktails.find(c => c.id === cocktailId);
+        if (!cocktail) {
+            return res.status(404).json({ message: '未找到指定的鸡尾酒' });
+        }
+
+        res.json(cocktail);
+    } catch (error) {
+        console.error(`Error reading custom cocktail ${cocktailId}:`, error);
+        res.status(500).json({ message: '加载鸡尾酒详情失败' });
     }
 });
 

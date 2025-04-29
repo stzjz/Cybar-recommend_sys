@@ -1,0 +1,224 @@
+{
+    "ingredients": [
+        {
+            "category": "base_alcohol",
+            "items": [
+                {
+                    "id": "vodka",
+                    "name": "伏特加",
+                    "abv": 40
+                },
+                {
+                    "id": "white_rum",
+                    "name": "白朗姆酒",
+                    "abv": 35
+                },
+                {
+                    "id": "gin",
+                    "name": "金酒",
+                    "abv": 38
+                },
+                {
+                    "id": "tequila",
+                    "name": "龙舌兰酒",
+                    "abv": 38
+                },
+                {
+                    "id": "whiskey",
+                    "name": "威士忌",
+                    "abv": 40
+                },
+                {
+                    "id": "bourbon",
+                    "name": "波本威士忌",
+                    "abv": 45
+                },
+                {
+                    "id": "cognac",
+                    "name": "干邑白兰地",
+                    "abv": 40
+                },
+                {
+                    "id": "baijiu",
+                    "name": "白酒",
+                    "abv": 52
+                },
+                {
+                    "id": "sake",
+                    "name": "清酒",
+                    "abv": 15
+                }
+            ]
+        },
+        {
+            "category": "juice",
+            "items": [
+                {
+                    "id": "orange_juice",
+                    "name": "橙汁",
+                    "abv": 0
+                },
+                {
+                    "id": "lemon_juice",
+                    "name": "柠檬汁",
+                    "abv": 0
+                },
+                {
+                    "id": "lime_juice",
+                    "name": "青柠汁",
+                    "abv": 0
+                },
+                {
+                    "id": "pineapple_juice",
+                    "name": "菠萝汁",
+                    "abv": 0
+                },
+                {
+                    "id": "grapefruit_juice",
+                    "name": "西柚汁",
+                    "abv": 0
+                },
+                {
+                    "id": "cranberry_juice",
+                    "name": "蔓越莓汁",
+                    "abv": 0
+                },
+                {
+                    "id": "apple_juice",
+                    "name": "苹果汁",
+                    "abv": 0
+                }
+            ]
+        },
+        {
+            "category": "syrup",
+            "items": [
+                {
+                    "id": "simple_syrup",
+                    "name": "简单糖浆",
+                    "abv": 0
+                },
+                {
+                    "id": "honey_syrup",
+                    "name": "蜂蜜糖浆",
+                    "abv": 0
+                },
+                {
+                    "id": "maple_syrup",
+                    "name": "枫糖浆",
+                    "abv": 0
+                },
+                {
+                    "id": "grenadine",
+                    "name": "石榴糖浆",
+                    "abv": 0
+                },
+                {
+                    "id": "vanilla_syrup",
+                    "name": "香草糖浆",
+                    "abv": 0
+                }
+            ]
+        },
+        {
+            "category": "soda",
+            "items": [
+                {
+                    "id": "soda_water",
+                    "name": "苏打水",
+                    "abv": 0
+                },
+                {
+                    "id": "tonic_water",
+                    "name": "汤力水",
+                    "abv": 0
+                },
+                {
+                    "id": "ginger_ale",
+                    "name": "姜汁汽水",
+                    "abv": 0
+                },
+                {
+                    "id": "cola",
+                    "name": "可乐",
+                    "abv": 0
+                },
+                {
+                    "id": "sprite",
+                    "name": "雪碧",
+                    "abv": 0
+                }
+            ]
+        },
+        {
+            "category": "garnish",
+            "items": [
+                {
+                    "id": "lemon_wedge",
+                    "name": "柠檬片",
+                    "abv": 0
+                },
+                {
+                    "id": "lime_wedge",
+                    "name": "青柠片",
+                    "abv": 0
+                },
+                {
+                    "id": "orange_slice",
+                    "name": "橙片",
+                    "abv": 0
+                },
+                {
+                    "id": "cherry",
+                    "name": "樱桃",
+                    "abv": 0
+                },
+                {
+                    "id": "mint_leaves",
+                    "name": "薄荷叶",
+                    "abv": 0
+                },
+                {
+                    "id": "olive",
+                    "name": "橄榄",
+                    "abv": 0
+                }
+            ]
+        },
+        {
+            "category": "other",
+            "items": [
+                {
+                    "id": "bitters",
+                    "name": "苦精",
+                    "abv": 35
+                },
+                {
+                    "id": "ice",
+                    "name": "冰",
+                    "abv": 0
+                },
+                {
+                    "id": "egg_white",
+                    "name": "蛋白",
+                    "abv": 0
+                },
+                {
+                    "id": "cream",
+                    "name": "奶油",
+                    "abv": 0
+                },
+                {
+                    "id": "coffee",
+                    "name": "咖啡",
+                    "abv": 0
+                },
+                {
+                    "id": "coconut_milk",
+                    "name": "椰奶",
+                    "abv": 0
+                }
+            ]
+        }
+    ]
+}
