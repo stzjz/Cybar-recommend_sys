@@ -12,7 +12,6 @@ const pageVisitCounts = {
     '/': 0, // Main page
     '/recipes/': 0,
     '/calculator/': 0,
-    '/add/': 0, // Count attempts to access, even if redirected
     '/admin/': 0, // Count attempts to access, even if redirected
     // Add other paths if needed, ensure they match the GET route paths
 };
@@ -352,11 +351,6 @@ app.post('/api/logout', (req, res) => {
 });
 
 // --- Protected Routes ---
-
-// Apply isAuthenticated middleware to routes that require login
-app.get('/add/', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'add', 'index.html')); // Assuming add page is index.html
-});
 
 app.get('/admin/', isAuthenticated, isAdmin, (req, res) => { // Add isAdmin middleware
     res.sendFile(path.join(__dirname, 'admin', 'index.html')); // Assuming admin page is index.html
@@ -803,43 +797,44 @@ app.post('/api/recipes/:id/comments', isAuthenticated, async (req, res) => {
     }
 });
 
+// 删除添加新配方的API路由
 // API to add recipes (now protected)
-app.post('/api/recipes', isAuthenticated, async (req, res) => {
-    // ... (Keep your existing logic for adding recipes)
-    const newRecipe = req.body;
-    const creatorUsername = req.session.username; // Get username from session
-
-    if (!newRecipe || !newRecipe.name) {
-        return res.status(400).json({ message: '无效的配方数据' });
-    }
-    if (!creatorUsername) {
-        // This should ideally not happen due to isAuthenticated, but good to check
-        return res.status(401).json({ message: '无法确定创建者，请重新登录' });
-    }
-
-    try {
-        let recipes = [];
-        try {
-            // Explicitly specify utf8 encoding and handle potential BOM for reading
-            let data = await fs.readFile(RECIPES_FILE, 'utf8'); // Already specifies 'utf8'
-            if (data.charCodeAt(0) === 0xFEFF) {
-                data = data.slice(1);
-            }
-            recipes = JSON.parse(data);
-        } catch (readError) {
-            if (readError.code !== 'ENOENT') throw readError;
-        }
-        newRecipe.id = Date.now().toString();
-        newRecipe.createdBy = creatorUsername; // Add the creator username
-        recipes.push(newRecipe);
-        // Explicitly specify utf8 encoding for writing
-        await fs.writeFile(RECIPES_FILE, JSON.stringify(recipes, null, 2), 'utf8'); // Already specifies 'utf8'
-        res.status(201).json({ message: '配方添加成功', recipe: newRecipe });
-    } catch (error) {
-        console.error("Error adding recipe:", error);
-        res.status(500).json({ message: '无法添加配方' });
-    }
-});
+// app.post('/api/recipes', isAuthenticated, async (req, res) => {
+//     // ... (Keep your existing logic for adding recipes)
+//     const newRecipe = req.body;
+//     const creatorUsername = req.session.username; // Get username from session
+//
+//     if (!newRecipe || !newRecipe.name) {
+//         return res.status(400).json({ message: '无效的配方数据' });
+//     }
+//     if (!creatorUsername) {
+//         // This should ideally not happen due to isAuthenticated, but good to check
+//         return res.status(401).json({ message: '无法确定创建者，请重新登录' });
+//     }
+//
+//     try {
+//         let recipes = [];
+//         try {
+//             // Explicitly specify utf8 encoding and handle potential BOM for reading
+//             let data = await fs.readFile(RECIPES_FILE, 'utf8'); // Already specifies 'utf8'
+//             if (data.charCodeAt(0) === 0xFEFF) {
+//                 data = data.slice(1);
+//             }
+//             recipes = JSON.parse(data);
+//         } catch (readError) {
+//             if (readError.code !== 'ENOENT') throw readError;
+//         }
+//         newRecipe.id = Date.now().toString();
+//         newRecipe.createdBy = creatorUsername; // Add the creator username
+//         recipes.push(newRecipe);
+//         // Explicitly specify utf8 encoding for writing
+//         await fs.writeFile(RECIPES_FILE, JSON.stringify(recipes, null, 2), 'utf8'); // Already specifies 'utf8'
+//         res.status(201).json({ message: '配方添加成功', recipe: newRecipe });
+//     } catch (error) {
+//         console.error("Error adding recipe:", error);
+//         res.status(500).json({ message: '无法添加配方' });
+//     }
+// });
 
 // Root route (optional - can redirect or serve a main page)
 app.get('/', (req, res) => {
